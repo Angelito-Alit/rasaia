@@ -1,0 +1,93 @@
+version: "3.1"
+
+rules:
+
+- rule: Say goodbye anytime the user says goodbye
+  steps:
+  - intent: goodbye
+  - action: utter_goodbye
+
+- rule: Say 'I am a bot' anytime the user challenges
+  steps:
+  - intent: bot_challenge
+  - action: utter_iamabot
+
+- rule: Activate ask_students_count
+  steps:
+  - intent: ask_students_count
+  - action: action_get_students_count
+
+- rule: Activate ask_students_by_career
+  steps:
+  - intent: ask_students_by_career
+  - action: action_get_students_by_career
+
+- rule: Activate ask_student_average
+  steps:
+  - intent: ask_student_average
+  - action: action_get_student_average
+
+- rule: Activate ask_risk_reports
+  steps:
+  - intent: ask_risk_reports
+  - action: action_get_risk_reports
+
+- rule: Activate ask_group_schedule
+  steps:
+  - intent: ask_group_schedule
+  - action: action_get_group_schedule
+
+- rule: Activate ask_teacher_subjects
+  steps:
+  - intent: ask_teacher_subjects
+  - action: action_get_teacher_subjects
+
+- rule: Activate ask_subjects_by_semester
+  steps:
+  - intent: ask_subjects_by_semester
+  - action: action_get_subjects_by_semester
+
+- rule: Activate ask_student_grades
+  steps:
+  - intent: ask_student_grades
+  - action: action_get_student_grades
+
+- rule: Activate ask_active_groups
+  steps:
+  - intent: ask_active_groups
+  - action: action_get_active_groups
+
+- rule: Activate ask_help_requests
+  steps:
+  - intent: ask_help_requests
+  - action: action_get_help_requests
+
+- rule: Activate ask_forum_posts
+  steps:
+  - intent: ask_forum_posts
+  - action: action_get_forum_posts
+
+- rule: Activate ask_news
+  steps:
+  - intent: ask_news
+  - action: action_get_news
+
+- rule: Activate ask_surveys
+  steps:
+  - intent: ask_surveys
+  - action: action_get_surveys
+
+- rule: Activate ask_student_info
+  steps:
+  - intent: ask_student_info
+  - action: action_get_student_info
+
+- rule: Activate ask_teacher_info
+  steps:
+  - intent: ask_teacher_info
+  - action: action_get_teacher_info
+
+- rule: Activate ask_career_info
+  steps:
+  - intent: ask_career_info
+  - action: action_get_career_info

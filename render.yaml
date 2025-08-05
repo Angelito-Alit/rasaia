@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: rasa-chatbot
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: DB_HOST
+        value: your_mysql_host
+      - key: DB_USER
+        value: your_mysql_user
+      - key: DB_PASSWORD
+        value: your_mysql_password
+      - key: DB_NAME
+        value: sistema_academico
+      - key: DB_PORT
+        value: 3306
+
+  - type: web
+    name: rasa-actions
+    env: docker
+    dockerfilePath: ./Dockerfile.actions
+    plan: free
+    envVars:
+      - key: DB_HOST
+        value: your_mysql_host
+      - key: DB_USER
+        value: your_mysql_user
+      - key: DB_PASSWORD
+        value: your_mysql_password
+      - key: DB_NAME
+        value: sistema_academico
+      - key: DB_PORT
+        value: 3306

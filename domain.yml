@@ -1,0 +1,107 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - mood_great
+  - mood_unhappy
+  - bot_challenge
+  - ask_students_count
+  - ask_students_by_career
+  - ask_student_average
+  - ask_risk_reports
+  - ask_group_schedule
+  - ask_teacher_subjects
+  - ask_subjects_by_semester
+  - ask_student_grades
+  - ask_active_groups
+  - ask_help_requests
+  - ask_forum_posts
+  - ask_news
+  - ask_surveys
+  - ask_student_info
+  - ask_teacher_info
+  - ask_career_info
+
+entities:
+  - matricula
+  - numero_empleado
+  - grupo_codigo
+  - carrera_nombre
+  - cuatrimestre
+  - nivel_riesgo
+  - tipo_riesgo
+  - ciclo_escolar
+
+slots:
+  matricula:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: matricula
+  
+  numero_empleado:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: numero_empleado
+  
+  grupo_codigo:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: grupo_codigo
+  
+  carrera_nombre:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: carrera_nombre
+  
+  cuatrimestre:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: cuatrimestre
+
+responses:
+  utter_greet:
+  - text: "Hola! Soy tu asistente académico. Puedo ayudarte con información sobre estudiantes, profesores, grupos, calificaciones y más."
+
+  utter_goodbye:
+  - text: "Hasta luego! Que tengas un buen día."
+
+  utter_iamabot:
+  - text: "Soy un chatbot académico diseñado para ayudarte con consultas sobre la base de datos de la institución."
+
+  utter_please_rephrase:
+  - text: "Lo siento, no entendí bien tu pregunta. Podrías reformularla?"
+
+actions:
+  - action_get_students_count
+  - action_get_students_by_career
+  - action_get_student_average
+  - action_get_risk_reports
+  - action_get_group_schedule
+  - action_get_teacher_subjects
+  - action_get_subjects_by_semester
+  - action_get_student_grades
+  - action_get_active_groups
+  - action_get_help_requests
+  - action_get_forum_posts
+  - action_get_news
+  - action_get_surveys
+  - action_get_student_info
+  - action_get_teacher_info
+  - action_get_career_info
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

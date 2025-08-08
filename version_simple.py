@@ -28,7 +28,7 @@ def execute_query(query, params=None):
         conn.close()
         return result
     except Exception as e:
-        print(f"Error en consulta: {str(e)}")
+        
         return {"error": f"Error al consultar la base de datos: {str(e)}"}
 
 def detect_intent(message):
@@ -60,9 +60,9 @@ def detect_intent(message):
         return 'teachers_most_load'
     elif any(phrase in message for phrase in ['que profesores han registrado mas calificaciones', 'profesores calificaciones bajas', 'profesores con reprobados', 'docentes menor igual 7']):
         return 'teachers_low_grades'
-    elif any(phrase in message for phrase in ['dame toda la informacion de este profesor', 'informacion profesor', 'datos profesor', 'todo sobre profesor']) and re.search(r'\b(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9]{3,10}\b', message):
+    elif any(phrase in message for phrase in ['dame informacion de este profesor', 'informacion profesor', 'datos profesor', 'todo sobre profesor']) and re.search(r'\b(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9]{3,10}\b', message):
         return 'teacher_complete_info'
-    elif any(phrase in message for phrase in ['dame toda la informacion de este alumno', 'informacion alumno', 'datos alumno', 'todo sobre alumno']) and re.search(r'\b\d{10}\b', message):
+    elif any(phrase in message for phrase in ['dame informacion de este alumno', 'informacion alumno', 'datos alumno', 'todo sobre alumno']) and re.search(r'\b\d{10}\b', message):
         return 'student_complete_info'
     elif any(phrase in message for phrase in ['que aulas se usan con mas frecuencia', 'aulas mas frecuencia', 'aulas mas usadas', 'salones mas utilizados']):
         return 'most_used_classrooms'
@@ -270,6 +270,48 @@ def detect_intent(message):
         return 'most_popular_forum_posts'
     elif any(phrase in message for phrase in ['estadisticas del foro', 'estadisticas generales foro', 'resumen del foro']):
         return 'forum_general_stats'
+    elif any(phrase in message for phrase in ['que alumno tiene mas vulnerabilidades', 'alumno mas vulnerable', 'estudiante mas vulnerabilidades']):
+        return 'most_vulnerable_student'
+    elif any(phrase in message for phrase in ['alumnos reprobados', 'estudiantes reprobados', 'quienes reprobaron']):
+        return 'failed_students'
+    elif any(phrase in message for phrase in ['alumnos en extraordinario', 'estudiantes extraordinario', 'quienes estan en extraordinario']):
+        return 'students_extraordinary'
+    elif any(phrase in message for phrase in ['alumnos en remedial', 'estudiantes remedial', 'quienes estan en remedial']):
+        return 'students_remedial'
+    elif any(phrase in message for phrase in ['alumnos ultima oportunidad', 'estudiantes ultima oportunidad', 'ultima asignatura']):
+        return 'students_last_chance'
+    elif any(phrase in message for phrase in ['alumnos vulnerables', 'estudiantes vulnerables', 'quienes son vulnerables']):
+        return 'vulnerable_students'
+    elif any(phrase in message for phrase in ['calificaciones de alumno', 'notas de estudiante', 'evaluaciones alumno']) and re.search(r'\b\d{10}\b', message):
+        return 'student_grades'
+    elif any(phrase in message for phrase in ['alumnos por oportunidad', 'estudiantes por oportunidad', 'distribucion oportunidades']):
+        return 'students_by_opportunity'
+    elif any(phrase in message for phrase in ['alumnos con mas reprobadas', 'estudiantes mas reprobadas', 'quien tiene mas reprobadas']):
+        return 'students_most_failed'
+    elif any(phrase in message for phrase in ['vulnerabilidades por tipo', 'tipos de vulnerabilidad', 'categorias vulnerabilidad']):
+        return 'vulnerabilities_by_type'
+    elif any(phrase in message for phrase in ['alumnos en riesgo academico', 'estudiantes riesgo academico', 'riesgo de desercion']):
+        return 'students_academic_risk'
+    elif any(phrase in message for phrase in ['informacion de todos los alumnos', 'todos los alumnos', 'lista de todos los estudiantes', 'todos los estudiantes']):
+        return 'all_students_info'
+    elif any(phrase in message for phrase in ['informacion completa de alumno', 'toda la informacion del alumno', 'informacion relacional alumno']) and re.search(r'\b\d{10}\b', message):
+        return 'student_complete_relational_info'
+    elif any(phrase in message for phrase in ['informacion completa de alumno', 'toda la informacion del alumno', 'informacion relacional alumno', 'dame toda la informacion de este alumno']) and re.search(r'\b\d{10}\b', message):
+        return 'student_complete_relational_info'
+    elif any(phrase in message for phrase in ['informacion de todos los alumnos', 'todos los alumnos', 'lista de todos los estudiantes', 'todos los estudiantes', 'dame informacion de todos los alumnos']):
+        return 'all_students_info'
+    elif any(phrase in message for phrase in ['informacion de este alumno', 'informacion completa de alumno', 'toda la informacion del alumno', 'informacion relacional alumno', 'dame toda la informacion de este alumno']) and re.search(r'\b\d{10}\b', message):
+        return 'student_complete_relational_info'
+    
+    elif any(phrase in message for phrase in ['alumnos que estan en extraordinario', 'alumnos en extraordinario', 'estudiantes extraordinario', 'quienes estan en extraordinario']):
+        return 'students_extraordinary'
+    elif any(phrase in message for phrase in ['alumnos que estan en remedial', 'alumnos en remedial', 'estudiantes remedial', 'quienes estan en remedial']):
+        return 'students_remedial'
+    elif any(phrase in message for phrase in ['alumnos que estan en ultima asignatura', 'alumnos ultima asignatura', 'alumnos ultima oportunidad', 'estudiantes ultima oportunidad']):
+        return 'students_last_chance'
+    elif any(phrase in message for phrase in ['alumnos que estan en ordinario', 'alumnos en ordinario', 'estudiantes ordinario', 'quienes estan en ordinario']):
+        return 'students_ordinary'
+    
     else:
         return 'unknown'
    
@@ -282,6 +324,16 @@ def extract_entities(message, intent):
             entities['numero_empleado'] = emp_match.group()
     
     if intent == 'student_complete_info':
+        matricula_match = re.search(r'\b\d{10}\b', message)
+        if matricula_match:
+            entities['matricula'] = matricula_match.group()
+    
+    if intent == 'student_complete_relational_info':
+        matricula_match = re.search(r'\b\d{10}\b', message)
+        if matricula_match:
+            entities['matricula'] = matricula_match.group()
+    
+    if intent == 'student_grades':
         matricula_match = re.search(r'\b\d{10}\b', message)
         if matricula_match:
             entities['matricula'] = matricula_match.group()
@@ -304,6 +356,7 @@ def extract_entities(message, intent):
         cuatrimestre_match = re.search(r'\b(\d+)\b', message)
         if cuatrimestre_match:
             entities['cuatrimestre'] = cuatrimestre_match.group()
+    
     if intent == 'class_schedules':
         grupo_match = re.search(r'\b[a-zA-Z]{3,4}\d{2}\b', message)
         if grupo_match:
@@ -315,8 +368,8 @@ def extract_entities(message, intent):
             if word in message:
                 entities['carrera'] = word
                 break
+    
     return entities
-
 def generate_recommendations():
     query_stats = """
     SELECT 
@@ -479,7 +532,7 @@ def generate_response(intent, entities, message):
         else:
             return "No hay datos suficientes de estudiantes inactivos o hay un problema con la consulta en la base de datos."
     
-    elif intent == 'low_grade_students':
+    
         query = """
         SELECT DISTINCT a.matricula, u.nombre, u.apellido, g.codigo as grupo,
                asig.nombre as asignatura, c.calificacion_final, g.cuatrimestre,
@@ -513,81 +566,8 @@ def generate_response(intent, entities, message):
             return response
         else:
             return "No hay suficiente información de calificaciones en la base de datos para esta consulta."
-    
-    elif intent == 'top_students_current':
-        query = """
-        SELECT a.matricula, u.nombre, u.apellido, g.codigo as grupo,
-               g.cuatrimestre, car.nombre as carrera, AVG(c.calificacion_final) as promedio,
-               ROW_NUMBER() OVER (PARTITION BY car.id ORDER BY AVG(c.calificacion_final) DESC) as ranking
-        FROM calificaciones c
-        JOIN alumnos a ON c.alumno_id = a.id
-        JOIN usuarios u ON a.usuario_id = u.id
-        JOIN grupos g ON c.grupo_id = g.id
-        JOIN carreras car ON g.carrera_id = car.id
-        WHERE c.calificacion_final IS NOT NULL AND c.ciclo_escolar LIKE '%2024%'
-        GROUP BY a.id, a.matricula, u.nombre, u.apellido, g.codigo, g.cuatrimestre, car.nombre, car.id
-        HAVING ranking <= 3
-        ORDER BY car.nombre, ranking
-        """
-        result = execute_query(query)
-        if result and not isinstance(result, dict):
-            if not result:
-                return "No encontré calificaciones registradas para el período actual."
-            
-            response = "Aquí tienes el top 3 de mejores estudiantes por carrera en el ciclo actual:\n\n"
-            current_career = None
-            
-            for row in result:
-                if current_career != row['carrera']:
-                    current_career = row['carrera']
-                    response += f"{current_career}:\n"
-                
-                response += f"  {row['ranking']}. {row['nombre']} {row['apellido']}\n"
-                response += f"     Matrícula: {row['matricula']}\n"
-                response += f"     Grupo: {row['grupo']} ({row['cuatrimestre']} cuatrimestre)\n"
-                response += f"     Promedio: {row['promedio']:.2f}\n\n"
-            
-            return response
-        else:
-            return "No pude obtener la información de mejores estudiantes en este momento."
-    
-    elif intent == 'top_students_semester':
-        cuatrimestre = entities.get('cuatrimestre', '3')
-        query = """
-        SELECT a.matricula, u.nombre, u.apellido, g.codigo as grupo,
-               car.nombre as carrera, AVG(c.calificacion_final) as promedio,
-               ROW_NUMBER() OVER (PARTITION BY g.id ORDER BY AVG(c.calificacion_final) DESC) as ranking
-        FROM calificaciones c
-        JOIN alumnos a ON c.alumno_id = a.id
-        JOIN usuarios u ON a.usuario_id = u.id
-        JOIN grupos g ON c.grupo_id = g.id
-        JOIN carreras car ON g.carrera_id = car.id
-        WHERE c.calificacion_final IS NOT NULL AND g.cuatrimestre = %s
-        GROUP BY a.id, a.matricula, u.nombre, u.apellido, g.codigo, g.id, car.nombre
-        HAVING ranking <= 3
-        ORDER BY g.codigo, ranking
-        """
-        result = execute_query(query, (cuatrimestre,))
-        if result and not isinstance(result, dict):
-            if not result:
-                return f"No encontré estudiantes en {cuatrimestre} cuatrimestre."
-            
-            response = f"Top 3 mejores estudiantes por grupo en {cuatrimestre} cuatrimestre:\n\n"
-            current_group = None
-            
-            for row in result:
-                if current_group != row['grupo']:
-                    current_group = row['grupo']
-                    response += f"Grupo {row['grupo']} ({row['carrera']}):\n"
-                
-                response += f"  {row['ranking']}. {row['nombre']} {row['apellido']}\n"
-                response += f"     Matrícula: {row['matricula']}\n"
-                response += f"     Promedio: {row['promedio']:.2f}\n\n"
-            
-            return response
-        else:
-            return f"No pude obtener información de {cuatrimestre} cuatrimestre."
-    
+
+
     elif intent == 'high_risk_students':
         query = """
         SELECT a.matricula, u.nombre, u.apellido, g.codigo as grupo,
@@ -703,7 +683,7 @@ def generate_response(intent, entities, message):
             if not result:
                 return "No hay profesores asignados como tutores de grupo actualmente."
             
-            response = f"Te muestro los {len(result)} profesores asignados como tutores de grupo:\n\n"
+            response = f"Te muestro los  profesores asignados como tutores de grupo:\n\n"
             current_career = None
             
             for row in result:
@@ -757,147 +737,7 @@ def generate_response(intent, entities, message):
             return response
         else:
             return "No pude obtener información de carga académica en este momento."
-    
-    elif intent == 'teachers_low_grades':
-        query = """
-        SELECT p.numero_empleado, u.nombre, u.apellido,
-               COUNT(c.id) as calificaciones_bajas,
-               COUNT(DISTINCT a.matricula) as alumnos_afectados,
-               GROUP_CONCAT(DISTINCT CONCAT(ua.nombre, ' ', ua.apellido, ' (', a.matricula, ') - ', g.codigo) 
-                           ORDER BY ua.apellido SEPARATOR '; ') as detalle_alumnos
-        FROM profesores p
-        JOIN usuarios u ON p.usuario_id = u.id
-        JOIN calificaciones c ON p.id = c.profesor_id
-        JOIN alumnos a ON c.alumno_id = a.id
-        JOIN usuarios ua ON a.usuario_id = ua.id
-        JOIN grupos g ON c.grupo_id = g.id
-        WHERE c.calificacion_final <= 7 AND c.calificacion_final IS NOT NULL
-        GROUP BY p.id, p.numero_empleado, u.nombre, u.apellido
-        ORDER BY calificaciones_bajas DESC, alumnos_afectados DESC
-        LIMIT 10
-        """
-        result = execute_query(query)
-        if result and not isinstance(result, dict):
-            if not result:
-                return "Excelente: no hay profesores con calificaciones menores o iguales a 7 registradas."
-            
-            response = "Te muestro los profesores con más calificaciones menores o iguales a 7:\n\n"
-            
-            for i, row in enumerate(result, 1):
-                response += f"{i}. Profesor {row['nombre']} {row['apellido']} ({row['numero_empleado']})\n"
-                response += f"   Calificaciones menores o iguales a 7: {row['calificaciones_bajas']}\n"
-                response += f"   Alumnos afectados: {row['alumnos_afectados']}\n"
-                if len(row['detalle_alumnos']) > 200:
-                    response += f"   Detalle: {row['detalle_alumnos'][:200]}...\n"
-                else:
-                    response += f"   Detalle: {row['detalle_alumnos']}\n"
-                response += "\n"
-            
-            return response
-        else:
-            return "No pude obtener información de calificaciones bajas en este momento."
-    
-    elif intent == 'teacher_complete_info':
-        if 'numero_empleado' not in entities:
-            return "Para consultar información completa del profesor necesito su número de empleado (por ejemplo: EMP001)."
-        
-        numero_emp = entities['numero_empleado']
-        
-        query_basic = """
-        SELECT p.numero_empleado, u.nombre, u.apellido, u.correo,
-               p.telefono, p.extension, p.fecha_contratacion,
-               p.titulo_academico, p.especialidad, p.cedula_profesional,
-               p.experiencia_años, p.es_tutor, c.nombre as carrera
-        FROM profesores p
-        JOIN usuarios u ON p.usuario_id = u.id
-        JOIN carreras c ON p.carrera_id = c.id
-        WHERE p.numero_empleado = %s AND p.activo = TRUE
-        """
-        
-        query_subjects = """
-        SELECT DISTINCT a.nombre as asignatura, g.codigo as grupo,
-               g.cuatrimestre, pag.ciclo_escolar
-        FROM profesor_asignatura_grupo pag
-        JOIN profesores p ON pag.profesor_id = p.id
-        JOIN asignaturas a ON pag.asignatura_id = a.id
-        JOIN grupos g ON pag.grupo_id = g.id
-        WHERE p.numero_empleado = %s AND pag.activo = TRUE
-        ORDER BY pag.ciclo_escolar DESC, g.cuatrimestre, a.nombre
-        """
-        
-        query_tutor = """
-        SELECT g.codigo as grupo, COUNT(ag.alumno_id) as total_alumnos
-        FROM grupos g
-        JOIN profesores p ON g.profesor_tutor_id = p.id
-        LEFT JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = TRUE
-        WHERE p.numero_empleado = %s AND g.activo = TRUE
-        GROUP BY g.id, g.codigo
-        """
-        
-        query_grades = """
-        SELECT COUNT(*) as total_calificaciones,
-               AVG(calificacion_final) as promedio_otorgado,
-               COUNT(CASE WHEN calificacion_final < 7 THEN 1 END) as calificaciones_bajas
-        FROM calificaciones c
-        JOIN profesores p ON c.profesor_id = p.id
-        WHERE p.numero_empleado = %s AND c.calificacion_final IS NOT NULL
-        """
-        
-        basic_info = execute_query(query_basic, (numero_emp,))
-        subjects_info = execute_query(query_subjects, (numero_emp,))
-        tutor_info = execute_query(query_tutor, (numero_emp,))
-        grades_info = execute_query(query_grades, (numero_emp,))
-        
-        if not basic_info or isinstance(basic_info, dict) or not basic_info:
-            return f"No encontré información para el profesor {numero_emp}."
-        
-        data = basic_info[0]
-        response = f"INFORMACIÓN COMPLETA DEL PROFESOR\n\n"
-        response += f"Datos Personales:\n"
-        response += f"  Nombre: {data['nombre']} {data['apellido']}\n"
-        response += f"  Número de empleado: {data['numero_empleado']}\n"
-        response += f"  Correo: {data['correo']}\n"
-        response += f"  Carrera asignada: {data['carrera']}\n"
-        
-        if data['telefono']:
-            response += f"  Teléfono: {data['telefono']}\n"
-        if data['extension']:
-            response += f"  Extensión: {data['extension']}\n"
-        
-        response += f"\nDatos Académicos:\n"
-        response += f"  Fecha contratación: {data['fecha_contratacion']}\n"
-        response += f"  Experiencia: {data['experiencia_años']} años\n"
-        
-        if data['titulo_academico']:
-            response += f"  Título: {data['titulo_academico']}\n"
-        if data['especialidad']:
-            response += f"  Especialidad: {data['especialidad']}\n"
-        if data['cedula_profesional']:
-            response += f"  Cédula profesional: {data['cedula_profesional']}\n"
-        
-        if subjects_info and not isinstance(subjects_info, dict):
-            response += f"\nAsignaturas que imparte ({len(subjects_info)}):\n"
-            current_cycle = None
-            for subj in subjects_info:
-                if current_cycle != subj['ciclo_escolar']:
-                    current_cycle = subj['ciclo_escolar']
-                    response += f"  {current_cycle}:\n"
-                response += f"    {subj['asignatura']} - Grupo {subj['grupo']} ({subj['cuatrimestre']} cuatrimestre)\n"
-        
-        if data['es_tutor'] and tutor_info and not isinstance(tutor_info, dict):
-            response += f"\nTutoría de grupos:\n"
-            for tutor in tutor_info:
-                response += f"  Grupo {tutor['grupo']}: {tutor['total_alumnos']} alumnos\n"
-        
-        if grades_info and not isinstance(grades_info, dict) and grades_info[0]['total_calificaciones'] > 0:
-            grade_data = grades_info[0]
-            response += f"\nEstadísticas de calificaciones:\n"
-            response += f"  Total calificaciones registradas: {grade_data['total_calificaciones']}\n"
-            response += f"  Promedio general otorgado: {grade_data['promedio_otorgado']:.2f}\n"
-            response += f"  Calificaciones menores a 7: {grade_data['calificaciones_bajas']}\n"
-        
-        return response
-    
+  
     elif intent == 'student_complete_info':
         if 'matricula' not in entities:
             return "Para consultar información completa del alumno necesito su matrícula (10 dígitos)."
@@ -1140,42 +980,6 @@ def generate_response(intent, entities, message):
             return response
         else:
             return "No pude obtener información de profesores disponibles."
-
-    elif intent == 'most_failed_subjects':
-        query = """
-        SELECT a.nombre as asignatura, 
-            COUNT(CASE WHEN c.calificacion_final < 7 THEN 1 END) as reprobados,
-            COUNT(c.id) as total_evaluados,
-            ROUND((COUNT(CASE WHEN c.calificacion_final < 7 THEN 1 END) * 100.0 / COUNT(c.id)), 2) as porcentaje_reprobacion,
-            car.nombre as carrera
-        FROM asignaturas a
-        JOIN calificaciones c ON a.id = c.asignatura_id
-        JOIN grupos g ON c.grupo_id = g.id
-        JOIN carreras car ON g.carrera_id = car.id
-        WHERE c.calificacion_final IS NOT NULL
-        GROUP BY a.id, a.nombre, car.nombre
-        HAVING reprobados > 0
-        ORDER BY porcentaje_reprobacion DESC, reprobados DESC
-        LIMIT 15
-        """
-        result = execute_query(query)
-        if result and not isinstance(result, dict):
-            if not result:
-                return "Excelente: no hay materias con índices significativos de reprobación."
-            
-            response = "Materias con mayores índices de reprobación:\n\n"
-            
-            for i, row in enumerate(result, 1):
-                response += f"{i}. {row['asignatura']} ({row['carrera']})\n"
-                response += f"   Reprobados: {row['reprobados']} de {row['total_evaluados']} estudiantes\n"
-                response += f"   Porcentaje de reprobación: {row['porcentaje_reprobacion']}%\n"
-                if row['porcentaje_reprobacion'] > 50:
-                    response += f"   MATERIA DE ALTO RIESGO\n"
-                response += "\n"
-            
-            return response
-        else:
-            return "No pude obtener estadísticas de reprobación."
 
     elif intent == 'student_demographics':
         query = """
@@ -1549,78 +1353,6 @@ def generate_response(intent, entities, message):
             return response
         else:
             return "No pude obtener información de noticias."
-
-    elif intent == 'groups_lowest_average':
-        query = """
-        SELECT g.codigo, g.cuatrimestre, c.nombre as carrera,
-            COUNT(DISTINCT a.id) as total_alumnos,
-            AVG(cal.calificacion_final) as promedio_grupo
-        FROM grupos g
-        JOIN carreras c ON g.carrera_id = c.id
-        LEFT JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = TRUE
-        LEFT JOIN alumnos a ON ag.alumno_id = a.id
-        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id AND cal.calificacion_final IS NOT NULL
-        WHERE g.activo = TRUE
-        GROUP BY g.id, g.codigo, g.cuatrimestre, c.nombre
-        HAVING COUNT(cal.id) > 0
-        ORDER BY promedio_grupo ASC
-        LIMIT 10
-        """
-        result = execute_query(query)
-        if result and not isinstance(result, dict):
-            if not result:
-                return "No se encontraron grupos con calificaciones registradas."
-            
-            response = "Grupos con promedio final más bajo:\n\n"
-            
-            for i, row in enumerate(result, 1):
-                response += f"{i}. Grupo {row['codigo']} - {row['cuatrimestre']} cuatrimestre\n"
-                response += f"   Carrera: {row['carrera']}\n"
-                response += f"   Total alumnos: {row['total_alumnos']}\n"
-                response += f"   Promedio del grupo: {row['promedio_grupo']:.2f}\n\n"
-            
-            return response
-        else:
-            return "No pude obtener información de promedios por grupo."
-
-    elif intent == 'subjects_no_grades':
-        query = """
-        SELECT a.nombre as asignatura, g.codigo as grupo, g.cuatrimestre,
-            car.nombre as carrera,
-            CONCAT(u.nombre, ' ', u.apellido) as profesor,
-            p.numero_empleado
-        FROM profesor_asignatura_grupo pag
-        JOIN asignaturas a ON pag.asignatura_id = a.id
-        JOIN grupos g ON pag.grupo_id = g.id
-        JOIN carreras car ON g.carrera_id = car.id
-        JOIN profesores p ON pag.profesor_id = p.id
-        JOIN usuarios u ON p.usuario_id = u.id
-        LEFT JOIN calificaciones cal ON pag.grupo_id = cal.grupo_id 
-                                    AND pag.asignatura_id = cal.asignatura_id
-        WHERE pag.activo = TRUE AND g.activo = TRUE
-        AND cal.id IS NULL
-        ORDER BY car.nombre, g.cuatrimestre, a.nombre
-        """
-        result = execute_query(query)
-        if result and not isinstance(result, dict):
-            if not result:
-                return "Todas las asignaturas tienen calificaciones registradas."
-            
-            response = "Asignaturas con calificaciones aún sin registrar:\n\n"
-            current_career = None
-            
-            for row in result:
-                if current_career != row['carrera']:
-                    current_career = row['carrera']
-                    response += f"{current_career}:\n"
-                
-                response += f"  Asignatura: {row['asignatura']}\n"
-                response += f"    Grupo: {row['grupo']} ({row['cuatrimestre']} cuatrimestre)\n"
-                response += f"    Profesor: {row['profesor']} ({row['numero_empleado']})\n\n"
-            
-            return response
-        else:
-            return "No pude obtener información de asignaturas sin calificaciones."
 
     elif intent == 'forum_categories':
         query = """
@@ -2205,85 +1937,6 @@ def generate_response(intent, entities, message):
         else:
             return "No pude obtener información de estudiantes inactivos."
 
-    elif intent == 'top_students_current':
-        query = """
-        SELECT a.matricula, u.nombre, u.apellido, g.codigo as grupo,
-            g.cuatrimestre, car.nombre as carrera, AVG(c.calificacion_final) as promedio,
-            ROW_NUMBER() OVER (PARTITION BY car.id ORDER BY AVG(c.calificacion_final) DESC) as ranking
-        FROM calificaciones c
-        JOIN alumnos a ON c.alumno_id = a.id
-        JOIN usuarios u ON a.usuario_id = u.id
-        JOIN grupos g ON c.grupo_id = g.id
-        JOIN carreras car ON g.carrera_id = car.id
-        WHERE c.calificacion_final IS NOT NULL AND c.ciclo_escolar LIKE '%2024%'
-        GROUP BY a.id, a.matricula, u.nombre, u.apellido, g.codigo, g.cuatrimestre, car.nombre, car.id
-        HAVING ranking <= 3
-        ORDER BY car.nombre, ranking
-        """
-        result = execute_query(query)
-        if result and not isinstance(result, dict):
-            if not result:
-                return "No encontré calificaciones registradas para el ciclo actual."
-            
-            response = "Top 3 mejores estudiantes por carrera en el cuatrimestre actual:\n\n"
-            current_career = None
-            
-            for row in result:
-                if current_career != row['carrera']:
-                    current_career = row['carrera']
-                    response += f"{current_career}:\n"
-                
-                response += f"  {row['ranking']}. Matrícula: {row['matricula']}\n"
-                response += f"     Nombre: {row['nombre']} {row['apellido']}\n"
-                response += f"     Grupo: {row['grupo']}\n"
-                response += f"     Cuatrimestre: {row['cuatrimestre']}\n"
-                response += f"     Carrera: {row['carrera']}\n"
-                response += f"     Promedio: {row['promedio']:.2f}\n\n"
-            
-            return response
-        else:
-            return "No pude obtener información de los mejores estudiantes."
-
-    elif intent == 'top_students_semester':
-        cuatrimestre = entities.get('cuatrimestre', '3')
-        query = """
-        SELECT a.matricula, u.nombre, u.apellido, g.codigo as grupo,
-            car.nombre as carrera, AVG(c.calificacion_final) as promedio,
-            ROW_NUMBER() OVER (PARTITION BY g.id ORDER BY AVG(c.calificacion_final) DESC) as ranking
-        FROM calificaciones c
-        JOIN alumnos a ON c.alumno_id = a.id
-        JOIN usuarios u ON a.usuario_id = u.id
-        JOIN grupos g ON c.grupo_id = g.id
-        JOIN carreras car ON g.carrera_id = car.id
-        WHERE c.calificacion_final IS NOT NULL AND g.cuatrimestre = %s
-        GROUP BY a.id, a.matricula, u.nombre, u.apellido, g.codigo, g.id, car.nombre
-        HAVING ranking <= 3
-        ORDER BY g.codigo, ranking
-        """
-        result = execute_query(query, (cuatrimestre,))
-        if result and not isinstance(result, dict):
-            if not result:
-                return f"No encontré estudiantes en {cuatrimestre} cuatrimestre."
-            
-            response = f"Top 3 mejores estudiantes por grupo en {cuatrimestre} cuatrimestre:\n\n"
-            current_group = None
-            
-            for row in result:
-                if current_group != row['grupo']:
-                    current_group = row['grupo']
-                    response += f"Grupo {row['grupo']} ({row['carrera']}):\n"
-                
-                response += f"  {row['ranking']}. Matrícula: {row['matricula']}\n"
-                response += f"     Nombre: {row['nombre']} {row['apellido']}\n"
-                response += f"     Grupo: {row['grupo']}\n"
-                response += f"     Cuatrimestre: {cuatrimestre}\n"
-                response += f"     Carrera: {row['carrera']}\n"
-                response += f"     Promedio: {row['promedio']:.2f}\n\n"
-            
-            return response
-        else:
-            return f"No pude obtener información de {cuatrimestre} cuatrimestre."
-
     elif intent == 'high_risk_students':
         query = """
         SELECT a.matricula, u.nombre, u.apellido, g.codigo as grupo,
@@ -2421,159 +2074,6 @@ def generate_response(intent, entities, message):
             return response
         else:
             return "No pude obtener información de carga académica."
-
-    elif intent == 'teachers_low_grades':
-        query = """
-        SELECT p.numero_empleado, u.nombre, u.apellido,
-            COUNT(c.id) as calificaciones_bajas,
-            COUNT(DISTINCT a.matricula) as alumnos_afectados,
-            GROUP_CONCAT(DISTINCT CONCAT(ua.nombre, ' ', ua.apellido, ' (', a.matricula, ') - Grupo ', g.codigo, ' - ', g.cuatrimestre, ' cuatrimestre') 
-                        ORDER BY ua.apellido SEPARATOR '; ') as detalle_completo
-        FROM profesores p
-        JOIN usuarios u ON p.usuario_id = u.id
-        JOIN calificaciones c ON p.id = c.profesor_id
-        JOIN alumnos a ON c.alumno_id = a.id
-        JOIN usuarios ua ON a.usuario_id = ua.id
-        JOIN grupos g ON c.grupo_id = g.id
-        WHERE c.calificacion_final <= 7 AND c.calificacion_final IS NOT NULL
-        GROUP BY p.id, p.numero_empleado, u.nombre, u.apellido
-        ORDER BY calificaciones_bajas DESC, alumnos_afectados DESC
-        LIMIT 10
-        """
-        result = execute_query(query)
-        if result and not isinstance(result, dict):
-            if not result:
-                return "No hay profesores con calificaciones menores o iguales a 7 registradas."
-            
-            response = "Profesores que han registrado más calificaciones con resultado menor o igual a 7:\n\n"
-            
-            for i, row in enumerate(result, 1):
-                response += f"{i}. Número empleado: {row['numero_empleado']}\n"
-                response += f"   Nombre: {row['nombre']} {row['apellido']}\n"
-                response += f"   Calificaciones <= 7: {row['calificaciones_bajas']}\n"
-                response += f"   Alumnos afectados: {row['alumnos_afectados']}\n"
-                if len(row['detalle_completo']) > 300:
-                    response += f"   Detalle alumnos y grupos: {row['detalle_completo'][:300]}...\n"
-                else:
-                    response += f"   Detalle alumnos y grupos: {row['detalle_completo']}\n"
-                response += "\n"
-            
-            return response
-        else:
-            return "No pude obtener información de calificaciones bajas."
-
-    elif intent == 'teacher_complete_info':
-        if 'numero_empleado' not in entities:
-            return "Para obtener toda la información del profesor necesito su matrícula (número de empleado EMP###)."
-        
-        numero_emp = entities['numero_empleado']
-        
-        query_complete = """
-        SELECT p.numero_empleado, u.nombre, u.apellido, u.correo,
-            p.telefono, p.extension, p.fecha_contratacion,
-            p.titulo_academico, p.especialidad, p.cedula_profesional,
-            p.experiencia_años, p.es_tutor, c.nombre as carrera,
-            p.activo, p.direccion, p.fecha_nacimiento
-        FROM profesores p
-        JOIN usuarios u ON p.usuario_id = u.id
-        JOIN carreras c ON p.carrera_id = c.id
-        WHERE p.numero_empleado = %s
-        """
-        
-        query_subjects = """
-        SELECT DISTINCT a.nombre as asignatura, g.codigo as grupo,
-            g.cuatrimestre, pag.ciclo_escolar
-        FROM profesor_asignatura_grupo pag
-        JOIN profesores p ON pag.profesor_id = p.id
-        JOIN asignaturas a ON pag.asignatura_id = a.id
-        JOIN grupos g ON pag.grupo_id = g.id
-        WHERE p.numero_empleado = %s AND pag.activo = TRUE
-        ORDER BY pag.ciclo_escolar DESC, g.cuatrimestre, a.nombre
-        """
-        
-        query_tutor = """
-        SELECT g.codigo as grupo, COUNT(ag.alumno_id) as total_alumnos,
-            g.cuatrimestre, car.nombre as carrera
-        FROM grupos g
-        JOIN profesores p ON g.profesor_tutor_id = p.id
-        JOIN carreras car ON g.carrera_id = car.id
-        LEFT JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = TRUE
-        WHERE p.numero_empleado = %s AND g.activo = TRUE
-        GROUP BY g.id, g.codigo, g.cuatrimestre, car.nombre
-        """
-        
-        query_grades_stats = """
-        SELECT COUNT(*) as total_calificaciones,
-            AVG(calificacion_final) as promedio_otorgado,
-            COUNT(CASE WHEN calificacion_final < 7 THEN 1 END) as calificaciones_bajas,
-            COUNT(CASE WHEN calificacion_final >= 9 THEN 1 END) as calificaciones_altas
-        FROM calificaciones c
-        JOIN profesores p ON c.profesor_id = p.id
-        WHERE p.numero_empleado = %s AND c.calificacion_final IS NOT NULL
-        """
-        
-        basic_info = execute_query(query_complete, (numero_emp,))
-        subjects_info = execute_query(query_subjects, (numero_emp,))
-        tutor_info = execute_query(query_tutor, (numero_emp,))
-        grades_stats = execute_query(query_grades_stats, (numero_emp,))
-        
-        if not basic_info or isinstance(basic_info, dict) or not basic_info:
-            return f"No encontré información para el profesor con matrícula {numero_emp}."
-        
-        data = basic_info[0]
-        response = f"INFORMACIÓN COMPLETA DEL PROFESOR - TODO LO RELACIONADO\n\n"
-        response += f"DATOS PERSONALES:\n"
-        response += f"  Matrícula (Número empleado): {data['numero_empleado']}\n"
-        response += f"  Nombre completo: {data['nombre']} {data['apellido']}\n"
-        response += f"  Correo electrónico: {data['correo']}\n"
-        response += f"  Estado: {'Activo' if data['activo'] else 'Inactivo'}\n"
-        
-        if data['telefono']:
-            response += f"  Teléfono: {data['telefono']}\n"
-        if data['extension']:
-            response += f"  Extensión: {data['extension']}\n"
-        if data['direccion']:
-            response += f"  Dirección: {data['direccion']}\n"
-        if data['fecha_nacimiento']:
-            response += f"  Fecha nacimiento: {data['fecha_nacimiento']}\n"
-        
-        response += f"\nDATOS ACADÉMICOS Y PROFESIONALES:\n"
-        response += f"  Carrera asignada: {data['carrera']}\n"
-        response += f"  Fecha contratación: {data['fecha_contratacion']}\n"
-        response += f"  Experiencia: {data['experiencia_años']} años\n"
-        response += f"  Es tutor de grupo: {'Sí' if data['es_tutor'] else 'No'}\n"
-        
-        if data['titulo_academico']:
-            response += f"  Título académico: {data['titulo_academico']}\n"
-        if data['especialidad']:
-            response += f"  Especialidad: {data['especialidad']}\n"
-        if data['cedula_profesional']:
-            response += f"  Cédula profesional: {data['cedula_profesional']}\n"
-        
-        if subjects_info and not isinstance(subjects_info, dict):
-            response += f"\nASIGNATURAS QUE IMPARTE ({len(subjects_info)}):\n"
-            current_cycle = None
-            for subj in subjects_info:
-                if current_cycle != subj['ciclo_escolar']:
-                    current_cycle = subj['ciclo_escolar']
-                    response += f"  {current_cycle}:\n"
-                response += f"    - {subj['asignatura']} | Grupo {subj['grupo']} ({subj['cuatrimestre']} cuatrimestre)\n"
-        
-        if data['es_tutor'] and tutor_info and not isinstance(tutor_info, dict):
-            response += f"\nGRUPOS COMO TUTOR:\n"
-            for tutor in tutor_info:
-                response += f"  - Grupo {tutor['grupo']} ({tutor['carrera']}) - {tutor['cuatrimestre']} cuatrimestre\n"
-                response += f"    Alumnos a cargo: {tutor['total_alumnos']}\n"
-        
-        if grades_stats and not isinstance(grades_stats, dict) and grades_stats[0]['total_calificaciones'] > 0:
-            grade_data = grades_stats[0]
-            response += f"\nESTADÍSTICAS DE CALIFICACIONES:\n"
-            response += f"  Total calificaciones registradas: {grade_data['total_calificaciones']}\n"
-            response += f"  Promedio general otorgado: {grade_data['promedio_otorgado']:.2f}\n"
-            response += f"  Calificaciones < 7: {grade_data['calificaciones_bajas']}\n"
-            response += f"  Calificaciones >= 9: {grade_data['calificaciones_altas']}\n"
-        
-        return response
 
     elif intent == 'most_used_classrooms':
         query = """
@@ -2790,85 +2290,6 @@ def generate_response(intent, entities, message):
         else:
             return "No pude obtener información de noticias más vistas."
 
-    elif intent == 'groups_lowest_average':
-        query = """
-        SELECT g.codigo, g.cuatrimestre, c.nombre as carrera,
-                COUNT(DISTINCT a.id) as total_alumnos,
-                AVG(cal.calificacion_final) as promedio_grupo,
-                COUNT(CASE WHEN cal.calificacion_final < 7 THEN 1 END) as reprobados
-        FROM grupos g
-        JOIN carreras c ON g.carrera_id = c.id
-        LEFT JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = TRUE
-        LEFT JOIN alumnos a ON ag.alumno_id = a.id
-        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id AND cal.calificacion_final IS NOT NULL
-        WHERE g.activo = TRUE
-        GROUP BY g.id, g.codigo, g.cuatrimestre, c.nombre
-        HAVING COUNT(cal.id) > 0
-        ORDER BY promedio_grupo ASC
-        LIMIT 10
-        """
-        result = execute_query(query)
-        if result and not isinstance(result, dict):
-            if not result:
-                return "No se encontraron grupos con calificaciones registradas."
-            
-            response = "Grupos que tienen promedio final más bajo:\n\n"
-            
-            for i, row in enumerate(result, 1):
-                response += f"{i}. Nombre del grupo: {row['codigo']}\n"
-                response += f"   Cuatrimestre: {row['cuatrimestre']}\n"
-                response += f"   Carrera: {row['carrera']}\n"
-                response += f"   Cuántos alumnos tiene: {row['total_alumnos']}\n"
-                response += f"   Promedio final del grupo: {row['promedio_grupo']:.2f}\n"
-                response += f"   Alumnos reprobados: {row['reprobados']}\n"
-                if row['promedio_grupo'] < 7:
-                    response += f"   GRUPO REQUIERE ATENCIÓN URGENTE\n"
-                response += "\n"
-            
-            return response
-        else:
-            return "No pude obtener información de promedios por grupo."
-
-    elif intent == 'subjects_no_grades':
-        query = """
-        SELECT a.nombre as asignatura, g.codigo as grupo, g.cuatrimestre,
-                car.nombre as carrera,
-                CONCAT(u.nombre, ' ', u.apellido) as profesor,
-                p.numero_empleado
-        FROM profesor_asignatura_grupo pag
-        JOIN asignaturas a ON pag.asignatura_id = a.id
-        JOIN grupos g ON pag.grupo_id = g.id
-        JOIN carreras car ON g.carrera_id = car.id
-        JOIN profesores p ON pag.profesor_id = p.id
-        JOIN usuarios u ON p.usuario_id = u.id
-        LEFT JOIN calificaciones cal ON pag.grupo_id = cal.grupo_id 
-                                    AND pag.asignatura_id = cal.asignatura_id
-        WHERE pag.activo = TRUE AND g.activo = TRUE
-        AND cal.id IS NULL
-        ORDER BY car.nombre, g.cuatrimestre, a.nombre
-        """
-        result = execute_query(query)
-        if result and not isinstance(result, dict):
-            if not result:
-                return "Todas las asignaturas tienen calificaciones registradas."
-            
-            response = "Asignaturas que tienen calificaciones aún sin registrar:\n\n"
-            current_career = None
-            
-            for row in result:
-                if current_career != row['carrera']:
-                    current_career = row['carrera']
-                    response += f"{current_career}:\n"
-                
-                response += f"  Nombre de la asignatura: {row['asignatura']}\n"
-                response += f"  Profesor que da la materia: {row['profesor']} ({row['numero_empleado']})\n"
-                response += f"  Grupo al que le da: {row['grupo']} ({row['cuatrimestre']} cuatrimestre)\n"
-                response += f"  REQUIERE REGISTRO DE CALIFICACIONES\n\n"
-            
-            return response
-        else:
-            return "No pude obtener información de asignaturas sin calificaciones."
-
     elif intent == 'forum_categories':
         query = """
         SELECT nombre, descripcion, activa,
@@ -2918,6 +2339,986 @@ def generate_response(intent, entities, message):
             return response
         else:
             return "No pude obtener información de publicaciones por categoría."
+        
+    elif intent == 'most_vulnerable_student':
+        query = """
+        SELECT a.matricula, u.nombre, u.apellido,
+            COUNT(DISTINCT re.id) as total_vulnerabilidades,
+            GROUP_CONCAT(DISTINCT pe.pregunta ORDER BY pe.pregunta SEPARATOR '; ') as vulnerabilidades,
+            c.nombre as carrera
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        JOIN respuestas_encuesta re ON a.id = re.alumno_id
+        JOIN preguntas_encuesta pe ON re.pregunta_id = pe.id
+        JOIN encuestas e ON pe.encuesta_id = e.id
+        WHERE e.tipo_encuesta = 'vulnerabilidad' AND a.estado_alumno = 'activo'
+        GROUP BY a.id, a.matricula, u.nombre, u.apellido, c.nombre
+        ORDER BY total_vulnerabilidades DESC
+        LIMIT 1
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict) and result:
+            data = result[0]
+            response = f"El estudiante con más vulnerabilidades es:\n\n"
+            response += f"Nombre: {data['nombre']} {data['apellido']}\n"
+            response += f"Matrícula: {data['matricula']}\n"
+            response += f"Carrera: {data['carrera']}\n\n"
+            response += f"Estas son sus vulnerabilidades:\n{data['vulnerabilidades']}"
+            return response
+        else:
+            return "No se encontraron estudiantes con vulnerabilidades registradas."
+
+    elif intent == 'vulnerable_students':
+    # --- Académicos desde ultima_oportunidad_log ---
+        query = """
+        SELECT COUNT(*) as total_registros 
+        FROM ultima_oportunidad_log
+        """
+        count_result = execute_query(query)
+        
+        if count_result and count_result[0]['total_registros'] == 0:
+            return "No hay registros en la tabla ultima_oportunidad_log. Verifica que se hayan registrado evaluaciones con 'ultima_oportunidad'."
+        
+        query = """
+        SELECT 
+            uol.id,
+            uol.alumno_id,
+            uol.asignatura_id,
+            uol.numero_parcial,
+            uol.calificacion,
+            uol.resultado,
+            uol.fecha_uso,
+            a.matricula,
+            u.nombre,
+            u.apellido,
+            tutor_u.nombre as tutor_nombre,
+            tutor_u.apellido as tutor_apellido,
+            tutor_p.numero_empleado as tutor_empleado
+        FROM ultima_oportunidad_log uol
+        LEFT JOIN alumnos a ON uol.alumno_id = a.id
+        LEFT JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id AND g.activo = TRUE
+        LEFT JOIN profesores tutor_p ON g.profesor_tutor_id = tutor_p.id
+        LEFT JOIN usuarios tutor_u ON tutor_p.usuario_id = tutor_u.id
+        ORDER BY uol.fecha_uso DESC
+        """
+        result = execute_query(query)
+        
+        response = ""
+        if result and not isinstance(result, dict):
+            if len(result) == 0:
+                response += "La tabla ultima_oportunidad_log está vacía. No hay estudiantes vulnerables registrados."
+            else:
+                response += f"Alumnos vulnerables académicamente ({len(result)} casos):\n\n"
+                for row in result:
+                    if row.get('matricula') and row.get('nombre'):
+                        response += f"Matrícula: {row['matricula']}\n"
+                        response += f"Nombre: {row['nombre']} {row['apellido']}\n"
+                        response += f"Parcial: {row['numero_parcial']}\n"
+                        response += f"Calificación: {row['calificacion']}\n"
+                        if row.get('tutor_nombre') and row.get('tutor_apellido'):
+                            response += f"Tutor del grupo: {row['tutor_nombre']} {row['tutor_apellido']}"
+                            if row.get('tutor_empleado'):
+                                response += f" (matricula: {row['tutor_empleado']})"
+                            response += "\n"
+                        else:
+                            response += "Tutor del grupo: No asignado\n"
+                        response += f"Categoria: Académica\n\n"
+                    else:
+                        response += f"ID Log: {row['id']}\n"
+                        response += f"Alumno ID: {row['alumno_id']}\n"
+                        response += f"Asignatura ID: {row['asignatura_id']}\n"
+                        response += f"Parcial: {row['numero_parcial']}\n"
+                        response += f"Calificación: {row['calificacion']}\n"
+                        if row.get('tutor_nombre') and row.get('tutor_apellido'):
+                            response += f"Tutor del grupo: {row['tutor_nombre']} {row['tutor_apellido']}"
+                            if row.get('tutor_empleado'):
+                                response += f" (matricula: {row['tutor_empleado']})"
+                            response += "\n"
+                        else:
+                            response += "Tutor del grupo: No asignado\n"
+                        response += f"Categoria: Académica\n\n"
+
+        # --- Económicos desde reportes_riesgo ---
+        query_economicos = """
+        SELECT 
+            a.matricula,
+            u.nombre,
+            u.apellido,
+            rr.descripcion AS motivo,
+            tutor_u.nombre AS tutor_nombre,
+            tutor_u.apellido AS tutor_apellido,
+            tutor_p.numero_empleado AS tutor_empleado
+        FROM reportes_riesgo rr
+        JOIN alumnos a ON rr.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id AND g.activo = TRUE
+        LEFT JOIN profesores tutor_p ON g.profesor_tutor_id = tutor_p.id
+        LEFT JOIN usuarios tutor_u ON tutor_p.usuario_id = tutor_u.id
+        WHERE rr.tipo_riesgo = 'economico'
+        ORDER BY rr.nivel_riesgo DESC
+        """
+        economicos = execute_query(query_economicos)
+        
+        if economicos and not isinstance(economicos, dict):
+            response += f"\nAlumnos vulnerables económicamente ({len(economicos)} casos):\n\n"
+            for e in economicos:
+                response += f"Matrícula: {e['matricula']}\n"
+                response += f"Nombre: {e['nombre']} {e['apellido']}\n"
+                response += f"Motivo: {e['motivo']}\n"
+                if e.get('tutor_nombre') and e.get('tutor_apellido'):
+                    response += f"Tutor del grupo: {e['tutor_nombre']} {e['tutor_apellido']}"
+                    if e.get('tutor_empleado'):
+                        response += f" (matricula: {e['tutor_empleado']})"
+                    response += "\n"
+                else:
+                    response += "Tutor del grupo: No asignado\n"
+                response += f"Categoria: Económica\n\n"
+        else:
+            response += "\nNo hay registros económicos en la base de datos.\n"
+        
+        return response
+
+
+    elif intent == 'vulnerable_students':
+        query = """
+        SELECT DISTINCT a.matricula, u.nombre, u.apellido, c.nombre as carrera,
+            a.promedio_general,
+            a.cuatrimestre_actual,
+            asig.nombre as ultima_asignatura,
+            uol.numero_parcial,
+            uol.calificacion as resultado_ultima_oportunidad,
+            uol.resultado,
+            uol.fecha_uso,
+            'Usó última oportunidad académica' as motivo_vulnerabilidad
+        FROM ultima_oportunidad_log uol
+        JOIN alumnos a ON uol.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        JOIN asignaturas asig ON uol.asignatura_id = asig.id
+        WHERE a.estado_alumno = 'activo'
+        ORDER BY uol.fecha_uso DESC, a.promedio_general ASC
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict):
+            response = f"Alumnos vulnerables académicamente ({len(result)} casos):\n\n"
+            for row in result:
+                response += f"Matrícula: {row['matricula']}\n"
+                response += f"Nombre: {row['nombre']} {row['apellido']}\n"
+                response += f"Carrera: {row['carrera']}\n"
+                response += f"Cuatrimestre: {row['cuatrimestre_actual']}\n"
+                response += f"Promedio: {row['promedio_general']}\n"
+                response += f"Última oportunidad en: {row['ultima_asignatura']} (Parcial {row['numero_parcial']})\n"
+                response += f"Resultado: {row['calificacion']} - {row['resultado']}\n"
+                response += f"Fecha: {row['fecha_uso']}\n"
+                response += f"Estado: {row['motivo_vulnerabilidad']}\n\n"
+            return response
+        else:
+            return "No hay estudiantes vulnerables identificados actualmente."
+
+
+
+    elif intent == 'student_grades':
+        if 'matricula' not in entities:
+            return "Para consultar calificaciones necesito la matrícula del alumno."
+        
+        matricula = entities['matricula']
+        query = """
+        SELECT a.matricula, u.nombre, u.apellido,
+            asig.nombre as asignatura, ed.calificacion, ed.oportunidad,
+            ed.fecha_evaluacion
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN evaluaciones_detalle ed ON a.id = ed.alumno_id
+        JOIN asignaturas asig ON ed.asignatura_id = asig.id
+        WHERE a.matricula = %s
+        ORDER BY ed.fecha_evaluacion DESC
+        """
+        result = execute_query(query, (matricula,))
+        if result and not isinstance(result, dict) and result:
+            data = result[0]
+            response = f"Calificaciones de {data['nombre']} {data['apellido']} ({data['matricula']}):\n\n"
+            for row in result:
+                response += f"{row['asignatura']}: {row['calificacion']} ({row['oportunidad']})\n"
+            return response
+        else:
+            return f"No encontré calificaciones para la matrícula {matricula}."
+
+    elif intent == 'students_most_failed':
+        query = """
+        SELECT a.matricula, u.nombre, u.apellido, c.nombre as carrera,
+            COUNT(CASE WHEN ed.oportunidad != 'ordinario' THEN 1 END) as total_reprobadas
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        JOIN evaluaciones_detalle ed ON a.id = ed.alumno_id
+        WHERE a.estado_alumno = 'activo'
+        GROUP BY a.id, a.matricula, u.nombre, u.apellido, c.nombre
+        HAVING total_reprobadas > 0
+        ORDER BY total_reprobadas DESC
+        LIMIT 10
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict):
+            response = "Alumnos con más materias reprobadas:\n\n"
+            for i, row in enumerate(result, 1):
+                response += f"{i}. {row['nombre']} {row['apellido']} ({row['matricula']})\n"
+                response += f"   Total reprobadas: {row['total_reprobadas']}\n\n"
+            return response
+        else:
+            return "No hay estudiantes con materias reprobadas."
+
+    elif intent == 'vulnerabilities_by_type':
+        query = """
+        SELECT pe.pregunta as tipo_vulnerabilidad,
+            COUNT(DISTINCT re.alumno_id) as estudiantes_afectados
+        FROM preguntas_encuesta pe
+        JOIN encuestas e ON pe.encuesta_id = e.id
+        JOIN respuestas_encuesta re ON pe.id = re.pregunta_id
+        WHERE e.tipo_encuesta = 'vulnerabilidad'
+        GROUP BY pe.pregunta
+        ORDER BY estudiantes_afectados DESC
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict):
+            response = "Vulnerabilidades por tipo:\n\n"
+            for row in result:
+                response += f"{row['tipo_vulnerabilidad']}: {row['estudiantes_afectados']} estudiantes\n"
+            return response
+        else:
+            return "No hay vulnerabilidades registradas."
+
+    elif intent == 'students_academic_risk':
+        query = """
+        SELECT a.matricula, u.nombre, u.apellido,
+            COUNT(CASE WHEN ed.oportunidad = 'ultima_oportunidad' THEN 1 END) as ultima_oportunidad,
+            COUNT(CASE WHEN ed.oportunidad = 'extraordinario' THEN 1 END) as extraordinarios
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN evaluaciones_detalle ed ON a.id = ed.alumno_id
+        WHERE a.estado_alumno = 'activo'
+        GROUP BY a.id, a.matricula, u.nombre, u.apellido
+        HAVING (ultima_oportunidad + extraordinarios) > 0
+        ORDER BY ultima_oportunidad DESC, extraordinarios DESC
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict):
+            response = f"Alumnos en riesgo académico ({len(result)} casos):\n\n"
+            for row in result:
+                response += f"Matrícula: {row['matricula']}\n"
+                response += f"Nombre: {row['nombre']} {row['apellido']}\n"
+                response += f"Última oportunidad: {row['ultima_oportunidad']}\n"
+                response += f"Extraordinarios: {row['extraordinarios']}\n\n"
+            return response
+        else:
+            return "No hay estudiantes en riesgo académico."
+        
+    elif intent == 'low_grade_students':
+        query = """
+        SELECT DISTINCT a.matricula, u.nombre, u.apellido, g.codigo as grupo,
+            asig.nombre as asignatura, ed.calificacion, g.cuatrimestre,
+            car.nombre as carrera, ed.oportunidad
+        FROM evaluaciones_detalle ed
+        JOIN alumnos a ON ed.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        JOIN asignaturas asig ON ed.asignatura_id = asig.id
+        LEFT JOIN carreras car ON g.carrera_id = car.id
+        WHERE ed.calificacion < 8 AND ed.calificacion IS NOT NULL AND a.estado_alumno = 'activo'
+        ORDER BY g.cuatrimestre, car.nombre, u.apellido, u.nombre
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict):
+            if not result:
+                return "Excelente desempeño: no hay alumnos con calificaciones menores a 8."
+            
+            response = f"Encontré {len(result)} registros de alumnos con calificaciones menores a 8:\n\n"
+            current_semester = None
+            
+            for row in result:
+                if current_semester != row['cuatrimestre']:
+                    current_semester = row['cuatrimestre']
+                    response += f"{current_semester} CUATRIMESTRE:\n"
+                
+                response += f"  {row['nombre']} {row['apellido']} ({row['matricula']})\n"
+                response += f"    Grupo: {row['grupo']} | Carrera: {row['carrera']}\n"
+                response += f"    Asignatura: {row['asignatura']} | Calificación: {row['calificacion']} ({row['oportunidad']})\n\n"
+            
+            return response
+        else:
+            return "No hay suficiente información de calificaciones en la base de datos para esta consulta."
+
+    elif intent == 'top_students_current':
+        query = """
+        SELECT a.matricula, u.nombre, u.apellido, g.codigo as grupo,
+            g.cuatrimestre, car.nombre as carrera, AVG(ed.calificacion) as promedio,
+            ROW_NUMBER() OVER (PARTITION BY car.id ORDER BY AVG(ed.calificacion) DESC) as ranking
+        FROM evaluaciones_detalle ed
+        JOIN alumnos a ON ed.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        LEFT JOIN carreras car ON g.carrera_id = car.id
+        WHERE ed.calificacion IS NOT NULL AND ed.fecha_evaluacion >= DATE_SUB(NOW(), INTERVAL 4 MONTH) AND a.estado_alumno = 'activo'
+        GROUP BY a.id, a.matricula, u.nombre, u.apellido, g.codigo, g.cuatrimestre, car.nombre, car.id
+        HAVING ranking <= 3
+        ORDER BY car.nombre, ranking
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict):
+            if not result:
+                return "No encontré calificaciones registradas para el período actual."
+            
+            response = "Top 3 mejores estudiantes por carrera en el cuatrimestre actual:\n\n"
+            current_career = None
+            
+            for row in result:
+                if current_career != row['carrera']:
+                    current_career = row['carrera']
+                    response += f"{current_career}:\n"
+                
+                response += f"  {row['ranking']}. {row['nombre']} {row['apellido']}\n"
+                response += f"     Matrícula: {row['matricula']}\n"
+                response += f"     Grupo: {row['grupo']} ({row['cuatrimestre']} cuatrimestre)\n"
+                response += f"     Promedio: {row['promedio']:.2f}\n\n"
+            
+            return response
+        else:
+            return "No pude obtener la información de mejores estudiantes."
+
+    elif intent == 'top_students_semester':
+        cuatrimestre = entities.get('cuatrimestre', '3')
+        query = """
+        SELECT a.matricula, u.nombre, u.apellido, g.codigo as grupo,
+            car.nombre as carrera, AVG(ed.calificacion) as promedio,
+            ROW_NUMBER() OVER (PARTITION BY g.id ORDER BY AVG(ed.calificacion) DESC) as ranking
+        FROM evaluaciones_detalle ed
+        JOIN alumnos a ON ed.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        LEFT JOIN carreras car ON g.carrera_id = car.id
+        WHERE ed.calificacion IS NOT NULL AND g.cuatrimestre = %s AND a.estado_alumno = 'activo'
+        GROUP BY a.id, a.matricula, u.nombre, u.apellido, g.codigo, g.id, car.nombre
+        HAVING ranking <= 3
+        ORDER BY g.codigo, ranking
+        """
+        result = execute_query(query, (cuatrimestre,))
+        if result and not isinstance(result, dict):
+            if not result:
+                return f"No encontré estudiantes en {cuatrimestre} cuatrimestre."
+            
+            response = f"Top 3 mejores estudiantes por grupo en {cuatrimestre} cuatrimestre:\n\n"
+            current_group = None
+            
+            for row in result:
+                if current_group != row['grupo']:
+                    current_group = row['grupo']
+                    response += f"Grupo {row['grupo']} ({row['carrera']}):\n"
+                
+                response += f"  {row['ranking']}. {row['nombre']} {row['apellido']}\n"
+                response += f"     Matrícula: {row['matricula']}\n"
+                response += f"     Promedio: {row['promedio']:.2f}\n\n"
+            
+            return response
+        else:
+            return f"No pude obtener información de {cuatrimestre} cuatrimestre."
+
+    elif intent == 'teachers_low_grades':
+        query = """
+        SELECT p.numero_empleado, u.nombre, u.apellido,
+            COUNT(ed.id) as calificaciones_bajas,
+            COUNT(DISTINCT a.matricula) as alumnos_afectados,
+            GROUP_CONCAT(DISTINCT CONCAT(ua.nombre, ' ', ua.apellido, ' (', a.matricula, ') - ', asig.nombre, ': ', ed.calificacion) 
+                        ORDER BY ua.apellido SEPARATOR '; ') as detalle_alumnos
+        FROM profesores p
+        JOIN usuarios u ON p.usuario_id = u.id
+        JOIN evaluaciones_detalle ed ON p.id = ed.profesor_id
+        JOIN alumnos a ON ed.alumno_id = a.id
+        JOIN usuarios ua ON a.usuario_id = ua.id
+        JOIN asignaturas asig ON ed.asignatura_id = asig.id
+        WHERE ed.calificacion <= 7 AND ed.calificacion IS NOT NULL AND p.activo = TRUE
+        GROUP BY p.id, p.numero_empleado, u.nombre, u.apellido
+        ORDER BY calificaciones_bajas DESC, alumnos_afectados DESC
+        LIMIT 10
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict):
+            if not result:
+                return "Excelente: no hay profesores con calificaciones menores o iguales a 7 registradas."
+            
+            response = "Te muestro los profesores con más calificaciones menores o iguales a 7:\n\n"
+            
+            for i, row in enumerate(result, 1):
+                response += f"{i}. Profesor {row['nombre']} {row['apellido']} ({row['numero_empleado']})\n"
+                response += f"   Calificaciones menores o iguales a 7: {row['calificaciones_bajas']}\n"
+                response += f"   Alumnos afectados: {row['alumnos_afectados']}\n"
+                if len(row['detalle_alumnos']) > 200:
+                    response += f"   Detalle: {row['detalle_alumnos'][:200]}...\n"
+                else:
+                    response += f"   Detalle: {row['detalle_alumnos']}\n"
+                response += "\n"
+            
+            return response
+        else:
+            return "No pude obtener información de calificaciones bajas."
+
+    elif intent == 'teacher_complete_info':
+        if 'numero_empleado' not in entities:
+            return "Para consultar información completa del profesor necesito su número de empleado (por ejemplo: EMP001)."
+        
+        numero_emp = entities['numero_empleado']
+        
+        query_grades = """
+        SELECT COUNT(*) as total_calificaciones,
+            AVG(ed.calificacion) as promedio_otorgado,
+            COUNT(CASE WHEN ed.calificacion < 7 THEN 1 END) as calificaciones_bajas,
+            COUNT(CASE WHEN ed.oportunidad = 'ordinario' THEN 1 END) as ordinarios,
+            COUNT(CASE WHEN ed.oportunidad = 'remedial' THEN 1 END) as remediales,
+            COUNT(CASE WHEN ed.oportunidad = 'extraordinario' THEN 1 END) as extraordinarios
+        FROM evaluaciones_detalle ed
+        JOIN profesores p ON ed.profesor_id = p.id
+        WHERE p.numero_empleado = %s AND ed.calificacion IS NOT NULL
+        """
+        
+        grades_info = execute_query(query_grades, (numero_emp,))
+        
+        if grades_info and not isinstance(grades_info, dict) and grades_info[0]['total_calificaciones'] > 0:
+            grade_data = grades_info[0]
+            response += f"\nEstadísticas de calificaciones:\n"
+            response += f"  Total calificaciones registradas: {grade_data['total_calificaciones']}\n"
+            response += f"  Promedio general otorgado: {grade_data['promedio_otorgado']:.2f}\n"
+            response += f"  Calificaciones menores a 7: {grade_data['calificaciones_bajas']}\n"
+            response += f"  Ordinarios: {grade_data['ordinarios']}\n"
+            response += f"  Remediales: {grade_data['remediales']}\n"
+            response += f"  Extraordinarios: {grade_data['extraordinarios']}\n"
+
+    elif intent == 'groups_lowest_average':
+        query = """
+        SELECT g.codigo, g.cuatrimestre, c.nombre as carrera,
+            COUNT(DISTINCT a.id) as total_alumnos,
+            AVG(ed.calificacion) as promedio_grupo
+        FROM grupos g
+        JOIN carreras c ON g.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = TRUE
+        LEFT JOIN alumnos a ON ag.alumno_id = a.id
+        LEFT JOIN evaluaciones_detalle ed ON a.id = ed.alumno_id AND ed.calificacion IS NOT NULL
+        WHERE g.activo = TRUE
+        GROUP BY g.id, g.codigo, g.cuatrimestre, c.nombre
+        HAVING COUNT(ed.id) > 0
+        ORDER BY promedio_grupo ASC
+        LIMIT 10
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict):
+            if not result:
+                return "No se encontraron grupos con calificaciones registradas."
+            
+            response = "Grupos con promedio final más bajo:\n\n"
+            
+            for i, row in enumerate(result, 1):
+                response += f"{i}. Grupo {row['codigo']} - {row['cuatrimestre']} cuatrimestre\n"
+                response += f"   Carrera: {row['carrera']}\n"
+                response += f"   Total alumnos: {row['total_alumnos']}\n"
+                response += f"   Promedio del grupo: {row['promedio_grupo']:.2f}\n\n"
+            
+            return response
+        else:
+            return "No pude obtener información de promedios por grupo."
+
+    elif intent == 'subjects_no_grades':
+        query = """
+        SELECT a.nombre as asignatura, g.codigo as grupo, g.cuatrimestre,
+            car.nombre as carrera,
+            CONCAT(u.nombre, ' ', u.apellido) as profesor,
+            p.numero_empleado
+        FROM profesor_asignatura_grupo pag
+        JOIN asignaturas a ON pag.asignatura_id = a.id
+        JOIN grupos g ON pag.grupo_id = g.id
+        JOIN carreras car ON g.carrera_id = car.id
+        JOIN profesores p ON pag.profesor_id = p.id
+        JOIN usuarios u ON p.usuario_id = u.id
+        LEFT JOIN evaluaciones_detalle ed ON pag.grupo_id = ed.grupo_id 
+                                    AND pag.asignatura_id = ed.asignatura_id
+                                    AND pag.profesor_id = ed.profesor_id
+        WHERE pag.activo = TRUE AND g.activo = TRUE AND ed.id IS NULL
+        ORDER BY car.nombre, g.cuatrimestre, a.nombre
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict):
+            if not result:
+                return "Todas las asignaturas tienen calificaciones registradas."
+            
+            response = "Asignaturas con calificaciones aún sin registrar:\n\n"
+            current_career = None
+            
+            for row in result:
+                if current_career != row['carrera']:
+                    current_career = row['carrera']
+                    response += f"{current_career}:\n"
+                
+                response += f"  Asignatura: {row['asignatura']}\n"
+                response += f"    Grupo: {row['grupo']} ({row['cuatrimestre']} cuatrimestre)\n"
+                response += f"    Profesor: {row['profesor']} ({row['numero_empleado']})\n\n"
+            
+            return response
+        else:
+            return "No pude obtener información de asignaturas sin calificaciones."
+
+    elif intent == 'most_failed_subjects':
+        query = """
+        SELECT a.nombre as asignatura, 
+            COUNT(CASE WHEN ed.oportunidad IN ('remedial', 'extraordinario', 'ultima_oportunidad') THEN 1 END) as reprobados,
+            COUNT(ed.id) as total_evaluados,
+            ROUND((COUNT(CASE WHEN ed.oportunidad IN ('remedial', 'extraordinario', 'ultima_oportunidad') THEN 1 END) * 100.0 / COUNT(ed.id)), 2) as porcentaje_reprobacion,
+            car.nombre as carrera
+        FROM asignaturas a
+        JOIN evaluaciones_detalle ed ON a.id = ed.asignatura_id
+        LEFT JOIN alumnos_grupos ag ON ed.alumno_id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        LEFT JOIN carreras car ON g.carrera_id = car.id
+        WHERE ed.calificacion IS NOT NULL
+        GROUP BY a.id, a.nombre, car.nombre
+        HAVING reprobados > 0
+        ORDER BY porcentaje_reprobacion DESC, reprobados DESC
+        LIMIT 15
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict):
+            if not result:
+                return "Excelente: no hay materias con índices significativos de reprobación."
+            
+            response = "Materias con mayores índices de reprobación:\n\n"
+            
+            for i, row in enumerate(result, 1):
+                response += f"{i}. {row['asignatura']} ({row['carrera']})\n"
+                response += f"   Reprobados: {row['reprobados']} de {row['total_evaluados']} estudiantes\n"
+                response += f"   Porcentaje de reprobación: {row['porcentaje_reprobacion']}%\n"
+                if row['porcentaje_reprobacion'] > 50:
+                    response += f"   MATERIA DE ALTO RIESGO\n"
+                response += "\n"
+            
+            return response
+        else:
+            return "No pude obtener estadísticas de reprobación."
+        
+    elif intent == 'all_students_info':
+        query = """
+        SELECT a.matricula, u.nombre, u.apellido, u.correo,
+            a.cuatrimestre_actual, a.fecha_ingreso, a.telefono,
+            a.estado_alumno, a.promedio_general, c.nombre as carrera,
+            g.codigo as grupo_actual
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        ORDER BY c.nombre, a.cuatrimestre_actual, u.apellido, u.nombre
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict):
+            response = f"Información de todos los alumnos ({len(result)} estudiantes):\n\n"
+            current_career = None
+            
+            for row in result:
+                if current_career != row['carrera']:
+                    current_career = row['carrera']
+                    response += f"{current_career}:\n"
+                
+                response += f"  Matrícula: {row['matricula']}\n"
+                response += f"  Nombre: {row['nombre']} {row['apellido']}\n"
+                response += f"  Correo: {row['correo']}\n"
+                response += f"  Estado: {row['estado_alumno']}\n"
+                response += f"  Cuatrimestre: {row['cuatrimestre_actual']}\n"
+                response += f"  Grupo: {row['grupo_actual'] or 'Sin asignar'}\n"
+                response += f"  Promedio: {row['promedio_general']}\n"
+                response += f"  Ingreso: {row['fecha_ingreso']}\n"
+                if row['telefono']:
+                    response += f"  Teléfono: {row['telefono']}\n"
+                response += "\n"
+            
+            return response
+        else:
+            return "No pude obtener la información de todos los alumnos."
+    
+    elif intent == 'student_complete_relational_info':
+        if 'matricula' not in entities:
+            return "Para obtener toda la información relacional necesito la matrícula del alumno (10 dígitos)."
+        
+        matricula = entities['matricula']
+        
+        query_basic = """
+        SELECT a.matricula, u.nombre, u.apellido, u.correo,
+            a.cuatrimestre_actual, a.fecha_ingreso, a.telefono,
+            a.estado_alumno, a.promedio_general, c.nombre as carrera,
+            a.tutor_nombre, a.tutor_telefono, a.direccion, a.fecha_nacimiento
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        WHERE a.matricula = %s
+        """
+        
+        query_group = """
+        SELECT g.codigo as grupo, g.cuatrimestre, g.ciclo_escolar,
+            car.nombre as carrera,
+            CONCAT(up.nombre, ' ', up.apellido) as profesor_tutor
+        FROM alumnos_grupos ag
+        JOIN alumnos a ON ag.alumno_id = a.id
+        JOIN grupos g ON ag.grupo_id = g.id
+        JOIN carreras car ON g.carrera_id = car.id
+        LEFT JOIN profesores p ON g.profesor_tutor_id = p.id
+        LEFT JOIN usuarios up ON p.usuario_id = up.id
+        WHERE a.matricula = %s AND ag.activo = TRUE
+        """
+        
+        query_grades = """
+        SELECT asig.nombre as asignatura, ed.calificacion,
+            ed.oportunidad, ed.fecha_evaluacion,
+            CONCAT(up.nombre, ' ', up.apellido) as profesor
+        FROM evaluaciones_detalle ed
+        JOIN alumnos a ON ed.alumno_id = a.id
+        JOIN asignaturas asig ON ed.asignatura_id = asig.id
+        LEFT JOIN profesores p ON ed.profesor_id = p.id
+        LEFT JOIN usuarios up ON p.usuario_id = up.id
+        WHERE a.matricula = %s AND ed.calificacion IS NOT NULL
+        ORDER BY ed.fecha_evaluacion DESC, asig.nombre
+        """
+        
+        query_risk = """
+        SELECT tipo_riesgo, nivel_riesgo, descripcion, estado,
+            DATE_FORMAT(fecha_reporte, '%d/%m/%Y') as fecha
+        FROM reportes_riesgo rr
+        JOIN alumnos a ON rr.alumno_id = a.id
+        WHERE a.matricula = %s
+        ORDER BY fecha_reporte DESC
+        """
+        
+        query_help_requests = """
+        SELECT tipo_problema, descripcion_problema, urgencia, estado,
+            DATE_FORMAT(fecha_solicitud, '%d/%m/%Y') as fecha,
+            CONCAT(ud.nombre, ' ', ud.apellido) as asignado_a
+        FROM solicitudes_ayuda sa
+        JOIN alumnos a ON sa.alumno_id = a.id
+        LEFT JOIN directivos d ON sa.asignado_a = d.id
+        LEFT JOIN usuarios ud ON d.usuario_id = ud.id
+        WHERE a.matricula = %s
+        ORDER BY fecha_solicitud DESC
+        """
+        
+        query_vulnerabilities = """
+        SELECT pe.pregunta as vulnerabilidad, re.respuesta,
+            DATE_FORMAT(re.fecha_respuesta, '%d/%m/%Y') as fecha
+        FROM respuestas_encuesta re
+        JOIN alumnos a ON re.alumno_id = a.id
+        JOIN preguntas_encuesta pe ON re.pregunta_id = pe.id
+        JOIN encuestas e ON pe.encuesta_id = e.id
+        WHERE a.matricula = %s AND e.tipo_encuesta = 'vulnerabilidad'
+        ORDER BY re.fecha_respuesta DESC
+        """
+        
+        basic_info = execute_query(query_basic, (matricula,))
+        group_info = execute_query(query_group, (matricula,))
+        grades_info = execute_query(query_grades, (matricula,))
+        risk_info = execute_query(query_risk, (matricula,))
+        help_info = execute_query(query_help_requests, (matricula,))
+        vulnerabilities_info = execute_query(query_vulnerabilities, (matricula,))
+        
+        if not basic_info or isinstance(basic_info, dict) or not basic_info:
+            return f"No encontré información para la matrícula {matricula}."
+        
+        data = basic_info[0]
+        response = f"INFORMACIÓN COMPLETA Y RELACIONAL DEL ALUMNO\n\n"
+        response += f"DATOS PERSONALES:\n"
+        response += f"  Nombre: {data['nombre']} {data['apellido']}\n"
+        response += f"  Matrícula: {data['matricula']}\n"
+        response += f"  Correo: {data['correo']}\n"
+        response += f"  Estado: {data['estado_alumno']}\n"
+        
+        if data['telefono']:
+            response += f"  Teléfono: {data['telefono']}\n"
+        if data['direccion']:
+            response += f"  Dirección: {data['direccion']}\n"
+        if data['fecha_nacimiento']:
+            response += f"  Fecha nacimiento: {data['fecha_nacimiento']}\n"
+        
+        response += f"\nDATOS ACADÉMICOS:\n"
+        response += f"  Carrera: {data['carrera']}\n"
+        response += f"  Cuatrimestre actual: {data['cuatrimestre_actual']}\n"
+        response += f"  Fecha ingreso: {data['fecha_ingreso']}\n"
+        response += f"  Promedio general: {data['promedio_general']}\n"
+        
+        if data['tutor_nombre']:
+            response += f"  Tutor: {data['tutor_nombre']}\n"
+            if data['tutor_telefono']:
+                response += f"  Teléfono tutor: {data['tutor_telefono']}\n"
+        
+        if group_info and not isinstance(group_info, dict):
+            response += f"\nGRUPO ACTUAL:\n"
+            for group in group_info:
+                response += f"  Grupo: {group['grupo']} - {group['cuatrimestre']} cuatrimestre\n"
+                response += f"  Ciclo: {group['ciclo_escolar']}\n"
+                response += f"  Carrera: {group['carrera']}\n"
+                if group['profesor_tutor']:
+                    response += f"  Profesor tutor: {group['profesor_tutor']}\n"
+        
+        if grades_info and not isinstance(grades_info, dict):
+            response += f"\nHISTORIAL DE CALIFICACIONES ({len(grades_info)}):\n"
+            for grade in grades_info:
+                response += f"  {grade['asignatura']}: {grade['calificacion']} ({grade['oportunidad']})\n"
+                if grade['profesor']:
+                    response += f"    Profesor: {grade['profesor']}\n"
+                response += f"    Fecha: {grade['fecha_evaluacion']}\n"
+        
+        if risk_info and not isinstance(risk_info, dict):
+            response += f"\nREPORTES DE RIESGO ({len(risk_info)}):\n"
+            for risk in risk_info:
+                response += f"  {risk['tipo_riesgo']} - Nivel {risk['nivel_riesgo']} ({risk['estado']})\n"
+                response += f"    Descripción: {risk['descripcion']}\n"
+                response += f"    Fecha: {risk['fecha']}\n"
+        
+        if help_info and not isinstance(help_info, dict):
+            response += f"\nSOLICITUDES DE AYUDA ({len(help_info)}):\n"
+            for help_req in help_info:
+                response += f"  {help_req['tipo_problema']} - Urgencia {help_req['urgencia']} ({help_req['estado']})\n"
+                response += f"    Descripción: {help_req['descripcion_problema']}\n"
+                response += f"    Fecha: {help_req['fecha']}\n"
+                if help_req['asignado_a']:
+                    response += f"    Asignado a: {help_req['asignado_a']}\n"
+        
+        if vulnerabilities_info and not isinstance(vulnerabilities_info, dict):
+            response += f"\nVULNERABILIDADES IDENTIFICADAS ({len(vulnerabilities_info)}):\n"
+            for vuln in vulnerabilities_info:
+                response += f"  {vuln['vulnerabilidad']}\n"
+                response += f"    Respuesta: {vuln['respuesta']}\n"
+                response += f"    Fecha: {vuln['fecha']}\n"
+        
+        return response
+    
+ 
+    elif intent == 'students_extraordinary':
+        query = """
+        SELECT DISTINCT a.matricula, u.nombre, u.apellido, c.nombre as carrera
+        FROM evaluaciones_detalle ed
+        JOIN alumnos a ON ed.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        WHERE a.estado_alumno = 'activo' AND ed.oportunidad = 'extraordinario'
+        ORDER BY a.matricula
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict):
+            if not result:
+                return "No hay estudiantes en extraordinario."
+            
+            response = f"Alumnos en extraordinario ({len(result)} estudiantes):\n\n"
+            for row in result:
+                response += f"Matrícula: {row['matricula']}\n"
+                response += f"Nombre: {row['nombre']} {row['apellido']}\n"
+                response += f"Carrera: {row['carrera']}\n\n"
+            return response
+        else:
+            return "Error en la consulta de estudiantes en extraordinario."
+
+    elif intent == 'students_ordinary':
+        query = """
+        SELECT a.matricula, u.nombre, u.apellido, c.nombre as carrera,
+            COUNT(ed.id) as materias_ordinario,
+            GROUP_CONCAT(DISTINCT asig.nombre SEPARATOR ', ') as materias
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        JOIN evaluaciones_detalle ed ON a.id = ed.alumno_id
+        JOIN asignaturas asig ON ed.asignatura_id = asig.id
+        WHERE a.estado_alumno = 'activo' AND ed.oportunidad = 'ordinario'
+        GROUP BY a.id, a.matricula, u.nombre, u.apellido, c.nombre
+        ORDER BY materias_ordinario DESC
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict):
+            response = f"Alumnos en ordinario ({len(result)} casos):\n\n"
+            for row in result:
+                response += f"Matrícula: {row['matricula']}\n"
+                response += f"Nombre: {row['nombre']} {row['apellido']}\n"
+                response += f"Carrera: {row['carrera']}\n"
+                response += f"Materias en ordinario: {row['materias_ordinario']}\n"
+                response += f"Materias: {row['materias']}\n\n"
+            return response
+        else:
+            return "No hay estudiantes en ordinario."
+
+    elif intent == 'students_extraordinary':
+        query = """
+        SELECT a.matricula, u.nombre, u.apellido, c.nombre as carrera,
+            COUNT(ed.id) as materias_extraordinario,
+            GROUP_CONCAT(DISTINCT asig.nombre SEPARATOR ', ') as materias
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        JOIN evaluaciones_detalle ed ON a.id = ed.alumno_id
+        JOIN asignaturas asig ON ed.asignatura_id = asig.id
+        WHERE a.estado_alumno = 'activo' AND ed.oportunidad = 'extraordinario'
+        GROUP BY a.id, a.matricula, u.nombre, u.apellido, c.nombre
+        ORDER BY materias_extraordinario DESC
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict):
+            response = f"Alumnos en extraordinario ({len(result)} casos):\n\n"
+            for row in result:
+                response += f"Matrícula: {row['matricula']}\n"
+                response += f"Nombre: {row['nombre']} {row['apellido']}\n"
+                response += f"Carrera: {row['carrera']}\n"
+                response += f"Materias en extraordinario: {row['materias_extraordinario']}\n"
+                response += f"Materias: {row['materias']}\n\n"
+            return response
+        else:
+            return "No hay estudiantes en extraordinario."
+
+    elif intent == 'students_remedial':
+        query = """
+        SELECT a.matricula, u.nombre, u.apellido, c.nombre as carrera,
+            COUNT(ed.id) as materias_remedial,
+            GROUP_CONCAT(DISTINCT asig.nombre SEPARATOR ', ') as materias
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        JOIN evaluaciones_detalle ed ON a.id = ed.alumno_id
+        JOIN asignaturas asig ON ed.asignatura_id = asig.id
+        WHERE a.estado_alumno = 'activo' AND ed.oportunidad = 'remedial'
+        GROUP BY a.id, a.matricula, u.nombre, u.apellido, c.nombre
+        ORDER BY materias_remedial DESC
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict):
+            response = f"Alumnos en remedial ({len(result)} casos):\n\n"
+            for row in result:
+                response += f"Matrícula: {row['matricula']}\n"
+                response += f"Nombre: {row['nombre']} {row['apellido']}\n"
+                response += f"Carrera: {row['carrera']}\n"
+                response += f"Materias en remedial: {row['materias_remedial']}\n"
+                response += f"Materias: {row['materias']}\n\n"
+            return response
+        else:
+            return "No hay estudiantes en remedial."
+
+    elif intent == 'students_last_chance':
+        query_estudiantes = """
+        SELECT a.matricula, u.nombre, u.apellido, c.nombre as carrera,
+            ed.oportunidad as oportunidad_ultima, 
+            asig.nombre as materia_ultima,
+            ed.calificacion as calificacion_ultima, 
+            ed.fecha_evaluacion as fecha_ultima
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        JOIN evaluaciones_detalle ed ON a.ultima_oportunidad_usada = ed.id
+        JOIN asignaturas asig ON ed.asignatura_id = asig.id
+        WHERE a.estado_alumno = 'activo' AND a.ultima_oportunidad_usada IS NOT NULL
+        ORDER BY ed.fecha_evaluacion DESC, a.matricula
+        """
+        
+        result = execute_query(query_estudiantes)
+        if result and not isinstance(result, dict):
+            if not result:
+                return "No hay estudiantes que hayan usado su última oportunidad."
+            
+            response = f"Alumnos que han usado su última oportunidad ({len(result)} casos CRÍTICOS):\n\n"
+            
+            for row in result:
+                response += f"======== ALUMNO CRÍTICO ========\n"
+                response += f"Matrícula: {row['matricula']}\n"
+                response += f"Nombre: {row['nombre']} {row['apellido']}\n"
+                response += f"Carrera: {row['carrera']}\n\n"
+                
+                response += f"ÚLTIMA OPORTUNIDAD USADA:\n"
+                response += f"  Materia: {row['materia_ultima']}\n"
+                response += f"  Tipo: {row['oportunidad_ultima']}\n"
+                response += f"  Calificación: {row['calificacion_ultima']}\n"
+                response += f"  Fecha: {row['fecha_ultima']}\n\n"
+                
+                query_calificaciones = """
+                SELECT asig.nombre as materia, 
+                    cal.parcial_1, cal.parcial_2, cal.parcial_3,
+                    cal.calificacion_ordinario, cal.calificacion_extraordinario,
+                    cal.calificacion_final, cal.estatus, cal.ciclo_escolar,
+                    CONCAT(up.nombre, ' ', up.apellido) as profesor
+                FROM calificaciones cal
+                JOIN asignaturas asig ON cal.asignatura_id = asig.id
+                JOIN profesores p ON cal.profesor_id = p.id
+                JOIN usuarios up ON p.usuario_id = up.id
+                WHERE cal.alumno_id = (
+                    SELECT id FROM alumnos WHERE matricula = %s
+                )
+                ORDER BY cal.fecha_captura DESC, asig.nombre
+                """
+                
+                calificaciones = execute_query(query_calificaciones, (row['matricula'],))
+                if calificaciones and not isinstance(calificaciones, dict):
+                    response += f"HISTORIAL COMPLETO DE CALIFICACIONES ({len(calificaciones)}):\n"
+                    for cal in calificaciones:
+                        response += f"  {cal['materia']} ({cal['ciclo_escolar']}):\n"
+                        response += f"    Parciales: {cal['parcial_1'] or 'N/A'} | {cal['parcial_2'] or 'N/A'} | {cal['parcial_3'] or 'N/A'}\n"
+                        response += f"    Ordinario: {cal['calificacion_ordinario'] or 'N/A'}\n"
+                        response += f"    Extraordinario: {cal['calificacion_extraordinario'] or 'N/A'}\n"
+                        response += f"    Final: {cal['calificacion_final'] or 'N/A'}\n"
+                        response += f"    Estatus: {cal['estatus']}\n"
+                        response += f"    Profesor: {cal['profesor']}\n\n"
+                
+                query_evaluaciones = """
+                SELECT asig.nombre as materia, ed.oportunidad, ed.calificacion, 
+                    ed.fecha_evaluacion
+                FROM evaluaciones_detalle ed
+                JOIN asignaturas asig ON ed.asignatura_id = asig.id
+                WHERE ed.alumno_id = (
+                    SELECT id FROM alumnos WHERE matricula = %s
+                )
+                ORDER BY ed.fecha_evaluacion DESC
+                """
+                
+                evaluaciones = execute_query(query_evaluaciones, (row['matricula'],))
+                if evaluaciones and not isinstance(evaluaciones, dict):
+                    response += f"HISTORIAL DE OPORTUNIDADES ({len(evaluaciones)}):\n"
+                    for eval_row in evaluaciones:
+                        response += f"  {eval_row['materia']}: {eval_row['calificacion']} ({eval_row['oportunidad']}) - {eval_row['fecha_evaluacion']}\n"
+                
+                response += f"\nREQUIERE SEGUIMIENTO ESPECIAL\n"
+                response += f"================================\n\n"
+            
+            return response
+        else:
+            return "Error en la consulta de estudiantes con última oportunidad usada."
+    elif intent == 'students_by_opportunity':
+        query = """
+        SELECT ed.oportunidad,
+            COUNT(DISTINCT ed.alumno_id) as total_estudiantes,
+            COUNT(ed.id) as total_evaluaciones
+        FROM evaluaciones_detalle ed
+        JOIN alumnos a ON ed.alumno_id = a.id
+        WHERE a.estado_alumno = 'activo'
+        GROUP BY ed.oportunidad
+        ORDER BY 
+            CASE ed.oportunidad 
+                WHEN 'ordinario' THEN 1
+                WHEN 'remedial' THEN 2
+                WHEN 'extraordinario' THEN 3
+                WHEN 'ultima_oportunidad' THEN 4
+            END
+        """
+        result = execute_query(query)
+        if result and not isinstance(result, dict) and result:
+            response = "Distribución de estudiantes por oportunidad:\n\n"
+            for row in result:
+                response += f"Oportunidad {row['oportunidad']}:\n"
+                response += f"  Estudiantes: {row['total_estudiantes']}\n"
+                response += f"  Total evaluaciones: {row['total_evaluaciones']}\n\n"
+            return response
+        else:
+            return "No pude obtener la distribución por oportunidades."
+
+  
     else:
         return "No tengo suficiente información en la base de datos para responder esa pregunta específica. ¿Podrías intentar con una consulta diferente?"
     

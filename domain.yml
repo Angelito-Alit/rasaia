@@ -1,0 +1,264 @@
+version: '3.1'
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - bot_challenge
+  - ask_students_by_career
+  - ask_inactive_students
+  - ask_student_by_name_or_id
+  - ask_student_grades
+  - ask_teacher_by_name_or_id
+  - ask_group_info
+  - ask_low_grade_students
+  - ask_top_students
+  - ask_high_risk_students
+  - ask_vulnerable_students
+  - ask_students_without_group
+  - ask_teachers_by_career
+  - ask_teacher_tutors
+  - ask_teachers_load
+  - ask_teachers_low_grades
+  - ask_classroom_usage
+  - ask_all_groups
+  - ask_groups_by_career
+  - ask_groups_without_tutor
+  - ask_group_tutor
+  - ask_tutor_groups
+  - ask_groups_risk
+  - ask_news_views
+  - ask_group_average
+  - ask_forum_categories
+  - ask_posts_by_category
+  - ask_general_stats
+  - ask_recommendations
+  - ask_students_extraordinary
+  - ask_students_remedial
+  - ask_students_ordinary
+  - ask_students_last_chance
+  - ask_failure_analysis
+  - ask_teachers_comparison
+  - ask_student_tracking
+  - ask_early_warning
+  - ask_subjects_failure_rate
+  - ask_professor_subject_performance
+  - ask_dropout_prediction
+  - ask_intervention_needed
+  - ask_grade_trends
+  - ask_teacher_effectiveness
+  - ask_correlations
+  - ask_students_by_period
+  - ask_grade_range_students
+  - ask_specific_risk_type
+  - ask_subject_specific
+
+entities:
+  - matricula
+  - numero_empleado
+  - grupo
+  - carrera
+  - cuatrimestre
+  - nombre_profesor
+  - nombre_estudiante
+  - categoria_noticia
+  - tipo_riesgo
+  - nivel_riesgo
+  - asignatura
+  - aula
+  - dia_semana
+  - estado_alumno
+  - tipo_evaluacion
+  - periodo
+  - calificacion_minima
+  - calificacion_maxima
+  - rango_calificacion
+  - calificacion_exacta
+
+
+slots:
+  matricula:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: matricula
+  numero_empleado:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: numero_empleado
+  grupo:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: grupo
+  carrera:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: carrera
+  cuatrimestre:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: cuatrimestre
+  nombre_profesor:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: nombre_profesor
+  nombre_estudiante:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: nombre_estudiante
+  categoria_noticia:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: categoria_noticia
+  tipo_riesgo:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: tipo_riesgo
+  nivel_riesgo:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: nivel_riesgo
+  asignatura:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: asignatura
+  aula:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: aula
+  dia_semana:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: dia_semana
+  estado_alumno:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: estado_alumno
+  tipo_evaluacion:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: tipo_evaluacion
+  periodo:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: periodo
+  calificacion_minima:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: calificacion_minima
+  calificacion_maxima:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: calificacion_maxima
+  rango_calificacion:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: rango_calificacion
+  calificacion_exacta:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: calificacion_exacta
+
+responses:
+  utter_greet:
+  - text: "Hola, soy tu asistente académico inteligente. Puedo ayudarte con consultas sobre estudiantes, profesores, grupos, calificaciones y estadísticas del sistema educativo."
+
+  utter_goodbye:
+  - text: "Ha sido un placer ayudarte con la información académica. Que tengas un excelente día."
+
+  utter_iamabot:
+  - text: "Soy un asistente virtual académico especializado en información educativa."
+
+actions:
+  - action_get_students_by_career
+  - action_get_inactive_students
+  - action_get_student_by_name_or_id
+  - action_get_student_grades
+  - action_get_teacher_by_name_or_id
+  - action_get_group_info
+  - action_get_low_grade_students
+  - action_get_top_students
+  - action_get_high_risk_students
+  - action_get_vulnerable_students
+  - action_get_students_without_group
+  - action_get_teachers_by_career
+  - action_get_teacher_tutors
+  - action_get_teachers_load
+  - action_get_teachers_low_grades
+  - action_get_classroom_usage
+  - action_get_all_groups
+  - action_get_groups_by_career
+  - action_get_groups_without_tutor
+  - action_get_group_tutor
+  - action_get_tutor_groups
+  - action_get_groups_risk
+  - action_get_news_views
+  - action_get_group_average
+  - action_get_forum_categories
+  - action_get_posts_by_category
+  - action_get_general_stats
+  - action_get_recommendations
+  - action_get_students_extraordinary
+  - action_get_students_remedial
+  - action_get_students_ordinary
+  - action_get_students_last_chance
+  - action_fallback
+  - action_get_failure_analysis
+  - action_get_teachers_comparison
+  - action_get_student_tracking
+  - action_get_early_warning
+  - action_get_subjects_failure_rate
+  - action_get_professor_subject_performance
+  - action_get_dropout_prediction
+  - action_get_intervention_needed
+  - action_get_grade_trends
+  - action_get_teacher_effectiveness
+  - action_get_correlations
+  - action_get_students_by_period
+  - action_get_grade_range_students
+  - action_get_specific_risk_type
+  - action_get_subject_specific
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

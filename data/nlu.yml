@@ -1,0 +1,929 @@
+version: '3.1'
+
+nlu:
+- intent: greet
+  examples: |
+    - hola
+    - buenos días
+    - buenos dias
+    - buenas tardes
+    - hey
+    - saludos
+    - qué tal
+    - que tal
+    - buenas
+    - hola asistente
+    - buen día
+    - buen dia
+    - buenas noches
+    - que onda
+    - como estas
+    - cómo estas
+    - como esta
+    - holi
+    - hello
+    - holaa
+    - hoola
+
+- intent: goodbye
+  examples: |
+    - adiós
+    - adios
+    - hasta luego
+    - bye
+    - nos vemos
+    - chao
+    - chau
+    - que tengas buen día
+    - que tengas buen dia
+    - hasta la vista
+    - me voy
+    - gracias por todo
+    - see you
+    - hasta mañana
+    - hasta manana
+    - me despido
+
+- intent: affirm
+  examples: |
+    - sí
+    - si
+    - claro
+    - por supuesto
+    - exacto
+    - correcto
+    - está bien
+    - esta bien
+    - vale
+    - de acuerdo
+    - perfecto
+    - si por favor
+    - así es
+    - asi es
+    - confirmado
+    - ok
+    - okay
+
+- intent: deny
+  examples: |
+    - no
+    - para nada
+    - no gracias
+    - negativo
+    - incorrecto
+    - no es así
+    - no es asi
+    - no quiero
+    - mejor no
+    - nop
+
+- intent: bot_challenge
+  examples: |
+    - eres un bot?
+    - eres humano?
+    - estoy hablando con un bot?
+    - eres una máquina?
+    - eres una maquina?
+    - que eres tu?
+    - qué eres tu?
+    - que eres tú?
+
+- intent: ask_students_by_career
+  examples: |
+    - cuántos alumnos hay por carrera
+    - cuantos alumnos hay por carrera
+    - estudiantes por carrera y cuatrimestre
+    - distribución de alumnos por programa
+    - distribucion de alumnos por programa
+    - cantidad de estudiantes por carrera
+    - alumnos matriculados por carrera
+    - dime cuántos estudiantes tenemos por cada carrera
+    - dime cuantos estudiantes tenemos por cada carrera
+    - necesito saber la cantidad de alumnos por programa educativo
+    - qué carrera tiene más estudiantes
+    - que carrera tiene mas estudiantes
+    - estadísticas de matrícula por carrera
+    - estadisticas de matricula por carrera
+    - total de alumnos distribuidos por programa
+    - cuantos estudiantes hay en cada carrera
+    - matricula por carrera académica
+    - matricula por carrera academica
+    - alumnos inscritos por programa
+    - población estudiantil por carrera
+    - poblacion estudiantil por carrera
+
+- intent: ask_inactive_students
+  examples: |
+    - qué alumnos están inactivos
+    - que alumnos estan inactivos
+    - estudiantes no activos
+    - alumnos con estado inactivo
+    - quiénes no están estudiando activamente
+    - quienes no estan estudiando activamente
+    - lista de estudiantes dados de baja
+    - alumnos que no están activos en el sistema
+    - alumnos que no estan activos en el sistema
+    - estudiantes con baja temporal
+    - estudiantes con baja definitiva
+    - alumnos egresados
+    - quienes han dejado de estudiar
+    - estudiantes fuera del sistema activo
+    - alumnos no matriculados
+    - estudiantes suspendidos
+
+- intent: ask_student_by_name_or_id
+  examples: |
+    - información del alumno [Juan Pérez](nombre_estudiante)
+    - informacion del alumno [Juan Perez](nombre_estudiante)
+    - datos del estudiante [María García](nombre_estudiante)
+    - datos del estudiante [Maria Garcia](nombre_estudiante)
+    - búscame al alumno [2022371156](matricula)
+    - buscame al alumno [2022371156](matricula)
+    - necesito información de [Pedro López](nombre_estudiante)
+    - necesito informacion de [Pedro Lopez](nombre_estudiante)
+    - dime sobre el estudiante [2023123456](matricula)
+    - perfil del alumno [Ana Rodríguez](nombre_estudiante)
+    - perfil del alumno [Ana Rodriguez](nombre_estudiante)
+    - todo sobre [2024567890](matricula)
+    - información completa de [Carlos Méndez](nombre_estudiante)
+    - informacion completa de [Carlos Mendez](nombre_estudiante)
+    - historial del estudiante [2022456789](matricula)
+    - expediente de [Luis Herrera](nombre_estudiante)
+    - datos académicos de [2023789456](matricula)
+    - datos academicos de [2023789456](matricula)
+    - buscar alumno [Elena Vásquez](nombre_estudiante)
+    - buscar alumno [Elena Vasquez](nombre_estudiante)
+    - me puedes decir sobre [Juan Pérez](nombre_estudiante)
+    - quisiera saber de [2022371156](matricula)
+    - dame info de [María García](nombre_estudiante)
+    - consulta al estudiante [Pedro López](nombre_estudiante)
+    - revisa la matrícula [2023123456](matricula)
+    - cómo está [Ana Rodríguez](nombre_estudiante)
+    - qué sabes de [Carlos Méndez](nombre_estudiante)
+    - situación del alumno [2024567890](matricula)
+    - expediente completo de [Luis Herrera](nombre_estudiante)
+    - estado actual de [Elena Vásquez](nombre_estudiante)
+    - ficha del estudiante [2022456789](matricula)
+    - ver alumno [Sofía Morales](nombre_estudiante)
+    - consultar [2023789456](matricula)
+    - datos completos de [Roberto Silva](nombre_estudiante)
+    - me puedes decir sobre [Juan Pérez](nombre_estudiante)
+    - quisiera saber de [2022371156](matricula)
+    - dame info de [María García](nombre_estudiante)
+    - consulta al estudiante [Pedro López](nombre_estudiante)
+    - revisa la matrícula [2023123456](matricula)
+    - cómo está [Ana Rodríguez](nombre_estudiante)
+    - qué sabes de [Carlos Méndez](nombre_estudiante)
+    - situación del alumno [2024567890](matricula)
+    - expediente completo de [Luis Herrera](nombre_estudiante)
+    - estado actual de [Elena Vásquez](nombre_estudiante)
+    - ficha del estudiante [2022456789](matricula)
+    - ver alumno [Sofía Morales](nombre_estudiante)
+    - consultar [2023789456](matricula)
+    - datos completos de [Roberto Silva](nombre_estudiante)
+
+- intent: ask_student_grades
+  examples: |
+    - calificaciones del alumno [2022371156](matricula)
+    - notas del estudiante [Juan Pérez](nombre_estudiante)
+    - notas del estudiante [Juan Perez](nombre_estudiante)
+    - evaluaciones del alumno [2023123456](matricula)
+    - historial de calificaciones de [María García](nombre_estudiante)
+    - historial de calificaciones de [Maria Garcia](nombre_estudiante)
+    - qué calificaciones tiene [2024567890](matricula)
+    - que calificaciones tiene [2024567890](matricula)
+    - rendimiento académico de [Pedro López](nombre_estudiante)
+    - rendimiento academico de [Pedro Lopez](nombre_estudiante)
+    - parciales del estudiante [2022456789](matricula)
+    - calificaciones finales de [Ana Rodríguez](nombre_estudiante)
+    - calificaciones finales de [Ana Rodriguez](nombre_estudiante)
+    - evaluación de [Carlos Méndez](nombre_estudiante)
+    - evaluacion de [Carlos Mendez](nombre_estudiante)
+    - notas de [2023789456](matricula)
+
+- intent: ask_teacher_by_name_or_id
+  examples: |
+    - información del profesor [Juan Martínez](nombre_profesor)
+    - informacion del profesor [Juan Martinez](nombre_profesor)
+    - datos del maestro [PA652S64](numero_empleado)
+    - perfil del docente [María Hernández](nombre_profesor)
+    - perfil del docente [Maria Hernandez](nombre_profesor)
+    - todo sobre el profesor [O7U5R4545](numero_empleado)
+    - búscame al profesor [Pedro Sánchez](nombre_profesor)
+    - buscame al profesor [Pedro Sanchez](nombre_profesor)
+    - información completa del docente [Q5S4}H7](numero_empleado)
+    - informacion completa del docente [KL52GF145](numero_empleado)
+    - expediente del maestro [Ana López](nombre_profesor)
+    - expediente del maestro [Ana Lopez](nombre_profesor)
+    - datos del profesor [O5KLH41F](numero_empleado)
+    - historial del docente [Luis García](nombre_profesor)
+    - historial del docente [Luis Garcia](nombre_profesor)
+    - cómo está el profesor [Juan Martínez](nombre_profesor)
+    - situación del maestro [LJ428VF4](numero_empleado)
+    - qué sabes del docente [María Hernández](nombre_profesor)
+    - consulta sobre [Pedro Sánchez](nombre_profesor)
+    - información completa de [ASG441H2J4](numero_empleado)
+    - perfil detallado de [Ana López](nombre_profesor)
+    - datos del maestro [51512SAFH](numero_empleado)
+    - ver profesor [Luis García](nombre_profesor)
+    - revisar docente [J5KL724J89](numero_empleado)
+    - ficha del profesor [Carmen Ruiz](nombre_profesor)
+    - estado del maestro [Roberto Díaz](nombre_profesor)
+    - consultar empleado [2ASFG5G555](numero_empleado)
+
+- intent: ask_group_info
+  examples: |
+    - información del grupo [iDGS10](grupo)
+    - informacion del grupo [iDGS10](grupo)
+    - datos del grupo [iTUR08](grupo)
+    - quién está en el grupo [iINF09](grupo)
+    - quien esta en el grupo [iINF09](grupo)
+    - alumnos del grupo [iMEC07](grupo)
+    - tutor del grupo [iGAS06](grupo)
+    - horarios del grupo [iDGS11](grupo)
+    - matrícula del grupo [iTUR09](grupo)
+    - matricula del grupo [iTUR09](grupo)
+    - estudiantes inscritos en [iINF10](grupo)
+    - profesor tutor de [iMEC08](grupo)
+    - cuántos alumnos hay en [iGAS07](grupo)
+    - cuantos alumnos hay en [iGAS07](grupo)
+
+- intent: ask_low_grade_students
+  examples: |
+    - alumnos con calificaciones bajas
+    - estudiantes reprobados
+    - quién tiene calificaciones menores a 8
+    - quien tiene calificaciones menores a 8
+    - alumnos con notas bajas
+    - estudiantes con mal rendimiento académico
+    - estudiantes con mal rendimiento academico
+    - quiénes están reprobando materias
+    - quienes estan reprobando materias
+    - alumnos en riesgo académico por calificaciones
+    - alumnos en riesgo academico por calificaciones
+    - estudiantes con calificaciones insuficientes
+    - quién necesita apoyo académico
+    - quien necesita apoyo academico
+    - alumnos con promedio bajo
+    - estudiantes que reprueban
+    - calificaciones por debajo del promedio
+    - por qué reprueban los estudiantes
+    - razones de las calificaciones bajas
+    - estudiantes con problemas académicos
+    - alumnos que no aprueban materias
+    - qué causa el bajo rendimiento
+    - estudiantes con dificultades de aprendizaje
+    - alumnos que necesitan refuerzo académico
+    - por qué fallan los estudiantes
+    - causas del fracaso escolar
+    - estudiantes con notas insuficientes
+    - alumnos en riesgo de reprobar
+    - qué pasa con los estudiantes que reprueban
+    - problemas de rendimiento estudiantil
+    - estudiantes con aprovechamiento bajo
+    - alumnos que no logran aprobar
+    - dificultades académicas de los estudiantes
+
+- intent: ask_teachers_comparison
+  examples: |
+    - comparar rendimiento entre profesores
+    - qué profesor tiene mejores resultados
+    - ranking de profesores por aprovechamiento
+    - maestros con mejor desempeño
+    - comparación de eficacia docente
+    - profesores más efectivos
+    - docentes con mejor rendimiento estudiantil
+    - maestros que logran mejor aprovechamiento
+    - ranking de profesores exitosos
+    - comparar resultados académicos por profesor
+
+- intent: ask_correlations
+  examples: |
+    - relación entre asistencia y calificaciones
+    - correlación entre vulnerabilidad y rendimiento
+    - conexión entre reportes de riesgo y notas
+    - relación entre grupo y aprovechamiento
+    - correlación de factores académicos
+    - análisis de variables relacionadas
+    - factores que afectan el rendimiento
+
+- intent: ask_students_by_period
+  examples: |
+    - estudiantes del [cuatrimestre pasado](periodo)
+    - alumnos de [enero-abril 2024](periodo)
+    - rendimiento en el [período actual](periodo)
+    - estadísticas del [ciclo 2023-2024](periodo)
+    - datos del [primer cuatrimestre](periodo)
+    - información del [segundo período](periodo)
+
+- intent: ask_grade_range_students
+  examples: |
+    - estudiantes con calificaciones entre [8 y 9](rango_calificacion)
+    - alumnos con promedio mayor a [9.5](calificacion_minima)
+    - estudiantes con notas menores a [8](calificacion_maxima)
+    - alumnos con calificaciones de [6 a 7.5](rango_calificacion)
+    - estudiantes que tienen exactamente [10](calificacion_exacta)
+
+- intent: ask_failure_analysis
+  examples: |
+    - análisis de reprobación por materia
+    - qué materias reprueban más
+    - asignaturas con mayor reprobación
+    - materias más difíciles para los estudiantes
+    - análisis de fracaso por asignatura
+    - qué materias son más complicadas
+    - estadísticas de reprobación por materia
+    - asignaturas donde más fallan
+    - materias con bajo aprovechamiento
+    - cuáles son las materias filtro
+    - asignaturas problemáticas
+    - materias con mayor índice de reprobados
+
+- intent: ask_top_students
+  examples: |
+    - mejores estudiantes
+    - alumnos destacados
+    - quién tiene las mejores calificaciones
+    - quien tiene las mejores calificaciones
+    - estudiantes con mejor rendimiento
+    - top estudiantes del cuatrimestre
+    - alumnos sobresalientes
+    - mejores promedios
+    - estudiantes de honor
+    - alumnos con excelencia académica
+    - alumnos con excelencia academica
+    - quiénes son los mejores del grupo
+    - quienes son los mejores del grupo
+    - estudiantes con las más altas calificaciones
+    - estudiantes con las mas altas calificaciones
+    - cuadro de honor
+
+- intent: ask_high_risk_students
+  examples: |
+    - alumnos en riesgo
+    - estudiantes con reportes de riesgo
+    - quién tiene múltiples reportes
+    - quien tiene multiples reportes
+    - alumnos problemáticos
+    - alumnos problematicos
+    - estudiantes en situación de riesgo académico
+    - estudiantes en situacion de riesgo academico
+    - casos críticos de estudiantes
+    - casos criticos de estudiantes
+    - alumnos con riesgo de deserción
+    - alumnos con riesgo de desercion
+    - estudiantes vulnerables
+    - reportes de riesgo activos
+    - alumnos que necesitan seguimiento especial
+    - estudiantes con riesgo de deserción escolar
+    - alumnos que pueden abandonar
+    - estudiantes en peligro de dejar la carrera
+    - casos críticos de abandono escolar
+    - alumnos propensos a desertar
+    - estudiantes con múltiples alertas
+    - casos urgentes de intervención
+    - alumnos con indicadores de deserción
+    - estudiantes que pueden no continuar
+    - casos de alto riesgo académico
+    - alumnos en situación crítica académica
+    - estudiantes con probabilidad de abandono
+
+- intent: ask_student_tracking
+  examples: |
+    - seguimiento de casos especiales
+    - monitoreo de estudiantes en riesgo
+    - seguimiento académico personalizado
+    - casos que requieren monitoreo
+    - estudiantes bajo observación
+    - seguimiento de intervenciones
+    - monitoreo de estudiantes vulnerables
+    - tracking de casos críticos
+    - seguimiento de medidas correctivas
+
+- intent: ask_vulnerable_students
+  examples: |
+    - estudiantes vulnerables
+    - alumnos en situación vulnerable
+    - alumnos en situacion vulnerable
+    - casos de vulnerabilidad socioeconómica
+    - casos de vulnerabilidad socioeconomica
+    - estudiantes en riesgo social
+    - alumnos con vulnerabilidades identificadas
+    - estudiantes que necesitan apoyo especial
+    - casos de vulnerabilidad académica
+    - casos de vulnerabilidad academica
+    - alumnos con problemas personales
+    - estudiantes en situación crítica
+    - estudiantes en situacion critica
+    - vulnerabilidades estudiantiles
+    - estudiantes que necesitan ayuda especial
+    - alumnos con dificultades personales
+    - casos especiales de estudiantes
+    - estudiantes que requieren apoyo
+    - alumnos con situaciones difíciles
+    - estudiantes en condiciones vulnerables
+    - casos delicados de alumnos
+    - estudiantes con problemas familiares
+    - alumnos que necesitan seguimiento
+    - estudiantes con vulnerabilidades detectadas
+    - casos prioritarios de atención
+    - alumnos en riesgo social
+    - estudiantes con necesidades especiales
+    - situaciones críticas estudiantiles
+    - alumnos que requieren intervención
+    - estudiantes con indicadores de vulnerabilidad
+    - casos sensibles en el sistema
+    - estudiantes que necesitan ayuda especial
+    - alumnos con dificultades personales
+    - casos especiales de estudiantes
+    - estudiantes que requieren apoyo
+    - alumnos con situaciones difíciles
+    - estudiantes en condiciones vulnerables
+    - casos delicados de alumnos
+    - estudiantes con problemas familiares
+    - alumnos que necesitan seguimiento
+    - estudiantes con vulnerabilidades detectadas
+    - casos prioritarios de atención
+    - alumnos en riesgo social
+    - estudiantes con necesidades especiales
+    - situaciones críticas estudiantiles
+    - alumnos que requieren intervención
+    - estudiantes con indicadores de vulnerabilidad
+    - casos sensibles en el sistema
+
+- intent: ask_students_without_group
+  examples: |
+    - alumnos sin grupo
+    - estudiantes no asignados a grupo
+    - quién no tiene grupo asignado
+    - quien no tiene grupo asignado
+    - alumnos sin asignar a ningún grupo
+    - alumnos sin asignar a ningun grupo
+    - estudiantes que necesitan grupo
+    - matrícula sin grupo
+    - matricula sin grupo
+    - alumnos pendientes de asignación
+    - alumnos pendientes de asignacion
+    - estudiantes sin inscripción grupal
+    - estudiantes sin inscripcion grupal
+    - quiénes faltan por asignar a grupo
+    - quienes faltan por asignar a grupo
+
+- intent: ask_teachers_by_career
+  examples: |
+    - profesores por carrera
+    - docentes de cada programa
+    - cuántos maestros hay por carrera
+    - cuantos maestros hay por carrera
+    - distribución de profesores por carrera
+    - distribucion de profesores por carrera
+    - profesores asignados por programa educativo
+    - personal docente por carrera
+    - maestros de cada especialidad
+    - docentes por área de conocimiento
+    - docentes por area de conocimiento
+    - plantilla docente por carrera
+
+- intent: ask_teacher_tutors
+  examples: |
+    - profesores tutores
+    - quién es tutor de grupo
+    - quien es tutor de grupo
+    - maestros que son tutores
+    - tutores asignados a grupos
+    - profesores que tienen tutoría
+    - profesores que tienen tutoria
+    - docentes con función tutorial
+    - docentes con funcion tutorial
+    - tutores de estudiantes
+    - profesores guía
+    - profesores guia
+    - mentores académicos
+    - mentores academicos
+    - responsables de grupo
+
+- intent: ask_teachers_load
+  examples: |
+    - profesores con más carga académica
+    - profesores con mas carga academica
+    - docentes con más grupos
+    - docentes con mas grupos
+    - quién tiene más asignaturas
+    - quien tiene mas asignaturas
+    - carga de trabajo de profesores
+    - maestros sobrecargados
+    - distribución de carga docente
+    - distribucion de carga docente
+    - profesores con mayor número de materias
+    - profesores con mayor numero de materias
+    - docentes con más horas clase
+    - docentes con mas horas clase
+    - carga horaria de profesores
+
+- intent: ask_teachers_low_grades
+  examples: |
+    - profesores con estudiantes de bajo rendimiento
+    - docentes que reprueban más alumnos
+    - docentes que reprueban mas alumnos
+    - maestros con calificaciones bajas
+    - profesores con estudiantes reprobados
+    - docentes con alto índice de reprobación
+    - docentes con alto indice de reprobacion
+    - maestros que otorgan calificaciones bajas
+    - profesores con estudiantes en riesgo
+    - qué maestros reprueban más
+    - cuáles profesores son más estrictos
+    - docentes con más estudiantes reprobados
+    - profesores que dan calificaciones bajas
+    - maestros con alto índice de reprobación
+    - qué profesores tienen más suspensos
+    - docentes que reprueban frecuentemente
+    - maestros con estudiantes con bajas notas
+    - profesores con mayor número de reprobados
+    - cuáles maestros son más exigentes
+    - docentes con más alumnos reprobando
+    - profesores que otorgan bajas calificaciones
+    - maestros con estudiantes de bajo rendimiento
+    - qué docentes tienen peor aprovechamiento
+    - profesores con más fracaso escolar
+    - maestros donde más reprueban los alumnos
+    - docentes con resultados académicos bajos
+    - profesores con estudiantes en extraordinario
+    - maestros donde hay más reprobación
+
+
+- intent: ask_classroom_usage
+  examples: |
+    - aulas más usadas
+    - aulas mas usadas
+    - salones con mayor frecuencia de uso
+    - qué aulas se utilizan más
+    - que aulas se utilizan mas
+    - ocupación de salones
+    - ocupacion de salones
+    - uso de espacios académicos
+    - uso de espacios academicos
+    - aulas con mayor demanda
+    - distribución de uso de aulas
+    - distribucion de uso de aulas
+    - salones más ocupados
+    - salones mas ocupados
+    - frecuencia de uso por aula
+
+- intent: ask_all_groups
+  examples: |
+    - todos los grupos
+    - qué grupos hay
+    - que grupos hay
+    - lista completa de grupos
+    - grupos existentes en el sistema
+    - cuáles son todos los grupos
+    - cuales son todos los grupos
+    - catálogo de grupos
+    - catalogo de grupos
+    - grupos activos
+    - listado de todos los grupos
+    - grupos registrados
+
+- intent: ask_groups_by_career
+  examples: |
+    - grupos por carrera
+    - cuántos grupos hay por programa
+    - cuantos grupos hay por programa
+    - distribución de grupos por carrera
+    - distribucion de grupos por carrera
+    - grupos de cada especialidad
+    - organización grupal por carrera
+    - organizacion grupal por carrera
+    - grupos académicos por programa
+    - grupos academicos por programa
+    - división de grupos por carrera
+    - division de grupos por carrera
+
+- intent: ask_groups_without_tutor
+  examples: |
+    - grupos sin tutor
+    - qué grupos no tienen tutor asignado
+    - que grupos no tienen tutor asignado
+    - grupos sin profesor tutor
+    - grupos que necesitan tutor
+    - grupos huérfanos de tutor
+    - grupos huerfanos de tutor
+    - grupos sin responsable
+    - grupos pendientes de asignación tutorial
+    - grupos pendientes de asignacion tutorial
+
+- intent: ask_group_tutor
+  examples: |
+    - quién es el tutor del grupo [iDGS10](grupo)
+    - quien es el tutor del grupo [iDGS10](grupo)
+    - tutor del grupo [iINF09](grupo)
+    - profesor tutor de [iTUR08](grupo)
+    - quién tutora el grupo [iMEC07](grupo)
+    - quien tutora el grupo [iMEC07](grupo)
+    - responsable del grupo [iGAS06](grupo)
+    - tutor asignado a [iDGS11](grupo)
+
+- intent: ask_tutor_groups
+  examples: |
+    - grupos del profesor [Juan Martínez](nombre_profesor)
+    - grupos del profesor [Juan Martinez](nombre_profesor)
+    - qué grupos tiene el tutor [EMP001](numero_empleado)
+    - que grupos tiene el tutor [EMP001](numero_empleado)
+    - grupos asignados al maestro [María Hernández](nombre_profesor)
+    - grupos asignados al maestro [Maria Hernandez](nombre_profesor)
+    - estudiantes del tutor [EMP123](numero_empleado)
+    - grupos bajo la tutoría de [Pedro Sánchez](nombre_profesor)
+    - grupos bajo la tutoria de [Pedro Sanchez](nombre_profesor)
+    - cuántos grupos maneja [EMP456](numero_empleado)
+    - cuantos grupos maneja [EMP456](numero_empleado)
+
+- intent: ask_groups_risk
+  examples: |
+    - grupos con más reportes de riesgo
+    - grupos con mas reportes de riesgo
+    - grupos problemáticos
+    - grupos problematicos
+    - grupos en situación crítica
+    - grupos en situacion critica
+    - grupos con estudiantes en riesgo
+    - grupos con mayor número de reportes
+    - grupos con mayor numero de reportes
+    - grupos que requieren atención especial
+    - grupos que requieren atencion especial
+    - grupos con problemas académicos
+    - grupos con problemas academicos
+
+- intent: ask_news_views
+  examples: |
+    - noticias más vistas
+    - noticias mas vistas
+    - noticias populares
+    - qué noticias leen más los usuarios
+    - que noticias leen mas los usuarios
+    - artículos más leídos
+    - articulos mas leidos
+    - contenido más visitado
+    - contenido mas visitado
+    - noticias con más visualizaciones
+    - noticias con mas visualizaciones
+    - noticias trending
+
+- intent: ask_group_average
+  examples: |
+    - promedio por grupo
+    - calificaciones promedio de grupos
+    - rendimiento académico de cada grupo
+    - rendimiento academico de cada grupo
+    - promedios grupales
+    - desempeño promedio por grupo
+    - calificación media de grupos
+    - calificacion media de grupos
+    - rendimiento colectivo por grupo
+    - cómo van los grupos académicamente
+    - rendimiento general por grupo
+    - qué grupo tiene mejor promedio
+    - comparar grupos por calificaciones
+    - promedios generales de cada grupo
+    - desempeño académico grupal
+    - grupos con mejor aprovechamiento
+    - ranking de grupos por promedio
+    - cuál grupo va mejor en calificaciones
+    - comparación de rendimiento grupal
+    - estadísticas grupales de aprovechamiento
+
+- intent: ask_early_warning
+  examples: |
+    - alerta temprana de estudiantes
+    - detección precoz de problemas
+    - estudiantes que necesitan atención inmediata
+    - alertas académicas tempranas
+    - identificación temprana de riesgos
+    - sistema de alerta estudiantil
+    - detección preventiva de problemas
+    - alertas de intervención temprana
+
+- intent: ask_forum_categories
+  examples: |
+    - categorías del foro
+    - categorias del foro
+    - secciones del foro estudiantil
+    - qué categorías hay en el foro
+    - que categorias hay en el foro
+    - tipos de publicaciones en el foro
+    - clasificación del foro
+    - clasificacion del foro
+    - áreas temáticas del foro
+    - areas tematicas del foro
+
+- intent: ask_posts_by_category
+  examples: |
+    - publicaciones por categoría
+    - publicaciones por categoria
+    - posts por sección del foro
+    - posts por seccion del foro
+    - cuántas publicaciones hay por categoría
+    - cuantas publicaciones hay por categoria
+    - contenido por área temática
+    - contenido por area tematica
+    - distribución de posts por categoría
+    - distribucion de posts por categoria
+    - actividad por sección del foro
+    - actividad por seccion del foro
+
+- intent: ask_general_stats
+  examples: |
+    - estadísticas generales
+    - estadisticas generales
+    - resumen del sistema educativo
+    - datos generales de la institución
+    - datos generales de la institucion
+    - dashboard institucional
+    - estadísticas completas
+    - estadisticas completas
+    - números generales
+    - numeros generales
+    - métricas del sistema
+    - metricas del sistema
+    - indicadores institucionales
+
+- intent: ask_recommendations
+  examples: |
+    - qué me recomiendas
+    - que me recomiendas
+    - sugerencias para mejora
+    - recomendaciones del sistema
+    - qué debo hacer para mejorar
+    - que debo hacer para mejorar
+    - consejos académicos
+    - consejos academicos
+    - propuestas de mejora
+    - sugerencias institucionales
+    - recomendaciones para mejorar el rendimiento
+    - sugerencias para estudiantes en riesgo
+    - propuestas de mejora académica
+    - estrategias de intervención
+    - medidas correctivas recomendadas
+    - acciones sugeridas para mejora
+    - planes de apoyo estudiantil
+    - intervenciones recomendadas
+    - estrategias de recuperación académica
+    
+
+- intent: ask_academic_performance
+  examples: |
+    - rendimiento académico general
+    - rendimiento academico general
+    - desempeño estudiantil
+    - indicadores de rendimiento
+    - métricas académicas
+    - metricas academicas
+    - evaluación del desempeño
+    - evaluacion del desempeno
+    - análisis de rendimiento
+    - analisis de rendimiento
+    - estadísticas de aprovechamiento
+    - estadisticas de aprovechamiento
+
+- intent: ask_attendance_stats
+  examples: |
+    - estadísticas de asistencia
+    - estadisticas de asistencia
+    - quién falta más a clases
+    - quien falta mas a clases
+    - ausencias por grupo
+    - control de asistencia
+    - índices de ausentismo
+    - indices de ausentismo
+    - asistencia estudiantil
+    - faltas por estudiante
+
+- intent: ask_help_requests
+  examples: |
+    - solicitudes de ayuda
+    - peticiones de apoyo estudiantil
+    - casos de ayuda pendientes
+    - solicitudes de asistencia
+    - peticiones de soporte
+    - casos que requieren atención
+    - casos que requieren atencion
+    - alumnos que piden ayuda
+
+- intent: ask_schedules
+  examples: |
+    - horarios de clases
+    - horario del grupo [iDGS10](grupo)
+    - qué horarios tienen los estudiantes
+    - que horarios tienen los estudiantes
+    - calendario de clases
+    - programación académica
+    - programacion academica
+    - horarios por grupo
+    - distribución horaria
+    - distribucion horaria
+
+- intent: ask_subjects_by_career
+  examples: |
+    - asignaturas por carrera
+    - materias de la carrera [sistemas](carrera)
+    - qué materias hay en [industrial](carrera)
+    - que materias hay en [industrial](carrera)
+    - plan de estudios de [mecatrónica](carrera)
+    - plan de estudios de [mecatronica](carrera)
+    - asignaturas de [gastronomía](carrera)
+    - asignaturas de [gastronomia](carrera)
+    - materias por programa educativo
+
+- intent: ask_career_info
+  examples: |
+    - información de la carrera [sistemas](carrera)
+    - informacion de la carrera [sistemas](carrera)
+    - datos del programa [industrial](carrera)
+    - detalles de [mecatrónica](carrera)
+    - detalles de [mecatronica](carrera)
+    - información académica de [gastronomía](carrera)
+    - informacion academica de [gastronomia](carrera)
+    - plan curricular de [turismo](carrera)
+
+- intent: ask_students_extraordinary
+  examples: |
+    - alumnos en extraordinario
+    - estudiantes en examen extraordinario
+    - quién está en período extraordinario
+    - quien esta en periodo extraordinario
+    - estudiantes que van a extraordinario
+    - alumnos con evaluación extraordinaria
+    - alumnos con evaluacion extraordinaria
+    - casos de extraordinario
+
+- intent: ask_students_remedial
+  examples: |
+    - alumnos en remedial
+    - estudiantes en período remedial
+    - estudiantes en periodo remedial
+    - quién está en evaluación remedial
+    - quien esta en evaluacion remedial
+    - estudiantes que necesitan remedial
+    - casos remediales
+    - alumnos con oportunidad remedial
+
+- intent: ask_students_ordinary
+  examples: |
+    - alumnos en ordinario
+    - estudiantes en período ordinario
+    - estudiantes en periodo ordinario
+    - quién está en evaluación ordinaria
+    - quien esta en evaluacion ordinaria
+    - estudiantes regulares
+    - casos en ordinario
+    - evaluación ordinaria
+    - evaluacion ordinaria
+
+- intent: ask_students_last_chance
+  examples: |
+    - alumnos en última oportunidad
+    - alumnos en ultima oportunidad
+    - estudiantes con última asignatura
+    - estudiantes con ultima asignatura
+    - casos críticos académicos
+    - casos criticos academicos
+    - estudiantes en riesgo de expulsión
+    - estudiantes en riesgo de expulsion
+    - última oportunidad académica
+    - ultima oportunidad academica
+    - casos de última asignatura
+    - casos de ultima asignatura
+
+- intent: ask_encuestas_info
+  examples: |
+    - información de encuestas
+    - informacion de encuestas
+    - encuestas aplicadas
+    - resultados de encuestas
+    - encuestas socioeconómicas
+    - encuestas socioeconomicas
+    - encuestas de vulnerabilidad
+    - encuestas académicas
+    - encuestas academicas
+    - formularios aplicados
+
+- intent: ask_archivos_info
+  examples: |
+    - archivos del sistema
+    - documentos subidos
+    - archivos por contexto
+    - documentación
+    - documentacion
+    - archivos académicos
+    - archivos academicos
+    - repositorio de archivos
+
+- intent: ask_sesiones_info
+  examples: |
+    - sesiones de usuarios
+    - usuarios conectados
+    - actividad de usuarios
+    - sesiones activas
+    - conexiones al sistema
+    - actividad en línea
+    - actividad en linea

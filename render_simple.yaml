@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: chatbot-academico
-    env: docker
-    dockerfilePath: ./Dockerfile.simple
-    plan: free
-    envVars:
-      - key: FLASK_ENV
-        value: production

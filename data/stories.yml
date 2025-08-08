@@ -1,0 +1,110 @@
+version: '3.1'
+
+stories:
+
+- story: greeting and student inquiry
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: ask_student_by_name_or_id
+  - action: action_get_student_by_name_or_id
+
+- story: teacher information request
+  steps:
+  - intent: ask_teacher_by_name_or_id
+  - action: action_get_teacher_by_name_or_id
+
+- story: student grades inquiry
+  steps:
+  - intent: ask_student_grades
+  - action: action_get_student_grades
+
+- story: group information request
+  steps:
+  - intent: ask_group_info
+  - action: action_get_group_info
+
+- story: academic performance consultation
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: ask_low_grade_students
+  - action: action_get_low_grade_students
+
+- story: high achievers inquiry
+  steps:
+  - intent: ask_top_students
+  - action: action_get_top_students
+
+- story: risk management consultation
+  steps:
+  - intent: ask_high_risk_students
+  - action: action_get_high_risk_students
+  - intent: ask_vulnerable_students
+  - action: action_get_vulnerable_students
+
+- story: administrative queries
+  steps:
+  - intent: ask_students_by_career
+  - action: action_get_students_by_career
+  - intent: ask_teachers_by_career
+  - action: action_get_teachers_by_career
+
+- story: group management
+  steps:
+  - intent: ask_all_groups
+  - action: action_get_all_groups
+  - intent: ask_groups_without_tutor
+  - action: action_get_groups_without_tutor
+
+- story: tutor inquiries
+  steps:
+  - intent: ask_teacher_tutors
+  - action: action_get_teacher_tutors
+  - intent: ask_group_tutor
+  - action: action_get_group_tutor
+
+- story: academic workload analysis
+  steps:
+  - intent: ask_teachers_load
+  - action: action_get_teachers_load
+  - intent: ask_classroom_usage
+  - action: action_get_classroom_usage
+
+- story: general statistics request
+  steps:
+  - intent: ask_general_stats
+  - action: action_get_general_stats
+
+- story: news and forum activity
+  steps:
+  - intent: ask_news_views
+  - action: action_get_news_views
+  - intent: ask_forum_categories
+  - action: action_get_forum_categories
+
+- story: student status inquiries
+  steps:
+  - intent: ask_inactive_students
+  - action: action_get_inactive_students
+  - intent: ask_students_without_group
+  - action: action_get_students_without_group
+
+- story: academic evaluation types
+  steps:
+  - intent: ask_students_extraordinary
+  - action: action_get_students_extraordinary
+  - intent: ask_students_remedial
+  - action: action_get_students_remedial
+  - intent: ask_students_ordinary
+  - action: action_get_students_ordinary
+
+- story: critical cases
+  steps:
+  - intent: ask_students_last_chance
+  - action: action_get_students_last_chance
+
+- story: goodbye interaction
+  steps:
+  - intent: goodbye
+  - action: utter_goodbye

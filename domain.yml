@@ -169,6 +169,12 @@ slots:
     mappings:
     - type: from_entity
       entity: nivel_riesgo
+  asignatura:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: asignatura
     type: text
     influence_conversation: false
     mappings:

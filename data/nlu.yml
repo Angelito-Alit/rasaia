@@ -1168,3 +1168,143 @@ nlu:
     - estudiantes con problemas en casa
     - vulnerabilidad familiar
     - alumnos con problemas familiares
+
+- intent: indice_reprobacion_carrera
+  examples: |
+    - ¿Cuál es el índice de reprobación general por carrera?
+    - Índice de reprobación por carrera
+    - Dame el porcentaje de reprobación de cada carrera
+    - ¿Qué carrera tiene más reprobados?
+    - Estadísticas de reprobación por carrera
+    - Porcentaje de materias reprobadas por carrera
+    - Lista de carreras con mayor índice de reprobación
+    - Comparativa de índice de reprobación entre carreras
+
+- intent: indice_reprobacion_grupo
+  examples: |
+    - ¿Cuál es el índice de reprobación general por grupo?
+    - Índice de reprobación por grupo
+    - Dame el porcentaje de reprobación de cada grupo
+    - ¿Qué grupo tiene más reprobados?
+    - Lista de grupos con mayor índice de reprobación
+    - Ranking de grupos con menor índice de reprobación
+    - ¿Cuál es el grupo más reprobado en toda la división?
+    - Porcentaje de reprobación por grupo y por carrera
+
+- intent: indice_reprobacion_alumno
+  examples: |
+    - ¿Cuál es el índice de reprobación general por alumno?
+    - Índice de reprobación por estudiante
+    - Ranking de alumnos con más materias reprobadas
+    - ¿Qué alumnos tienen más reprobaciones?
+    - Lista de alumnos con mayor índice de reprobación
+    - Alumnos con mayor índice de reprobación
+    - ¿Cuáles son mis alumnos con más materias reprobadas?
+    - Top 5 estudiantes con más reprobaciones
+
+- intent: indice_reprobacion_asignatura
+  examples: |
+    - ¿Cuál es el índice de reprobación general por asignatura?
+    - Índice de reprobación por materia
+    - Dame el porcentaje de reprobación de cada materia
+    - ¿Qué materias tienen más reprobados?
+    - Lista de asignaturas con mayor índice de reprobación
+    - ¿Cuáles son las materias más difíciles de aprobar?
+    - Materias más complejas de la división
+    - Ranking de materias con mayor índice de reprobación
+
+- intent: indice_reprobacion_general
+  examples: |
+    - Dame el porcentaje de reprobación general de toda la institución
+    - Índice de reprobación general
+    - ¿Cuál es el porcentaje total de reprobación?
+    - Estadísticas generales de reprobación
+    - Porcentaje de reprobación de la división
+
+# 2. DATOS DE ESTUDIANTES ESPECÍFICOS
+- intent: datos_estudiante_especifico
+  examples: |
+    - Dame todos los datos del estudiante [María López](nombre_estudiante)
+    - Información académica y personal de [María López](nombre_estudiante)
+    - Datos completos de [Miguel García](nombre_estudiante)
+    - Información de [Juan Pérez](nombre_estudiante)
+    - Dame los datos de [Ana Martínez](nombre_estudiante)
+    - Historial académico de [Carlos López](nombre_estudiante)
+    - Contacto y datos administrativos de [Luis García](nombre_estudiante)
+
+- intent: calificaciones_estudiante
+  examples: |
+    - Calificaciones completas de [María López](nombre_estudiante)
+    - Dame las calificaciones de [Miguel García](nombre_estudiante)
+    - Historial de calificaciones de [Juan Pérez](nombre_estudiante)
+    - ¿Cuáles son las calificaciones de [Ana Martínez](nombre_estudiante)?
+    - Materias reprobadas por [María López](nombre_estudiante)
+    - Promedio general de [Carlos López](nombre_estudiante)
+
+# 3. ESTUDIANTES CON CALIFICACIONES BAJAS
+- intent: estudiantes_calificaciones_bajas
+  examples: |
+    - ¿Qué estudiantes tienen calificaciones bajas?
+    - Lista de estudiantes con promedio menor a 7
+    - Estudiantes que han reprobado más de 2 materias
+    - Ranking de estudiantes con menor rendimiento académico
+    - Lista de alumnos en riesgo académico
+    - Alumnos con calificaciones más bajas en cada grupo
+    - Estudiantes con bajo rendimiento
+    - ¿Quiénes son los estudiantes con más reprobaciones?
+
+- intent: estudiantes_promedio_bajo
+  examples: |
+    - Estudiantes con promedio menor a [7](numero)
+    - Alumnos con promedio bajo
+    - Lista de estudiantes con promedio menor a [8](numero)
+    - ¿Qué estudiantes tienen promedio menor a [6](numero)?
+    - Alumnos con promedios bajos
+
+# 4. ESTUDIANTES CON MEJORES CALIFICACIONES
+- intent: estudiantes_mejores_calificaciones
+  examples: |
+    - ¿Qué estudiantes tienen las mejores calificaciones?
+    - Ranking de promedios más altos por grupo
+    - Lista de estudiantes con promedio mayor a 9
+    - Top 10 estudiantes con mejor rendimiento
+    - Estudiantes con todas las materias aprobadas
+    - Mejores estudiantes de la división
+    - ¿Quiénes son los mejores alumnos?
+
+- intent: estudiantes_promedio_alto
+  examples: |
+    - Lista de estudiantes con promedio mayor a [9](numero)
+    - Estudiantes con promedio mayor a [8.5](numero)
+    - Alumnos con excelencia académica
+    - ¿Qué estudiantes tienen promedio mayor a [9.5](numero)?
+
+# 5. MEJORES PROMEDIOS POR CARRERA
+- intent: mejores_promedios_carrera
+  examples: |
+    - ¿Cuál es el mejor promedio en cada carrera?
+    - Ranking de promedios por carrera
+    - Lista de alumnos con mejor promedio en su carrera
+    - Comparativa entre los mejores promedios de cada carrera
+    - Top 3 mejores estudiantes de cada carrera
+    - Mejores promedios por carrera
+    - ¿Quién tiene el mejor promedio en cada carrera?
+
+# 6. INFORMACIÓN DE GRUPOS
+- intent: lista_grupos
+  examples: |
+    - Dame la lista de todos los grupos
+    - ¿Cuáles son los nombres de los grupos de mi división?
+    - Listado de grupos por carrera
+    - Número total de grupos existentes
+    - Grupos ordenados por cantidad de alumnos
+    - ¿Qué grupos hay?
+    - Nombres de los grupos
+
+# 7. ÍNDICES ESPECÍFICOS POR NIVEL
+- intent: indice_reprobacion_grupal
+  examples: |
+    - ¿Cuál es el índice de reprobación por grupo dentro de cada carrera?
+    - Dame el índice de reprobación de cada alumno dentro de su grupo
+    - ¿Cuál es el índice de reprobación por asignatura dentro de cada grupo?
+    - Lista de grupos y sus índices de reprobación en cada materia

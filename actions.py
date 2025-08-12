@@ -2887,3 +2887,1071 @@ class ActionGetAcademicRiskStudents(Action):
         
         dispatcher.utter_message(text=response)
         return []
+    
+    
+    from typing import Any, Text, Dict, List
+from rasa_sdk import Action, Tracker
+from rasa_sdk.executor import CollectingDispatcher
+import mysql.connector
+from mysql.connector import Error
+import json
+import logging
+
+# Configuración de la base de datos
+DB_CONFIG = {
+    'host': 'bluebyte.space',
+    'database': 'bluebyte_dtai_web',
+    'user': 'tu_usuario',  # Cambiar por tu usuario
+    'password': 'tu_password'  # Cambiar por tu contraseña
+}
+
+class DatabaseConnection:
+    def __init__(self):
+        self.connection = None
+    
+    def connect(self):
+        try:
+            self.connection = mysql.connector.connect(**DB_CONFIG)
+            return True
+        except Error as e:
+            logging.error(f"Error conectando a la base de datos: {e}")
+            return False
+    
+    def execute_query(self, query, params=None):
+        if not self.connection or not self.connection.is_connected():
+            if not self.connect():
+                return None
+        
+        try:
+            cursor = self.connection.cursor(dictionary=True)
+            cursor.execute(query, params)
+            results = cursor.fetchall()
+            cursor.close()
+            return results
+        except Error as e:
+            logging.error(f"Error ejecutando consulta: {e}")
+            return None
+    
+    def close(self):
+        if self.connection and self.connection.is_connected():
+            self.connection.close()
+
+def execute_query(query, params=None):
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute(query, params)
+        results = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        return results
+    except Error as e:
+        logging.error(f"Error ejecutando consulta: {e}")
+        return {"error": str(e)}
+
+class ActionGetIndiceReprobacionCarrera(Action):
+    def name(self) -> Text:
+        return "action_get_indice_reprobacion_carrera"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        carrera_nombre = tracker.get_slot('carrera')
+        
+        where_condition = "WHERE cal.estatus IN ('reprobado', 'aprobado', 'cursando')"
+        params = []
+        
+        if carrera_nombre:
+            where_condition += " AND c.nombre LIKE %s"
+            params.append(f"%{carrera_nombre}%")
+        
+        query = f"""
+        SELECT 
+            c.nombre as carrera,
+            COUNT(DISTINCT cal.alumno_id) as total_alumnos,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as materias_reprobadas,
+            COUNT(cal.id) as total_calificaciones,
+            ROUND(
+                (COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) * 100.0 / COUNT(cal.id)), 2
+            ) as porcentaje_reprobacion
+        FROM calificaciones cal
+        JOIN alumnos a ON cal.alumno_id = a.id
+        JOIN carreras c ON a.carrera_id = c.id
+        {where_condition}
+        GROUP BY c.id, c.nombre
+        ORDER BY porcentaje_reprobacion DESC
+        """
+        
+        result = execute_query(query, params)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron datos de reprobación por carrera."
+            else:
+                response = "Índice de reprobación por carrera:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['carrera']}\n"
+                    response += f"   Total alumnos: {row['total_alumnos']}\n"
+                    response += f"   Materias reprobadas: {row['materias_reprobadas']}\n"
+                    response += f"   Porcentaje de reprobación: {row['porcentaje_reprobacion']}%\n\n"
+        else:
+            response = "No pude obtener el índice de reprobación por carrera."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetIndiceReprobacionGrupo(Action):
+    def name(self) -> Text:
+        return "action_get_indice_reprobacion_grupo"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        grupo_codigo = tracker.get_slot('grupo')
+        
+        where_condition = "WHERE cal.estatus IN ('reprobado', 'aprobado', 'cursando')"
+        params = []
+        
+        if grupo_codigo:
+            where_condition += " AND g.codigo LIKE %s"
+            params.append(f"%{grupo_codigo}%")
+        
+        query = f"""
+        SELECT 
+            g.codigo as grupo,
+            c.nombre as carrera,
+            COUNT(DISTINCT cal.alumno_id) as total_alumnos,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as materias_reprobadas,
+            COUNT(cal.id) as total_calificaciones,
+            ROUND(
+                (COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) * 100.0 / COUNT(cal.id)), 2
+            ) as porcentaje_reprobacion
+        FROM calificaciones cal
+        JOIN grupos g ON cal.grupo_id = g.id
+        JOIN carreras c ON g.carrera_id = c.id
+        {where_condition}
+        GROUP BY g.id, g.codigo, c.nombre
+        ORDER BY porcentaje_reprobacion DESC
+        """
+        
+        result = execute_query(query, params)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron datos de reprobación por grupo."
+            else:
+                response = "Índice de reprobación por grupo:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. Grupo {row['grupo']} ({row['carrera']})\n"
+                    response += f"   Total alumnos: {row['total_alumnos']}\n"
+                    response += f"   Materias reprobadas: {row['materias_reprobadas']}\n"
+                    response += f"   Porcentaje de reprobación: {row['porcentaje_reprobacion']}%\n\n"
+        else:
+            response = "No pude obtener el índice de reprobación por grupo."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetIndiceReprobacionAlumno(Action):
+    def name(self) -> Text:
+        return "action_get_indice_reprobacion_alumno"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        nombre_estudiante = tracker.get_slot('nombre_estudiante')
+        
+        where_condition = "WHERE cal.estatus IN ('reprobado', 'aprobado', 'cursando')"
+        params = []
+        
+        if nombre_estudiante:
+            where_condition += " AND (CONCAT(u.nombre, ' ', u.apellido) LIKE %s OR u.nombre LIKE %s OR u.apellido LIKE %s)"
+            params.extend([f"%{nombre_estudiante}%", f"%{nombre_estudiante}%", f"%{nombre_estudiante}%"])
+        
+        query = f"""
+        SELECT 
+            CONCAT(u.nombre, ' ', u.apellido) as nombre_completo,
+            a.matricula,
+            c.nombre as carrera,
+            g.codigo as grupo,
+            COUNT(cal.id) as total_materias,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as materias_reprobadas,
+            ROUND(
+                (COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) * 100.0 / COUNT(cal.id)), 2
+            ) as porcentaje_reprobacion
+        FROM calificaciones cal
+        JOIN alumnos a ON cal.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        JOIN grupos g ON cal.grupo_id = g.id
+        {where_condition}
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre, g.codigo
+        HAVING COUNT(cal.id) > 0
+        ORDER BY porcentaje_reprobacion DESC, materias_reprobadas DESC
+        LIMIT 20
+        """
+        
+        result = execute_query(query, params)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron alumnos con datos de reprobación."
+            else:
+                response = "Índice de reprobación por alumno:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['nombre_completo']} ({row['matricula']})\n"
+                    response += f"   Carrera: {row['carrera']}\n"
+                    response += f"   Grupo: {row['grupo']}\n"
+                    response += f"   Total materias: {row['total_materias']}\n"
+                    response += f"   Materias reprobadas: {row['materias_reprobadas']}\n"
+                    response += f"   Porcentaje de reprobación: {row['porcentaje_reprobacion']}%\n\n"
+        else:
+            response = "No pude obtener el índice de reprobación por alumno."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetIndiceReprobacionAsignatura(Action):
+    def name(self) -> Text:
+        return "action_get_indice_reprobacion_asignatura"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        asignatura_nombre = tracker.get_slot('asignatura')
+        
+        where_condition = "WHERE cal.estatus IN ('reprobado', 'aprobado', 'cursando')"
+        params = []
+        
+        if asignatura_nombre:
+            where_condition += " AND asig.nombre LIKE %s"
+            params.append(f"%{asignatura_nombre}%")
+        
+        query = f"""
+        SELECT 
+            asig.nombre as asignatura,
+            asig.codigo as codigo_asignatura,
+            c.nombre as carrera,
+            asig.cuatrimestre,
+            COUNT(cal.id) as total_calificaciones,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as reprobaciones,
+            ROUND(
+                (COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) * 100.0 / COUNT(cal.id)), 2
+            ) as porcentaje_reprobacion
+        FROM calificaciones cal
+        JOIN asignaturas asig ON cal.asignatura_id = asig.id
+        JOIN carreras c ON asig.carrera_id = c.id
+        {where_condition}
+        GROUP BY asig.id, asig.nombre, asig.codigo, c.nombre, asig.cuatrimestre
+        HAVING COUNT(cal.id) >= 3
+        ORDER BY porcentaje_reprobacion DESC
+        LIMIT 15
+        """
+        
+        result = execute_query(query, params)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron datos de reprobación por asignatura."
+            else:
+                response = "Índice de reprobación por asignatura:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['asignatura']} ({row['codigo_asignatura']})\n"
+                    response += f"   Carrera: {row['carrera']}\n"
+                    response += f"   Cuatrimestre: {row['cuatrimestre']}\n"
+                    response += f"   Total evaluaciones: {row['total_calificaciones']}\n"
+                    response += f"   Reprobaciones: {row['reprobaciones']}\n"
+                    response += f"   Porcentaje de reprobación: {row['porcentaje_reprobacion']}%\n\n"
+        else:
+            response = "No pude obtener el índice de reprobación por asignatura."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetIndiceReprobacionGeneral(Action):
+    def name(self) -> Text:
+        return "action_get_indice_reprobacion_general"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            COUNT(DISTINCT cal.alumno_id) as total_alumnos,
+            COUNT(cal.id) as total_calificaciones,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as total_reprobaciones,
+            ROUND(
+                (COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) * 100.0 / COUNT(cal.id)), 2
+            ) as porcentaje_reprobacion_general
+        FROM calificaciones cal
+        WHERE cal.estatus IN ('reprobado', 'aprobado', 'cursando')
+        """
+        
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron datos generales de reprobación."
+            else:
+                row = result[0]
+                response = "Índice de reprobación general de la institución:\n\n"
+                response += f"Total de alumnos: {row['total_alumnos']}\n"
+                response += f"Total de calificaciones: {row['total_calificaciones']}\n"
+                response += f"Total de reprobaciones: {row['total_reprobaciones']}\n"
+                response += f"Porcentaje de reprobación general: {row['porcentaje_reprobacion_general']}%\n"
+        else:
+            response = "No pude obtener el índice de reprobación general."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetDatosEstudiante(Action):
+    def name(self) -> Text:
+        return "action_get_datos_estudiante"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        nombre_estudiante = tracker.get_slot('nombre_estudiante')
+        
+        if not nombre_estudiante:
+            dispatcher.utter_message(text="Por favor especifica el nombre del estudiante.")
+            return []
+        
+        query = """
+        SELECT 
+            u.nombre,
+            u.apellido,
+            u.correo,
+            a.matricula,
+            c.nombre as carrera,
+            g.codigo as grupo,
+            a.cuatrimestre_actual,
+            a.fecha_ingreso,
+            a.telefono,
+            a.direccion,
+            a.fecha_nacimiento,
+            a.tutor_nombre,
+            a.tutor_telefono,
+            a.estado_alumno,
+            a.promedio_general,
+            a.ultima_oportunidad_usada
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = 1
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        WHERE CONCAT(u.nombre, ' ', u.apellido) LIKE %s
+           OR u.nombre LIKE %s 
+           OR u.apellido LIKE %s
+           OR a.matricula LIKE %s
+        """
+        
+        params = [f"%{nombre_estudiante}%", f"%{nombre_estudiante}%", f"%{nombre_estudiante}%", f"%{nombre_estudiante}%"]
+        result = execute_query(query, params)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = f"No se encontró información del estudiante {nombre_estudiante}."
+            else:
+                response = "Datos del estudiante:\n\n"
+                for row in result:
+                    response += f"Nombre: {row['nombre']} {row['apellido']}\n"
+                    response += f"Matrícula: {row['matricula']}\n"
+                    response += f"Correo: {row['correo']}\n"
+                    response += f"Carrera: {row['carrera']}\n"
+                    if row['grupo']:
+                        response += f"Grupo: {row['grupo']}\n"
+                    response += f"Cuatrimestre actual: {row['cuatrimestre_actual']}\n"
+                    response += f"Fecha de ingreso: {row['fecha_ingreso']}\n"
+                    if row['telefono']:
+                        response += f"Teléfono: {row['telefono']}\n"
+                    if row['tutor_nombre']:
+                        response += f"Tutor: {row['tutor_nombre']}\n"
+                    response += f"Estado: {row['estado_alumno']}\n"
+                    response += f"Promedio general: {row['promedio_general']}\n"
+                    response += f"Última oportunidad usada: {'Sí' if row['ultima_oportunidad_usada'] else 'No'}\n\n"
+        else:
+            response = "No pude obtener los datos del estudiante."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetCalificacionesEstudiante(Action):
+    def name(self) -> Text:
+        return "action_get_calificaciones_estudiante"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        nombre_estudiante = tracker.get_slot('nombre_estudiante')
+        
+        if not nombre_estudiante:
+            dispatcher.utter_message(text="Por favor especifica el nombre del estudiante.")
+            return []
+        
+        query = """
+        SELECT 
+            asig.nombre as asignatura,
+            asig.codigo,
+            cal.calificacion_final,
+            cal.estatus,
+            cal.ciclo_escolar,
+            g.codigo as grupo,
+            CONCAT(up.nombre, ' ', up.apellido) as profesor
+        FROM calificaciones cal
+        JOIN alumnos a ON cal.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN asignaturas asig ON cal.asignatura_id = asig.id
+        JOIN grupos g ON cal.grupo_id = g.id
+        JOIN profesores p ON cal.profesor_id = p.id
+        JOIN usuarios up ON p.usuario_id = up.id
+        WHERE CONCAT(u.nombre, ' ', u.apellido) LIKE %s
+           OR u.nombre LIKE %s 
+           OR u.apellido LIKE %s
+        ORDER BY cal.ciclo_escolar DESC, asig.cuatrimestre
+        """
+        
+        params = [f"%{nombre_estudiante}%", f"%{nombre_estudiante}%", f"%{nombre_estudiante}%"]
+        result = execute_query(query, params)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = f"No se encontraron calificaciones para {nombre_estudiante}."
+            else:
+                response = f"Calificaciones de {nombre_estudiante}:\n\n"
+                for row in result:
+                    response += f"Asignatura: {row['asignatura']} ({row['codigo']})\n"
+                    response += f"Calificación: {row['calificacion_final']}\n"
+                    response += f"Estatus: {row['estatus']}\n"
+                    response += f"Ciclo escolar: {row['ciclo_escolar']}\n"
+                    response += f"Grupo: {row['grupo']}\n"
+                    response += f"Profesor: {row['profesor']}\n\n"
+        else:
+            response = "No pude obtener las calificaciones del estudiante."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetEstudiantesBajoRendimiento(Action):
+    def name(self) -> Text:
+        return "action_get_estudiantes_bajo_rendimiento"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        numero = tracker.get_slot('numero')
+        limite_promedio = numero if numero else 7.0
+        
+        query = """
+        SELECT 
+            CONCAT(u.nombre, ' ', u.apellido) as nombre_completo,
+            a.matricula,
+            c.nombre as carrera,
+            g.codigo as grupo,
+            a.promedio_general,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as materias_reprobadas
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = 1
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id
+        WHERE a.promedio_general < %s AND a.promedio_general > 0
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre, g.codigo, a.promedio_general
+        ORDER BY a.promedio_general ASC
+        LIMIT 20
+        """
+        
+        result = execute_query(query, [limite_promedio])
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = f"No se encontraron estudiantes con promedio menor a {limite_promedio}."
+            else:
+                response = f"Estudiantes con promedio menor a {limite_promedio}:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['nombre_completo']} ({row['matricula']})\n"
+                    response += f"   Carrera: {row['carrera']}\n"
+                    if row['grupo']:
+                        response += f"   Grupo: {row['grupo']}\n"
+                    response += f"   Promedio: {row['promedio_general']}\n"
+                    response += f"   Materias reprobadas: {row['materias_reprobadas']}\n\n"
+        else:
+            response = "No pude obtener la información de estudiantes con bajo rendimiento."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetEstudiantesAltoRendimiento(Action):
+    def name(self) -> Text:
+        return "action_get_estudiantes_alto_rendimiento"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        numero = tracker.get_slot('numero')
+        limite_promedio = numero if numero else 9.0
+        
+        query = """
+        SELECT 
+            CONCAT(u.nombre, ' ', u.apellido) as nombre_completo,
+            a.matricula,
+            c.nombre as carrera,
+            g.codigo as grupo,
+            a.promedio_general,
+            COUNT(CASE WHEN cal.estatus = 'aprobado' THEN 1 END) as materias_aprobadas
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = 1
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id
+        WHERE a.promedio_general >= %s
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre, g.codigo, a.promedio_general
+        ORDER BY a.promedio_general DESC
+        LIMIT 15
+        """
+        
+        result = execute_query(query, [limite_promedio])
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = f"No se encontraron estudiantes con promedio mayor o igual a {limite_promedio}."
+            else:
+                response = f"Estudiantes con promedio mayor o igual a {limite_promedio}:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['nombre_completo']} ({row['matricula']})\n"
+                    response += f"   Carrera: {row['carrera']}\n"
+                    if row['grupo']:
+                        response += f"   Grupo: {row['grupo']}\n"
+                    response += f"   Promedio: {row['promedio_general']}\n"
+                    response += f"   Materias aprobadas: {row['materias_aprobadas']}\n\n"
+        else:
+            response = "No pude obtener la información de estudiantes con alto rendimiento."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetMejoresPromediosCarrera(Action):
+    def name(self) -> Text:
+        return "action_get_mejores_promedios_carrera"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            c.nombre as carrera,
+            MAX(a.promedio_general) as mejor_promedio,
+            CONCAT(u.nombre, ' ', u.apellido) as mejor_estudiante,
+            a.matricula
+        FROM carreras c
+        JOIN alumnos a ON c.id = a.carrera_id
+        JOIN usuarios u ON a.usuario_id = u.id
+        WHERE a.promedio_general = (
+            SELECT MAX(a2.promedio_general) 
+            FROM alumnos a2 
+            WHERE a2.carrera_id = c.id AND a2.promedio_general > 0
+        )
+        GROUP BY c.id, c.nombre, u.nombre, u.apellido, a.matricula, a.promedio_general
+        ORDER BY mejor_promedio DESC
+        """
+        
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron datos de mejores promedios por carrera."
+            else:
+                response = "Mejores promedios por carrera:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['carrera']}\n"
+                    response += f"   Mejor promedio: {row['mejor_promedio']}\n"
+                    response += f"   Estudiante: {row['mejor_estudiante']} ({row['matricula']})\n\n"
+        else:
+            response = "No pude obtener los mejores promedios por carrera."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetListaGrupos(Action):
+    def name(self) -> Text:
+        return "action_get_lista_grupos"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            g.codigo as grupo,
+            c.nombre as carrera,
+            g.cuatrimestre,
+            g.ciclo_escolar,
+            g.periodo,
+            COUNT(ag.alumno_id) as total_alumnos,
+            CONCAT(up.nombre, ' ', up.apellido) as tutor
+        FROM grupos g
+        JOIN carreras c ON g.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = 1
+        LEFT JOIN profesores p ON g.profesor_tutor_id = p.id
+        LEFT JOIN usuarios up ON p.usuario_id = up.id
+        WHERE g.activo = 1
+        GROUP BY g.id, g.codigo, c.nombre, g.cuatrimestre, g.ciclo_escolar, g.periodo, up.nombre, up.apellido
+        ORDER BY c.nombre, g.cuatrimestre
+        """
+        
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron grupos activos."
+            else:
+                response = "Lista de grupos activos:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. Grupo {row['grupo']}\n"
+                    response += f"   Carrera: {row['carrera']}\n"
+                    response += f"   Cuatrimestre: {row['cuatrimestre']}\n"
+                    response += f"   Ciclo escolar: {row['ciclo_escolar']}\n"
+                    response += f"   Período: {row['periodo']}\n"
+                    response += f"   Total alumnos: {row['total_alumnos']}\n"
+                    if row['tutor']:
+                        response += f"   Tutor: {row['tutor']}\n"
+                    response += "\n"
+        else:
+            response = "No pude obtener la lista de grupos."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetMateriasComplejas(Action):
+    def name(self) -> Text:
+        return "action_get_materias_complejas"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            asig.nombre as asignatura,
+            c.nombre as carrera,
+            asig.cuatrimestre,
+            COUNT(cal.id) as total_evaluaciones,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as reprobaciones,
+            ROUND(
+                (COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) * 100.0 / COUNT(cal.id)), 2
+            ) as porcentaje_reprobacion
+        FROM asignaturas asig
+        JOIN calificaciones cal ON asig.id = cal.asignatura_id
+        JOIN carreras c ON asig.carrera_id = c.id
+        WHERE cal.estatus IN ('reprobado', 'aprobado', 'cursando')
+        GROUP BY asig.id, asig.nombre, c.nombre, asig.cuatrimestre
+        HAVING COUNT(cal.id) >= 3
+        ORDER BY porcentaje_reprobacion DESC
+        LIMIT
+        15
+        """
+        
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron materias con datos de reprobación."
+            else:
+                response = "Materias más complejas (mayor índice de reprobación):\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['asignatura']}\n"
+                    response += f"   Carrera: {row['carrera']}\n"
+                    response += f"   Cuatrimestre: {row['cuatrimestre']}\n"
+                    response += f"   Total evaluaciones: {row['total_evaluaciones']}\n"
+                    response += f"   Reprobaciones: {row['reprobaciones']}\n"
+                    response += f"   Porcentaje de reprobación: {row['porcentaje_reprobacion']}%\n\n"
+        else:
+            response = "No pude obtener las materias más complejas."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetEstudiantesConMasReprobaciones(Action):
+    def name(self) -> Text:
+        return "action_get_estudiantes_con_mas_reprobaciones"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            CONCAT(u.nombre, ' ', u.apellido) as nombre_completo,
+            a.matricula,
+            c.nombre as carrera,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as materias_reprobadas,
+            a.promedio_general
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        JOIN calificaciones cal ON a.id = cal.alumno_id
+        WHERE cal.estatus IN ('reprobado', 'aprobado', 'cursando')
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre, a.promedio_general
+        HAVING COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) > 2
+        ORDER BY materias_reprobadas DESC
+        LIMIT 20
+        """
+        
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron estudiantes con más de 2 materias reprobadas."
+            else:
+                response = "Estudiantes con más reprobaciones:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['nombre_completo']} ({row['matricula']})\n"
+                    response += f"   Carrera: {row['carrera']}\n"
+                    response += f"   Materias reprobadas: {row['materias_reprobadas']}\n"
+                    response += f"   Promedio general: {row['promedio_general']}\n\n"
+        else:
+            response = "No pude obtener los estudiantes con más reprobaciones."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetComparativaCarreras(Action):
+    def name(self) -> Text:
+        return "action_get_comparativa_carreras"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            c.nombre as carrera,
+            COUNT(DISTINCT a.id) as total_alumnos,
+            AVG(a.promedio_general) as promedio_carrera,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as total_reprobaciones,
+            COUNT(CASE WHEN cal.estatus = 'aprobado' THEN 1 END) as total_aprobaciones,
+            ROUND(
+                (COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) * 100.0 / 
+                 COUNT(CASE WHEN cal.estatus IN ('reprobado', 'aprobado') THEN 1 END)), 2
+            ) as porcentaje_reprobacion
+        FROM carreras c
+        LEFT JOIN alumnos a ON c.id = a.carrera_id
+        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id
+        WHERE cal.estatus IN ('reprobado', 'aprobado', 'cursando') OR cal.estatus IS NULL
+        GROUP BY c.id, c.nombre
+        ORDER BY porcentaje_reprobacion DESC
+        """
+        
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron datos para comparativa de carreras."
+            else:
+                response = "Comparativa de rendimiento por carrera:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['carrera']}\n"
+                    response += f"   Total alumnos: {row['total_alumnos']}\n"
+                    if row['promedio_carrera']:
+                        response += f"   Promedio de carrera: {row['promedio_carrera']:.2f}\n"
+                    response += f"   Total reprobaciones: {row['total_reprobaciones']}\n"
+                    response += f"   Total aprobaciones: {row['total_aprobaciones']}\n"
+                    if row['porcentaje_reprobacion']:
+                        response += f"   Porcentaje de reprobación: {row['porcentaje_reprobacion']}%\n"
+                    response += "\n"
+        else:
+            response = "No pude obtener la comparativa de carreras."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetTop10MejoresEstudiantes(Action):
+    def name(self) -> Text:
+        return "action_get_top10_mejores_estudiantes"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            CONCAT(u.nombre, ' ', u.apellido) as nombre_completo,
+            a.matricula,
+            c.nombre as carrera,
+            g.codigo as grupo,
+            a.promedio_general,
+            COUNT(CASE WHEN cal.estatus = 'aprobado' THEN 1 END) as materias_aprobadas,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as materias_reprobadas
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = 1
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id
+        WHERE a.promedio_general > 0
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre, g.codigo, a.promedio_general
+        ORDER BY a.promedio_general DESC
+        LIMIT 10
+        """
+        
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron estudiantes con promedio registrado."
+            else:
+                response = "Top 10 mejores estudiantes:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['nombre_completo']} ({row['matricula']})\n"
+                    response += f"   Carrera: {row['carrera']}\n"
+                    if row['grupo']:
+                        response += f"   Grupo: {row['grupo']}\n"
+                    response += f"   Promedio: {row['promedio_general']}\n"
+                    response += f"   Materias aprobadas: {row['materias_aprobadas']}\n"
+                    response += f"   Materias reprobadas: {row['materias_reprobadas']}\n\n"
+        else:
+            response = "No pude obtener el top 10 de mejores estudiantes."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetAlumnosRiesgoAcademico(Action):
+    def name(self) -> Text:
+        return "action_get_alumnos_riesgo_academico"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            CONCAT(u.nombre, ' ', u.apellido) as nombre_completo,
+            a.matricula,
+            c.nombre as carrera,
+            g.codigo as grupo,
+            a.promedio_general,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as materias_reprobadas,
+            COUNT(cal.id) as total_materias,
+            ROUND(
+                (COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) * 100.0 / COUNT(cal.id)), 2
+            ) as porcentaje_reprobacion,
+            a.ultima_oportunidad_usada
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = 1
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id
+        WHERE a.estado_alumno = 'activo'
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre, g.codigo, a.promedio_general, a.ultima_oportunidad_usada
+        HAVING (a.promedio_general < 7.0 AND a.promedio_general > 0) 
+           OR COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) >= 2
+           OR (COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) * 100.0 / COUNT(cal.id)) >= 30
+        ORDER BY porcentaje_reprobacion DESC, materias_reprobadas DESC
+        LIMIT 25
+        """
+        
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron alumnos en riesgo académico."
+            else:
+                response = "Alumnos en riesgo académico:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['nombre_completo']} ({row['matricula']})\n"
+                    response += f"   Carrera: {row['carrera']}\n"
+                    if row['grupo']:
+                        response += f"   Grupo: {row['grupo']}\n"
+                    response += f"   Promedio: {row['promedio_general']}\n"
+                    response += f"   Materias reprobadas: {row['materias_reprobadas']}/{row['total_materias']}\n"
+                    response += f"   Porcentaje reprobación: {row['porcentaje_reprobacion']}%\n"
+                    response += f"   Última oportunidad usada: {'Sí' if row['ultima_oportunidad_usada'] else 'No'}\n\n"
+        else:
+            response = "No pude obtener los alumnos en riesgo académico."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetRankingGruposReprobacion(Action):
+    def name(self) -> Text:
+        return "action_get_ranking_grupos_reprobacion"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            g.codigo as grupo,
+            c.nombre as carrera,
+            g.cuatrimestre,
+            COUNT(DISTINCT ag.alumno_id) as total_alumnos,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as total_reprobaciones,
+            COUNT(CASE WHEN cal.estatus IN ('reprobado', 'aprobado') THEN 1 END) as total_evaluaciones,
+            ROUND(
+                (COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) * 100.0 / 
+                 NULLIF(COUNT(CASE WHEN cal.estatus IN ('reprobado', 'aprobado') THEN 1 END), 0)), 2
+            ) as porcentaje_reprobacion,
+            AVG(a.promedio_general) as promedio_grupo
+        FROM grupos g
+        JOIN carreras c ON g.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = 1
+        LEFT JOIN alumnos a ON ag.alumno_id = a.id
+        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id AND cal.grupo_id = g.id
+        WHERE g.activo = 1
+        GROUP BY g.id, g.codigo, c.nombre, g.cuatrimestre
+        HAVING COUNT(DISTINCT ag.alumno_id) > 0
+        ORDER BY porcentaje_reprobacion DESC
+        LIMIT 15
+        """
+        
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron datos de grupos para ranking."
+            else:
+                response = "Ranking de grupos por índice de reprobación:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. Grupo {row['grupo']} ({row['carrera']})\n"
+                    response += f"   Cuatrimestre: {row['cuatrimestre']}\n"
+                    response += f"   Total alumnos: {row['total_alumnos']}\n"
+                    response += f"   Total reprobaciones: {row['total_reprobaciones']}\n"
+                    if row['porcentaje_reprobacion']:
+                        response += f"   Porcentaje reprobación: {row['porcentaje_reprobacion']}%\n"
+                    if row['promedio_grupo']:
+                        response += f"   Promedio del grupo: {row['promedio_grupo']:.2f}\n"
+                    response += "\n"
+        else:
+            response = "No pude obtener el ranking de grupos por reprobación."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetEstudiantesPorGrupo(Action):
+    def name(self) -> Text:
+        return "action_get_estudiantes_por_grupo"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        grupo_codigo = tracker.get_slot('grupo')
+        
+        if not grupo_codigo:
+            dispatcher.utter_message(text="Por favor especifica el código del grupo.")
+            return []
+        
+        query = """
+        SELECT 
+            CONCAT(u.nombre, ' ', u.apellido) as nombre_completo,
+            a.matricula,
+            a.promedio_general,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as materias_reprobadas,
+            COUNT(CASE WHEN cal.estatus = 'aprobado' THEN 1 END) as materias_aprobadas,
+            a.estado_alumno
+        FROM grupos g
+        JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = 1
+        JOIN alumnos a ON ag.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id AND cal.grupo_id = g.id
+        WHERE g.codigo LIKE %s
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, a.promedio_general, a.estado_alumno
+        ORDER BY a.promedio_general DESC
+        """
+        
+        result = execute_query(query, [f"%{grupo_codigo}%"])
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = f"No se encontraron estudiantes en el grupo {grupo_codigo}."
+            else:
+                response = f"Estudiantes del grupo {grupo_codigo}:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['nombre_completo']} ({row['matricula']})\n"
+                    response += f"   Promedio: {row['promedio_general']}\n"
+                    response += f"   Materias aprobadas: {row['materias_aprobadas']}\n"
+                    response += f"   Materias reprobadas: {row['materias_reprobadas']}\n"
+                    response += f"   Estado: {row['estado_alumno']}\n\n"
+        else:
+            response = f"No pude obtener los estudiantes del grupo {grupo_codigo}."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetPromediosPorCuatrimestre(Action):
+    def name(self) -> Text:
+        return "action_get_promedios_por_cuatrimestre"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            g.cuatrimestre,
+            c.nombre as carrera,
+            COUNT(DISTINCT a.id) as total_alumnos,
+            AVG(a.promedio_general) as promedio_cuatrimestre,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as total_reprobaciones,
+            ROUND(
+                (COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) * 100.0 / 
+                 NULLIF(COUNT(CASE WHEN cal.estatus IN ('reprobado', 'aprobado') THEN 1 END), 0)), 2
+            ) as porcentaje_reprobacion
+        FROM grupos g
+        JOIN carreras c ON g.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = 1
+        LEFT JOIN alumnos a ON ag.alumno_id = a.id
+        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id AND cal.grupo_id = g.id
+        WHERE g.activo = 1 AND a.promedio_general > 0
+        GROUP BY g.cuatrimestre, c.id, c.nombre
+        ORDER BY c.nombre, g.cuatrimestre
+        """
+        
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron datos de promedios por cuatrimestre."
+            else:
+                response = "Promedios por cuatrimestre y carrera:\n\n"
+                current_carrera = ""
+                for row in result:
+                    if row['carrera'] != current_carrera:
+                        current_carrera = row['carrera']
+                        response += f"\n{current_carrera}:\n"
+                    
+                    response += f"  Cuatrimestre {row['cuatrimestre']}:\n"
+                    response += f"    Total alumnos: {row['total_alumnos']}\n"
+                    if row['promedio_cuatrimestre']:
+                        response += f"    Promedio: {row['promedio_cuatrimestre']:.2f}\n"
+                    response += f"    Reprobaciones: {row['total_reprobaciones']}\n"
+                    if row['porcentaje_reprobacion']:
+                        response += f"    % Reprobación: {row['porcentaje_reprobacion']}%\n"
+                    response += "\n"
+        else:
+            response = "No pude obtener los promedios por cuatrimestre."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetHistorialAcademico(Action):
+    def name(self) -> Text:
+        return "action_get_historial_academico"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        nombre_estudiante = tracker.get_slot('nombre_estudiante')
+        
+        if not nombre_estudiante:
+            dispatcher.utter_message(text="Por favor especifica el nombre del estudiante.")
+            return []
+        
+        query = """
+        SELECT 
+            u.nombre,
+            u.apellido,
+            a.matricula,
+            c.nombre as carrera,
+            a.cuatrimestre_actual,
+            a.fecha_ingreso,
+            a.promedio_general,
+            a.estado_alumno,
+            COUNT(cal.id) as total_materias_cursadas,
+            COUNT(CASE WHEN cal.estatus = 'aprobado' THEN 1 END) as materias_aprobadas,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as materias_reprobadas,
+            COUNT(CASE WHEN cal.estatus = 'cursando' THEN 1 END) as materias_cursando
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id
+        WHERE CONCAT(u.nombre, ' ', u.apellido) LIKE %s
+           OR u.nombre LIKE %s 
+           OR u.apellido LIKE %s
+           OR a.matricula LIKE %s
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre, a.cuatrimestre_actual, 
+                 a.fecha_ingreso, a.promedio_general, a.estado_alumno
+        """
+        
+        params = [f"%{nombre_estudiante}%", f"%{nombre_estudiante}%", f"%{nombre_estudiante}%", f"%{nombre_estudiante}%"]
+        result = execute_query(query, params)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = f"No se encontró historial académico para {nombre_estudiante}."
+            else:
+                response = "Historial académico:\n\n"
+                for row in result:
+                    response += f"Estudiante: {row['nombre']} {row['apellido']}\n"
+                    response += f"Matrícula: {row['matricula']}\n"
+                    response += f"Carrera: {row['carrera']}\n"
+                    response += f"Cuatrimestre actual: {row['cuatrimestre_actual']}\n"
+                    response += f"Fecha de ingreso: {row['fecha_ingreso']}\n"
+                    response += f"Estado: {row['estado_alumno']}\n"
+                    response += f"Promedio general: {row['promedio_general']}\n\n"
+                    response += f"Resumen académico:\n"
+                    response += f"  Total materias cursadas: {row['total_materias_cursadas']}\n"
+                    response += f"  Materias aprobadas: {row['materias_aprobadas']}\n"
+                    response += f"  Materias reprobadas: {row['materias_reprobadas']}\n"
+                    response += f"  Materias cursando: {row['materias_cursando']}\n\n"
+        else:
+            response = "No pude obtener el historial académico del estudiante."
+        
+        dispatcher.utter_message(text=response)
+        return []

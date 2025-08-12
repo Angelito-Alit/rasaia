@@ -188,3 +188,181 @@ stories:
   steps:
   - intent: ask_family_vulnerable_students
   - action: action_get_family_vulnerable_students
+
+- story: consulta indice reprobacion carrera
+  steps:
+  - intent: indice_reprobacion_carrera
+  - action: action_get_indice_reprobacion_carrera
+
+- story: consulta indice reprobacion grupo
+  steps:
+  - intent: indice_reprobacion_grupo
+  - action: action_get_indice_reprobacion_grupo
+
+- story: consulta indice reprobacion alumno
+  steps:
+  - intent: indice_reprobacion_alumno
+  - action: action_get_indice_reprobacion_alumno
+
+- story: consulta indice reprobacion asignatura
+  steps:
+  - intent: indice_reprobacion_asignatura
+  - action: action_get_indice_reprobacion_asignatura
+
+- story: consulta indice reprobacion general
+  steps:
+  - intent: indice_reprobacion_general
+  - action: action_get_indice_reprobacion_general
+
+- story: consulta datos estudiante especifico
+  steps:
+  - intent: datos_estudiante_especifico
+    entities:
+    - nombre_estudiante: "María López"
+  - action: action_get_datos_estudiante
+
+- story: consulta calificaciones estudiante
+  steps:
+  - intent: calificaciones_estudiante
+    entities:
+    - nombre_estudiante: "Miguel García"
+  - action: action_get_calificaciones_estudiante
+
+- story: consulta estudiantes bajo rendimiento
+  steps:
+  - intent: estudiantes_calificaciones_bajas
+  - action: action_get_estudiantes_bajo_rendimiento
+
+- story: consulta estudiantes promedio bajo
+  steps:
+  - intent: estudiantes_promedio_bajo
+    entities:
+    - numero: 7
+  - action: action_get_estudiantes_bajo_rendimiento
+
+- story: consulta estudiantes alto rendimiento
+  steps:
+  - intent: estudiantes_mejores_calificaciones
+  - action: action_get_estudiantes_alto_rendimiento
+
+- story: consulta mejores promedios carrera
+  steps:
+  - intent: mejores_promedios_carrera
+  - action: action_get_mejores_promedios_carrera
+
+- story: consulta lista grupos
+  steps:
+  - intent: lista_grupos
+  - action: action_get_lista_grupos
+
+- story: consulta materias complejas
+  steps:
+  - intent: indice_reprobacion_asignatura
+  - action: action_get_materias_complejas
+
+- story: consulta estudiantes con mas reprobaciones
+  steps:
+  - intent: indice_reprobacion_alumno
+  - action: action_get_estudiantes_con_mas_reprobaciones
+
+- story: consulta comparativa carreras
+  steps:
+  - intent: indice_reprobacion_carrera
+  - action: action_get_comparativa_carreras
+
+- story: consulta top 10 mejores estudiantes
+  steps:
+  - intent: estudiantes_mejores_calificaciones
+  - action: action_get_top10_mejores_estudiantes
+
+- story: consulta alumnos riesgo academico
+  steps:
+  - intent: estudiantes_calificaciones_bajas
+  - action: action_get_alumnos_riesgo_academico
+
+- story: consulta ranking grupos reprobacion
+  steps:
+  - intent: indice_reprobacion_grupo
+  - action: action_get_ranking_grupos_reprobacion
+
+- story: consulta estudiantes por grupo
+  steps:
+  - intent: lista_grupos
+    entities:
+    - grupo: "IDGS08"
+  - action: action_get_estudiantes_por_grupo
+
+- story: consulta promedios por cuatrimestre
+  steps:
+  - intent: mejores_promedios_carrera
+  - action: action_get_promedios_por_cuatrimestre
+
+- story: consulta historial academico
+  steps:
+  - intent: datos_estudiante_especifico
+    entities:
+    - nombre_estudiante: "Juan Pérez"
+  - action: action_get_historial_academico
+
+- story: happy path
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: indice_reprobacion_general
+  - action: action_get_indice_reprobacion_general
+  - intent: goodbye
+  - action: utter_goodbye
+
+- story: sad path
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: datos_estudiante_especifico
+  - action: utter_ask_estudiante
+  - intent: datos_estudiante_especifico
+    entities:
+    - nombre_estudiante: "María López"
+  - action: action_get_datos_estudiante
+
+
+rules:
+
+- rule: Say goodbye anytime the user says goodbye
+  steps:
+  - intent: goodbye
+  - action: utter_goodbye
+
+- rule: Say 'I am a bot' anytime the user challenges
+  steps:
+  - intent: bot_challenge
+  - action: utter_iamabot
+
+- rule: Ask for student name when missing
+  condition:
+  - active_loop: null
+  steps:
+  - intent: datos_estudiante_especifico
+  - action: utter_ask_estudiante
+
+- rule: Ask for student name for grades when missing
+  condition:
+  - active_loop: null
+  steps:
+  - intent: calificaciones_estudiante
+  - action: utter_ask_estudiante
+
+- rule: Ask for career when missing for specific queries
+  condition:
+  - active_loop: null
+  steps:
+  - intent: indice_reprobacion_carrera
+    entities: []
+  - action: utter_ask_carrera
+
+- rule: Ask for group when missing for specific queries
+  condition:
+  - active_loop: null
+  steps:
+  - intent: indice_reprobacion_grupo
+    entities: []
+  - action: utter_ask_grupo

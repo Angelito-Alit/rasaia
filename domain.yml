@@ -69,6 +69,20 @@ intents:
   - ask_good_students
   - ask_economic_vulnerable_students
   - ask_family_vulnerable_students
+  - indice_reprobacion_carrera
+  - indice_reprobacion_grupo
+  - indice_reprobacion_alumno
+  - indice_reprobacion_asignatura
+  - indice_reprobacion_general
+  - datos_estudiante_especifico
+  - calificaciones_estudiante
+  - estudiantes_calificaciones_bajas
+  - estudiantes_promedio_bajo
+  - estudiantes_mejores_calificaciones
+  - estudiantes_promedio_alto
+  - mejores_promedios_carrera
+  - lista_grupos
+  - indice_reprobacion_grupal
 
 entities:
   - matricula
@@ -91,6 +105,8 @@ entities:
   - calificacion_maxima
   - rango_calificacion
   - calificacion_exacta
+  - asignatura
+  - numero
 
 slots:
   matricula:
@@ -213,6 +229,16 @@ slots:
     mappings:
     - type: from_entity
       entity: calificacion_exacta
+  asignatura:
+    type: text
+    mappings:
+    - type: from_entity
+      entity: asignatura
+  numero:
+    type: float
+    mappings:
+    - type: from_entity
+      entity: numero
 
 responses:
   utter_greet:
@@ -223,6 +249,15 @@ responses:
 
   utter_iamabot:
   - text: "Soy un asistente virtual académico especializado en información educativa."
+
+  utter_ask_carrera:
+  - text: "¿De qué carrera específica necesitas el índice de reprobación?"
+
+  utter_ask_grupo:
+  - text: "¿De qué grupo específico necesitas la información?"
+
+  utter_ask_estudiante:
+  - text: "¿De qué estudiante específico necesitas los datos?"
 
 actions:
   - action_get_students_by_career
@@ -289,6 +324,18 @@ actions:
   - action_get_good_students
   - action_get_economic_vulnerable_students
   - action_get_family_vulnerable_students
+  - action_get_indice_reprobacion_carrera
+  - action_get_indice_reprobacion_grupo
+  - action_get_indice_reprobacion_alumno
+  - action_get_indice_reprobacion_asignatura
+  - action_get_indice_reprobacion_general
+  - action_get_datos_estudiante
+  - action_get_calificaciones_estudiante
+  - action_get_estudiantes_bajo_rendimiento
+  - action_get_estudiantes_alto_rendimiento
+  - action_get_mejores_promedios_carrera
+  - action_get_lista_grupos
+  - action_get_materias_complejas
 
 session_config:
   session_expiration_time: 60

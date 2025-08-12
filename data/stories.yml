@@ -363,12 +363,12 @@ stories:
   steps:
   - intent: indice_reprobacion_grupo
     entities:
-    - grupo: "iTUR08"
+    - grupo: "iDGS10"
   - action: action_get_indice_reprobacion_grupo
 
 - story: consulta indice reprobacion carrera con entidad
   steps:
   - intent: indice_reprobacion_carrera
     entities:
-    - carrera: "industrial"
+    - carrera: "sistemas"
   - action: action_get_indice_reprobacion_carrera

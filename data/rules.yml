@@ -17,6 +17,7 @@ rules:
   - active_loop: null
   steps:
   - intent: datos_estudiante_especifico
+    entities: []
   - action: utter_ask_estudiante
 
 - rule: Ask for student name for grades when missing
@@ -24,6 +25,7 @@ rules:
   - active_loop: null
   steps:
   - intent: calificaciones_estudiante
+    entities: []
   - action: utter_ask_estudiante
 
 - rule: Ask for career when missing for specific queries

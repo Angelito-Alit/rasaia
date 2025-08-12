@@ -11,3 +11,33 @@ rules:
   steps:
   - intent: bot_challenge
   - action: utter_iamabot
+
+- rule: Ask for student name when missing
+  condition:
+  - active_loop: null
+  steps:
+  - intent: datos_estudiante_especifico
+  - action: utter_ask_estudiante
+
+- rule: Ask for student name for grades when missing
+  condition:
+  - active_loop: null
+  steps:
+  - intent: calificaciones_estudiante
+  - action: utter_ask_estudiante
+
+- rule: Ask for career when missing for specific queries
+  condition:
+  - active_loop: null
+  steps:
+  - intent: indice_reprobacion_carrera
+    entities: []
+  - action: utter_ask_carrera
+
+- rule: Ask for group when missing for specific queries
+  condition:
+  - active_loop: null
+  steps:
+  - intent: indice_reprobacion_grupo
+    entities: []
+  - action: utter_ask_grupo

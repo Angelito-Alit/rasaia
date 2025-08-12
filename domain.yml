@@ -83,6 +83,16 @@ intents:
   - mejores_promedios_carrera
   - lista_grupos
   - indice_reprobacion_grupal
+  - ask_academic_performance
+  - ask_attendance_stats
+  - ask_academic_risk_students
+  - ask_schedules
+  - ask_career_info
+  - ask_help_requests
+  - ask_encuestas_info
+  - ask_archivos_info
+  - ask_subjects_by_career
+  - ask_sesiones_info
 
 entities:
   - matricula
@@ -105,7 +115,6 @@ entities:
   - calificacion_maxima
   - rango_calificacion
   - calificacion_exacta
-  - asignatura
   - numero
 
 slots:
@@ -173,11 +182,6 @@ slots:
     type: text
     influence_conversation: false
     mappings:
-      - type: from_entity
-        entity: asignatura
-    type: text
-    influence_conversation: false
-    mappings:
     - type: from_entity
       entity: asignatura
   aula:
@@ -234,11 +238,6 @@ slots:
     mappings:
     - type: from_entity
       entity: calificacion_exacta
-  asignatura:
-    type: text
-    mappings:
-    - type: from_entity
-      entity: asignatura
   numero:
     type: float
     mappings:
@@ -341,6 +340,14 @@ actions:
   - action_get_mejores_promedios_carrera
   - action_get_lista_grupos
   - action_get_materias_complejas
+  - action_get_estudiantes_con_mas_reprobaciones
+  - action_get_comparativa_carreras
+  - action_get_top10_mejores_estudiantes
+  - action_get_alumnos_riesgo_academico
+  - action_get_ranking_grupos_reprobacion
+  - action_get_estudiantes_por_grupo
+  - action_get_promedios_por_cuatrimestre
+  - action_get_historial_academico
 
 session_config:
   session_expiration_time: 60

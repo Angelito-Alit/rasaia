@@ -108,3 +108,83 @@ stories:
   steps:
   - intent: goodbye
   - action: utter_goodbye
+
+- story: graduated students inquiry
+  steps:
+  - intent: ask_graduated_students
+  - action: action_get_graduated_students
+
+- story: temporary dropout inquiry
+  steps:
+  - intent: ask_temporary_dropout_students
+  - action: action_get_temporary_dropout_students
+
+- story: definitive dropout inquiry
+  steps:
+  - intent: ask_definitive_dropout_students
+  - action: action_get_definitive_dropout_students
+
+- story: active students only inquiry
+  steps:
+  - intent: ask_active_students_only
+  - action: action_get_active_students_only
+
+- story: specific career students inquiry
+  steps:
+  - intent: ask_students_by_specific_career
+  - action: action_get_students_by_specific_career
+
+- story: critical risk students inquiry
+  steps:
+  - intent: ask_critical_risk_students
+  - action: action_get_critical_risk_students
+
+- story: high risk only students inquiry
+  steps:
+  - intent: ask_high_risk_students_only
+  - action: action_get_high_risk_students_only
+
+- story: medium risk students inquiry
+  steps:
+  - intent: ask_medium_risk_students
+  - action: action_get_medium_risk_students
+
+- story: failing students only inquiry
+  steps:
+  - intent: ask_failing_students_only
+  - action: action_get_failing_students_only
+
+- story: low grade students specific inquiry
+  steps:
+  - intent: ask_low_grade_students_specific
+  - action: action_get_low_grade_students_specific
+
+- story: socioeconomic vulnerable students inquiry
+  steps:
+  - intent: ask_socioeconomic_vulnerable_students
+  - action: action_get_socioeconomic_vulnerable_students
+
+- story: academic vulnerable students inquiry
+  steps:
+  - intent: ask_academic_vulnerable_students
+  - action: action_get_academic_vulnerable_students
+
+- story: excellent students inquiry
+  steps:
+  - intent: ask_excellent_students
+  - action: action_get_excellent_students
+
+- story: good students inquiry
+  steps:
+  - intent: ask_good_students
+  - action: action_get_good_students
+
+- story: economic vulnerable students inquiry
+  steps:
+  - intent: ask_economic_vulnerable_students
+  - action: action_get_economic_vulnerable_students
+
+- story: family vulnerable students inquiry
+  steps:
+  - intent: ask_family_vulnerable_students
+  - action: action_get_family_vulnerable_students

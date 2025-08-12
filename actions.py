@@ -498,45 +498,8 @@ class ActionGetHighRiskStudents(Action):
         dispatcher.utter_message(text=response)
         return []
 
-class ActionGetVulnerableStudents(Action):
-    def name(self) -> Text:
-        return "action_get_vulnerable_students"
 
-    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        query = """
-        SELECT u.nombre, u.apellido, a.matricula, c.nombre as carrera,
-               COUNT(DISTINCT re.pregunta_id) as vulnerabilidades_identificadas,
-               GROUP_CONCAT(DISTINCT pe.pregunta SEPARATOR '; ') as tipos_vulnerabilidad
-        FROM respuestas_encuesta re
-        JOIN alumnos a ON re.alumno_id = a.id
-        JOIN usuarios u ON a.usuario_id = u.id
-        JOIN carreras c ON a.carrera_id = c.id
-        JOIN preguntas_encuesta pe ON re.pregunta_id = pe.id
-        JOIN encuestas e ON pe.encuesta_id = e.id
-        WHERE e.tipo_encuesta = 'vulnerabilidad' AND a.estado_alumno = 'activo'
-        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre
-        ORDER BY vulnerabilidades_identificadas DESC
-        """
-        result = execute_query(query)
-        
-        if result and not isinstance(result, dict):
-            if not result:
-                response = "No se encontraron estudiantes con vulnerabilidades identificadas en encuestas."
-            else:
-                response = f"Estudiantes vulnerables identificados ({len(result)} casos):\n\n"
-                for row in result:
-                    response += f"{row['nombre']} {row['apellido']} ({row['matricula']})\n"
-                    response += f"  Carrera: {row['carrera']}\n"
-                    response += f"  Vulnerabilidades: {row['vulnerabilidades_identificadas']}\n"
-                    if len(row['tipos_vulnerabilidad']) > 200:
-                        response += f"  Tipos: {row['tipos_vulnerabilidad'][:200]}...\n\n"
-                    else:
-                        response += f"  Tipos: {row['tipos_vulnerabilidad']}\n\n"
-        else:
-            response = "No pude obtener información de estudiantes vulnerables."
-        
-        dispatcher.utter_message(text=response)
-        return []
+
 
 class ActionGetStudentsWithoutGroup(Action):
     def name(self) -> Text:
@@ -1950,4 +1913,977 @@ class ActionGetSubjectSpecific(Action):
         
         dispatcher.utter_message(text=response)
         return []
+class ActionGetGraduatedStudents(Action):
+    def name(self) -> Text:
+        return "action_get_graduated_students"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT u.nombre, u.apellido, a.matricula, c.nombre as carrera,
+               a.cuatrimestre_actual, a.fecha_ingreso
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        WHERE a.estado_alumno = 'egresado'
+        ORDER BY c.nombre, u.apellido
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No hay alumnos egresados registrados."
+            else:
+                response = f"Alumnos egresados ({len(result)} casos):\n\n"
+                current_career = None
+                for row in result:
+                    if current_career != row['carrera']:
+                        current_career = row['carrera']
+                        response += f"{current_career}:\n"
+                    
+                    response += f"  {row['nombre']} {row['apellido']} ({row['matricula']})\n"
+                    response += f"    Último cuatrimestre: {row['cuatrimestre_actual']}\n"
+                    response += f"    Fecha ingreso: {row['fecha_ingreso']}\n\n"
+        else:
+            response = "No pude obtener información de estudiantes egresados."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetTemporaryDropoutStudents(Action):
+    def name(self) -> Text:
+        return "action_get_temporary_dropout_students"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT u.nombre, u.apellido, a.matricula, c.nombre as carrera,
+               a.cuatrimestre_actual, a.fecha_ingreso
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        WHERE a.estado_alumno = 'baja_temporal'
+        ORDER BY c.nombre, u.apellido
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No hay alumnos con baja temporal."
+            else:
+                response = f"Alumnos con baja temporal ({len(result)} casos):\n\n"
+                current_career = None
+                for row in result:
+                    if current_career != row['carrera']:
+                        current_career = row['carrera']
+                        response += f"{current_career}:\n"
+                    
+                    response += f"  {row['nombre']} {row['apellido']} ({row['matricula']})\n"
+                    response += f"    Último cuatrimestre: {row['cuatrimestre_actual']}\n"
+                    response += f"    Fecha ingreso: {row['fecha_ingreso']}\n\n"
+        else:
+            response = "No pude obtener información de estudiantes con baja temporal."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetDefinitiveDropoutStudents(Action):
+    def name(self) -> Text:
+        return "action_get_definitive_dropout_students"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT u.nombre, u.apellido, a.matricula, c.nombre as carrera,
+               a.cuatrimestre_actual, a.fecha_ingreso
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        WHERE a.estado_alumno = 'baja_definitiva'
+        ORDER BY c.nombre, u.apellido
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No hay alumnos con baja definitiva."
+            else:
+                response = f"Alumnos con baja definitiva ({len(result)} casos):\n\n"
+                current_career = None
+                for row in result:
+                    if current_career != row['carrera']:
+                        current_career = row['carrera']
+                        response += f"{current_career}:\n"
+                    
+                    response += f"  {row['nombre']} {row['apellido']} ({row['matricula']})\n"
+                    response += f"    Último cuatrimestre: {row['cuatrimestre_actual']}\n"
+                    response += f"    Fecha ingreso: {row['fecha_ingreso']}\n\n"
+        else:
+            response = "No pude obtener información de estudiantes con baja definitiva."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetActiveStudentsOnly(Action):
+    def name(self) -> Text:
+        return "action_get_active_students_only"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT u.nombre, u.apellido, a.matricula, c.nombre as carrera,
+               a.cuatrimestre_actual, a.fecha_ingreso
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        WHERE a.estado_alumno = 'activo'
+        ORDER BY c.nombre, a.cuatrimestre_actual, u.apellido
+        LIMIT 50
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No hay alumnos activos registrados."
+            else:
+                response = f"Alumnos activos ({len(result)} casos):\n\n"
+                current_career = None
+                for row in result:
+                    if current_career != row['carrera']:
+                        current_career = row['carrera']
+                        response += f"{current_career}:\n"
+                    
+                    response += f"  {row['nombre']} {row['apellido']} ({row['matricula']})\n"
+                    response += f"    Cuatrimestre: {row['cuatrimestre_actual']}\n"
+                    response += f"    Fecha ingreso: {row['fecha_ingreso']}\n\n"
+        else:
+            response = "No pude obtener información de estudiantes activos."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetStudentsBySpecificCareer(Action):
+    def name(self) -> Text:
+        return "action_get_students_by_specific_career"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        carrera_nombre = tracker.get_slot('carrera')
+        
+        if not carrera_nombre:
+            dispatcher.utter_message(text="Necesito que especifiques de qué carrera quieres consultar los estudiantes.")
+            return []
+        
+        query = """
+        SELECT CONCAT(u.nombre, ' ', u.apellido) as nombre_completo,
+               a.matricula,
+               c.nombre as carrera,
+               a.cuatrimestre_actual,
+               a.fecha_ingreso,
+               a.estado_alumno,
+               AVG(ed.calificacion_final) as promedio_general
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        LEFT JOIN evaluacion_detalle ed ON a.id = ed.alumno_id
+        WHERE c.nombre LIKE %s AND u.activo = TRUE
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre, a.cuatrimestre_actual, a.fecha_ingreso, a.estado_alumno
+        ORDER BY a.cuatrimestre_actual, promedio_general DESC
+        LIMIT 30
+        """
+        
+        result = execute_query(query, (f"%{carrera_nombre}%",))
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = f"No se encontraron estudiantes en la carrera {carrera_nombre}."
+            else:
+                response = f"Estudiantes de {carrera_nombre} ({len(result)} casos):\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['nombre_completo']} ({row['matricula']})\n"
+                    response += f"   Estado: {row['estado_alumno']}\n"
+                    response += f"   Cuatrimestre: {row['cuatrimestre_actual']}\n"
+                    if row['promedio_general']:
+                        response += f"   Promedio: {row['promedio_general']:.2f}\n"
+                    response += f"   Fecha ingreso: {row['fecha_ingreso']}\n\n"
+        else:
+            response = f"No pude obtener información de estudiantes de {carrera_nombre}."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetCriticalRiskStudents(Action):
+    def name(self) -> Text:
+        return "action_get_critical_risk_students"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT u.nombre, u.apellido, a.matricula,
+               COUNT(rr.id) as total_reportes,
+               GROUP_CONCAT(DISTINCT rr.tipo_riesgo) as tipos_riesgo,
+               c.nombre as carrera, g.codigo as grupo
+        FROM reportes_riesgo rr
+        JOIN alumnos a ON rr.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        LEFT JOIN carreras c ON g.carrera_id = c.id
+        WHERE rr.estado IN ('abierto', 'en_proceso') AND a.estado_alumno = 'activo'
+              AND rr.nivel_riesgo = 'critico'
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre, g.codigo
+        ORDER BY total_reportes DESC, u.apellido
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No hay estudiantes con reportes de riesgo critico activos."
+            else:
+                response = f"Estudiantes con riesgo critico ({len(result)} casos):\n\n"
+                for row in result:
+                    response += f"{row['nombre']} {row['apellido']} ({row['matricula']})\n"
+                    response += f"  Carrera: {row['carrera'] or 'Sin carrera'}\n"
+                    response += f"  Grupo: {row['grupo'] or 'Sin grupo'}\n"
+                    response += f"  Total reportes criticos: {row['total_reportes']}\n"
+                    response += f"  Tipos de riesgo: {row['tipos_riesgo']}\n\n"
+        else:
+            response = "No pude obtener información de reportes de riesgo critico."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetHighRiskStudentsOnly(Action):
+    def name(self) -> Text:
+        return "action_get_high_risk_students_only"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT u.nombre, u.apellido, a.matricula,
+               COUNT(rr.id) as total_reportes,
+               GROUP_CONCAT(DISTINCT rr.tipo_riesgo) as tipos_riesgo,
+               c.nombre as carrera, g.codigo as grupo
+        FROM reportes_riesgo rr
+        JOIN alumnos a ON rr.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        LEFT JOIN carreras c ON g.carrera_id = c.id
+        WHERE rr.estado IN ('abierto', 'en_proceso') AND a.estado_alumno = 'activo'
+              AND rr.nivel_riesgo = 'alto'
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre, g.codigo
+        ORDER BY total_reportes DESC, u.apellido
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No hay estudiantes con reportes de riesgo alto activos."
+            else:
+                response = f"Estudiantes con riesgo alto ({len(result)} casos):\n\n"
+                for row in result:
+                    response += f"{row['nombre']} {row['apellido']} ({row['matricula']})\n"
+                    response += f"  Carrera: {row['carrera'] or 'Sin carrera'}\n"
+                    response += f"  Grupo: {row['grupo'] or 'Sin grupo'}\n"
+                    response += f"  Total reportes altos: {row['total_reportes']}\n"
+                    response += f"  Tipos de riesgo: {row['tipos_riesgo']}\n\n"
+        else:
+            response = "No pude obtener información de reportes de riesgo alto."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetMediumRiskStudents(Action):
+    def name(self) -> Text:
+        return "action_get_medium_risk_students"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT u.nombre, u.apellido, a.matricula,
+               COUNT(rr.id) as total_reportes,
+               GROUP_CONCAT(DISTINCT rr.tipo_riesgo) as tipos_riesgo,
+               c.nombre as carrera, g.codigo as grupo
+        FROM reportes_riesgo rr
+        JOIN alumnos a ON rr.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        LEFT JOIN carreras c ON g.carrera_id = c.id
+        WHERE rr.estado IN ('abierto', 'en_proceso') AND a.estado_alumno = 'activo'
+              AND rr.nivel_riesgo = 'medio'
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre, g.codigo
+        ORDER BY total_reportes DESC, u.apellido
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No hay estudiantes con reportes de riesgo medio activos."
+            else:
+                response = f"Estudiantes con riesgo medio ({len(result)} casos):\n\n"
+                for row in result:
+                    response += f"{row['nombre']} {row['apellido']} ({row['matricula']})\n"
+                    response += f"  Carrera: {row['carrera'] or 'Sin carrera'}\n"
+                    response += f"  Grupo: {row['grupo'] or 'Sin grupo'}\n"
+                    response += f"  Total reportes medios: {row['total_reportes']}\n"
+                    response += f"  Tipos de riesgo: {row['tipos_riesgo']}\n\n"
+        else:
+            response = "No pude obtener información de reportes de riesgo medio."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetFailingStudentsOnly(Action):
+    def name(self) -> Text:
+        return "action_get_failing_students_only"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT DISTINCT u.nombre, u.apellido, a.matricula,
+               asig.nombre as asignatura, ed.calificacion_final,
+               c.nombre as carrera, g.codigo as grupo
+        FROM evaluacion_detalle ed
+        JOIN alumnos a ON ed.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN asignaturas asig ON ed.asignatura_id = asig.id
+        JOIN grupos g ON ed.grupo_id = g.id
+        JOIN carreras c ON g.carrera_id = c.id
+        WHERE ed.estatus = 'reprobado' AND a.estado_alumno = 'activo'
+        ORDER BY ed.calificacion_final ASC, u.apellido
+        LIMIT 30
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No hay alumnos reprobados."
+            else:
+                response = f"Alumnos reprobados ({len(result)} casos):\n\n"
+                current_career = None
+                for row in result:
+                    if current_career != row['carrera']:
+                        current_career = row['carrera']
+                        response += f"{current_career}:\n"
+                    
+                    response += f"  {row['nombre']} {row['apellido']} ({row['matricula']})\n"
+                    response += f"    Grupo: {row['grupo']}\n"
+                    response += f"    Asignatura: {row['asignatura']}\n"
+                    response += f"    Calificación: {row['calificacion_final']}\n\n"
+        else:
+            response = "No pude obtener información de estudiantes reprobados."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetLowGradeStudentsSpecific(Action):
+    def name(self) -> Text:
+        return "action_get_low_grade_students_specific"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT DISTINCT u.nombre, u.apellido, a.matricula,
+               asig.nombre as asignatura, ed.calificacion_final,
+               c.nombre as carrera, g.codigo as grupo
+        FROM evaluacion_detalle ed
+        JOIN alumnos a ON ed.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN asignaturas asig ON ed.asignatura_id = asig.id
+        JOIN grupos g ON ed.grupo_id = g.id
+        JOIN carreras c ON g.carrera_id = c.id
+        WHERE ed.calificacion_final < 8 AND ed.calificacion_final IS NOT NULL
+              AND a.estado_alumno = 'activo' AND ed.estatus != 'reprobado'
+        ORDER BY ed.calificacion_final ASC, u.apellido
+        LIMIT 30
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No hay alumnos con calificaciones menores a 8 que no esten reprobados."
+            else:
+                response = f"Alumnos con calificaciones bajas ({len(result)} casos):\n\n"
+                current_career = None
+                for row in result:
+                    if current_career != row['carrera']:
+                        current_career = row['carrera']
+                        response += f"{current_career}:\n"
+                    
+                    response += f"  {row['nombre']} {row['apellido']} ({row['matricula']})\n"
+                    response += f"    Grupo: {row['grupo']}\n"
+                    response += f"    Asignatura: {row['asignatura']}\n"
+                    response += f"    Calificación: {row['calificacion_final']}\n\n"
+        else:
+            response = "No pude obtener información de calificaciones bajas."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetSocioeconomicVulnerableStudents(Action):
+    def name(self) -> Text:
+        return "action_get_socioeconomic_vulnerable_students"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT u.nombre, u.apellido, a.matricula, c.nombre as carrera,
+               COUNT(DISTINCT re.pregunta_id) as vulnerabilidades_identificadas,
+               GROUP_CONCAT(DISTINCT pe.pregunta SEPARATOR '; ') as tipos_vulnerabilidad
+        FROM respuestas_encuesta re
+        JOIN alumnos a ON re.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        JOIN preguntas_encuesta pe ON re.pregunta_id = pe.id
+        JOIN encuestas e ON pe.encuesta_id = e.id
+        WHERE e.tipo_encuesta = 'socioeconomica' AND a.estado_alumno = 'activo'
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre
+        ORDER BY vulnerabilidades_identificadas DESC
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron estudiantes con vulnerabilidades socioeconomicas identificadas."
+            else:
+                response = f"Estudiantes con vulnerabilidad socioeconomica ({len(result)} casos):\n\n"
+                for row in result:
+                    response += f"{row['nombre']} {row['apellido']} ({row['matricula']})\n"
+                    response += f"  Carrera: {row['carrera']}\n"
+                    response += f"  Vulnerabilidades: {row['vulnerabilidades_identificadas']}\n"
+                    if len(row['tipos_vulnerabilidad']) > 200:
+                        response += f"  Tipos: {row['tipos_vulnerabilidad'][:200]}...\n\n"
+                    else:
+                        response += f"  Tipos: {row['tipos_vulnerabilidad']}\n\n"
+        else:
+            response = "No pude obtener información de estudiantes con vulnerabilidad socioeconomica."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetAcademicVulnerableStudents(Action):
+    def name(self) -> Text:
+        return "action_get_academic_vulnerable_students"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT COUNT(*) as total_registros 
+        FROM ultima_oportunidad_log
+        """
+        count_result = execute_query(query)
+        
+        if count_result and count_result[0]['total_registros'] == 0:
+            dispatcher.utter_message(text="No hay registros en la tabla ultima_oportunidad_log.")
+            return []
+        
+        query = """
+        SELECT 
+            uol.id,
+            uol.alumno_id,
+            uol.asignatura_id,
+            uol.numero_parcial,
+            uol.calificacion,
+            uol.resultado,
+            uol.fecha_uso,
+            a.matricula,
+            u.nombre,
+            u.apellido,
+            tutor_u.nombre as tutor_nombre,
+            tutor_u.apellido as tutor_apellido,
+            tutor_p.numero_empleado as tutor_empleado
+        FROM ultima_oportunidad_log uol
+        LEFT JOIN alumnos a ON uol.alumno_id = a.id
+        LEFT JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id AND g.activo = TRUE
+        LEFT JOIN profesores tutor_p ON g.profesor_tutor_id = tutor_p.id
+        LEFT JOIN usuarios tutor_u ON tutor_p.usuario_id = tutor_u.id
+        ORDER BY uol.fecha_uso DESC
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if len(result) == 0:
+                response = "La tabla ultima_oportunidad_log esta vacia."
+            else:
+                response = f"Alumnos vulnerables academicamente ({len(result)} casos):\n\n"
+                for row in result:
+                    if row.get('matricula') and row.get('nombre'):
+                        response += f"Matricula: {row['matricula']}\n"
+                        response += f"Nombre: {row['nombre']} {row['apellido']}\n"
+                        response += f"Parcial: {row['numero_parcial']}\n"
+                        response += f"Calificacion: {row['calificacion']}\n"
+                        if row.get('tutor_nombre') and row.get('tutor_apellido'):
+                            response += f"Tutor del grupo: {row['tutor_nombre']} {row['tutor_apellido']}"
+                            if row.get('tutor_empleado'):
+                                response += f" (matricula: {row['tutor_empleado']})"
+                            response += "\n"
+                        else:
+                            response += "Tutor del grupo: No asignado\n"
+                        response += f"Categoria: Academica\n\n"
+                    else:
+                        response += f"ID Log: {row['id']}\n"
+                        response += f"Alumno ID: {row['alumno_id']}\n"
+                        response += f"Asignatura ID: {row['asignatura_id']}\n"
+                        response += f"Parcial: {row['numero_parcial']}\n"
+                        response += f"Calificacion: {row['calificacion']}\n"
+                        if row.get('tutor_nombre') and row.get('tutor_apellido'):
+                            response += f"Tutor del grupo: {row['tutor_nombre']} {row['tutor_apellido']}"
+                            if row.get('tutor_empleado'):
+                                response += f" (matricula: {row['tutor_empleado']})"
+                            response += "\n"
+                        else:
+                            response += "Tutor del grupo: No asignado\n"
+                        response += f"Categoria: Academica\n\n"
+        else:
+            response = "No pude obtener informacion de estudiantes con vulnerabilidad academica."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetExcellentStudents(Action):
+    def name(self) -> Text:
+        return "action_get_excellent_students"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT u.nombre, u.apellido, a.matricula, c.nombre as carrera,
+               AVG(ed.calificacion_final) as promedio,
+               COUNT(ed.id) as materias_evaluadas,
+               g.codigo as grupo
+        FROM evaluacion_detalle ed
+        JOIN alumnos a ON ed.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN grupos g ON ed.grupo_id = g.id
+        JOIN carreras c ON g.carrera_id = c.id
+        WHERE ed.calificacion_final IS NOT NULL AND a.estado_alumno = 'activo'
+              AND ed.calificacion_final >= 9.5
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre, g.codigo
+        HAVING materias_evaluadas >= 3 AND promedio >= 9.5
+        ORDER BY promedio DESC
+        LIMIT 15
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No encontre estudiantes con excelencia academica."
+            else:
+                response = f"Estudiantes con excelencia academica ({len(result)} casos):\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['nombre']} {row['apellido']} ({row['matricula']})\n"
+                    response += f"   Promedio: {row['promedio']:.2f}\n"
+                    response += f"   Carrera: {row['carrera']}\n"
+                    response += f"   Grupo: {row['grupo']}\n"
+                    response += f"   Materias evaluadas: {row['materias_evaluadas']}\n\n"
+        else:
+            response = "No pude obtener información de estudiantes con excelencia."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetGoodStudents(Action):
+    def name(self) -> Text:
+        return "action_get_good_students"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT u.nombre, u.apellido, a.matricula, c.nombre as carrera,
+               AVG(ed.calificacion_final) as promedio,
+               COUNT(ed.id) as materias_evaluadas,
+               g.codigo as grupo
+        FROM evaluacion_detalle ed
+        JOIN alumnos a ON ed.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN grupos g ON ed.grupo_id = g.id
+        JOIN carreras c ON g.carrera_id = c.id
+        WHERE ed.calificacion_final IS NOT NULL AND a.estado_alumno = 'activo'
+              AND ed.calificacion_final >= 8 AND ed.calificacion_final < 9.5
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre, g.codigo
+        HAVING materias_evaluadas >= 3 AND promedio >= 8 AND promedio < 9.5
+        ORDER BY promedio DESC
+        LIMIT 20
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No encontre estudiantes con buen rendimiento academico."
+            else:
+                response = f"Estudiantes con buen rendimiento ({len(result)} casos):\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['nombre']} {row['apellido']} ({row['matricula']})\n"
+                    response += f"   Promedio: {row['promedio']:.2f}\n"
+                    response += f"   Carrera: {row['carrera']}\n"
+                    response += f"   Grupo: {row['grupo']}\n"
+                    response += f"   Materias evaluadas: {row['materias_evaluadas']}\n\n"
+        else:
+            response = "No pude obtener información de estudiantes con buen rendimiento."
+        
+        dispatcher.utter_message(text=response)
+        return []
     
+class ActionGetVulnerableStudents(Action):
+    def name(self) -> Text:
+        return "action_get_vulnerable_students"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        response = ""
+        
+        # Académicos desde ultima_oportunidad_log
+        query = """
+        SELECT COUNT(*) as total_registros 
+        FROM ultima_oportunidad_log
+        """
+        count_result = execute_query(query)
+        
+        if count_result and count_result[0]['total_registros'] == 0:
+            response += "No hay registros en la tabla ultima_oportunidad_log.\n\n"
+        else:
+            query = """
+            SELECT 
+                uol.id,
+                uol.alumno_id,
+                uol.asignatura_id,
+                uol.numero_parcial,
+                uol.calificacion,
+                uol.resultado,
+                uol.fecha_uso,
+                a.matricula,
+                u.nombre,
+                u.apellido,
+                tutor_u.nombre as tutor_nombre,
+                tutor_u.apellido as tutor_apellido,
+                tutor_p.numero_empleado as tutor_empleado
+            FROM ultima_oportunidad_log uol
+            LEFT JOIN alumnos a ON uol.alumno_id = a.id
+            LEFT JOIN usuarios u ON a.usuario_id = u.id
+            LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+            LEFT JOIN grupos g ON ag.grupo_id = g.id AND g.activo = TRUE
+            LEFT JOIN profesores tutor_p ON g.profesor_tutor_id = tutor_p.id
+            LEFT JOIN usuarios tutor_u ON tutor_p.usuario_id = tutor_u.id
+            ORDER BY uol.fecha_uso DESC
+            """
+            result = execute_query(query)
+            
+            if result and not isinstance(result, dict):
+                if len(result) == 0:
+                    response += "La tabla ultima_oportunidad_log esta vacia.\n\n"
+                else:
+                    response += f"Alumnos vulnerables academicamente ({len(result)} casos):\n\n"
+                    for row in result:
+                        if row.get('matricula') and row.get('nombre'):
+                            response += f"Matricula: {row['matricula']}\n"
+                            response += f"Nombre: {row['nombre']} {row['apellido']}\n"
+                            response += f"Parcial: {row['numero_parcial']}\n"
+                            response += f"Calificacion: {row['calificacion']}\n"
+                            if row.get('tutor_nombre') and row.get('tutor_apellido'):
+                                response += f"Tutor del grupo: {row['tutor_nombre']} {row['tutor_apellido']}"
+                                if row.get('tutor_empleado'):
+                                    response += f" (matricula: {row['tutor_empleado']})"
+                                response += "\n"
+                            else:
+                                response += "Tutor del grupo: No asignado\n"
+                            response += f"Categoria: Academica\n\n"
+                        else:
+                            response += f"ID Log: {row['id']}\n"
+                            response += f"Alumno ID: {row['alumno_id']}\n"
+                            response += f"Asignatura ID: {row['asignatura_id']}\n"
+                            response += f"Parcial: {row['numero_parcial']}\n"
+                            response += f"Calificacion: {row['calificacion']}\n"
+                            if row.get('tutor_nombre') and row.get('tutor_apellido'):
+                                response += f"Tutor del grupo: {row['tutor_nombre']} {row['tutor_apellido']}"
+                                if row.get('tutor_empleado'):
+                                    response += f" (matricula: {row['tutor_empleado']})"
+                                response += "\n"
+                            else:
+                                response += "Tutor del grupo: No asignado\n"
+                            response += f"Categoria: Academica\n\n"
+
+        # Económicos desde reportes_riesgo
+        query_economicos = """
+        SELECT 
+            a.matricula,
+            u.nombre,
+            u.apellido,
+            rr.descripcion AS motivo,
+            tutor_u.nombre AS tutor_nombre,
+            tutor_u.apellido AS tutor_apellido,
+            tutor_p.numero_empleado AS tutor_empleado
+        FROM reportes_riesgo rr
+        JOIN alumnos a ON rr.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id AND g.activo = TRUE
+        LEFT JOIN profesores tutor_p ON g.profesor_tutor_id = tutor_p.id
+        LEFT JOIN usuarios tutor_u ON tutor_p.usuario_id = tutor_u.id
+        WHERE rr.tipo_riesgo = 'economico'
+        ORDER BY rr.nivel_riesgo DESC
+        """
+        economicos = execute_query(query_economicos)
+        
+        if economicos and not isinstance(economicos, dict):
+            if len(economicos) > 0:
+                response += f"Alumnos vulnerables economicamente ({len(economicos)} casos):\n\n"
+                for e in economicos:
+                    response += f"Matricula: {e['matricula']}\n"
+                    response += f"Nombre: {e['nombre']} {e['apellido']}\n"
+                    response += f"Motivo: {e['motivo']}\n"
+                    if e.get('tutor_nombre') and e.get('tutor_apellido'):
+                        response += f"Tutor del grupo: {e['tutor_nombre']} {e['tutor_apellido']}"
+                        if e.get('tutor_empleado'):
+                            response += f" (matricula: {e['tutor_empleado']})"
+                        response += "\n"
+                    else:
+                        response += "Tutor del grupo: No asignado\n"
+                    response += f"Categoria: Economica\n\n"
+            else:
+                response += "No hay registros economicos en la base de datos.\n\n"
+        else:
+            response += "No hay registros economicos en la base de datos.\n\n"
+
+        # Familiares desde reportes_riesgo
+        query_familiares = """
+        SELECT 
+            a.matricula,
+            u.nombre,
+            u.apellido,
+            rr.descripcion AS motivo,
+            tutor_u.nombre AS tutor_nombre,
+            tutor_u.apellido AS tutor_apellido,
+            tutor_p.numero_empleado AS tutor_empleado
+        FROM reportes_riesgo rr
+        JOIN alumnos a ON rr.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id AND g.activo = TRUE
+        LEFT JOIN profesores tutor_p ON g.profesor_tutor_id = tutor_p.id
+        LEFT JOIN usuarios tutor_u ON tutor_p.usuario_id = tutor_u.id
+        WHERE rr.tipo_riesgo = 'familiar'
+        ORDER BY rr.nivel_riesgo DESC
+        """
+        familiares = execute_query(query_familiares)
+        
+        if familiares and not isinstance(familiares, dict):
+            if len(familiares) > 0:
+                response += f"Alumnos vulnerables familiarmente ({len(familiares)} casos):\n\n"
+                for f in familiares:
+                    response += f"Matricula: {f['matricula']}\n"
+                    response += f"Nombre: {f['nombre']} {f['apellido']}\n"
+                    response += f"Motivo: {f['motivo']}\n"
+                    if f.get('tutor_nombre') and f.get('tutor_apellido'):
+                        response += f"Tutor del grupo: {f['tutor_nombre']} {f['tutor_apellido']}"
+                        if f.get('tutor_empleado'):
+                            response += f" (matricula: {f['tutor_empleado']})"
+                        response += "\n"
+                    else:
+                        response += "Tutor del grupo: No asignado\n"
+                    response += f"Categoria: Familiar\n\n"
+            else:
+                response += "No hay registros familiares en la base de datos.\n\n"
+        else:
+            response += "No hay registros familiares en la base de datos.\n\n"
+        
+        if not response.strip():
+            response = "No se encontraron estudiantes vulnerables."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetEconomicVulnerableStudents(Action):
+    def name(self) -> Text:
+        return "action_get_economic_vulnerable_students"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            a.matricula,
+            u.nombre,
+            u.apellido,
+            rr.descripcion AS motivo,
+            tutor_u.nombre AS tutor_nombre,
+            tutor_u.apellido AS tutor_apellido,
+            tutor_p.numero_empleado AS tutor_empleado
+        FROM reportes_riesgo rr
+        JOIN alumnos a ON rr.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id AND g.activo = TRUE
+        LEFT JOIN profesores tutor_p ON g.profesor_tutor_id = tutor_p.id
+        LEFT JOIN usuarios tutor_u ON tutor_p.usuario_id = tutor_u.id
+        WHERE rr.tipo_riesgo = 'economico'
+        ORDER BY rr.nivel_riesgo DESC
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if len(result) == 0:
+                response = "No se encontraron estudiantes con vulnerabilidad economica."
+            else:
+                response = f"Alumnos vulnerables economicamente ({len(result)} casos):\n\n"
+                for row in result:
+                    response += f"Matricula: {row['matricula']}\n"
+                    response += f"Nombre: {row['nombre']} {row['apellido']}\n"
+                    response += f"Motivo: {row['motivo']}\n"
+                    if row.get('tutor_nombre') and row.get('tutor_apellido'):
+                        response += f"Tutor del grupo: {row['tutor_nombre']} {row['tutor_apellido']}"
+                        if row.get('tutor_empleado'):
+                            response += f" (matricula: {row['tutor_empleado']})"
+                        response += "\n"
+                    else:
+                        response += "Tutor del grupo: No asignado\n"
+                    response += f"Categoria: Economica\n\n"
+        else:
+            response = "No pude obtener informacion de estudiantes con vulnerabilidad economica."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetFamilyVulnerableStudents(Action):
+    def name(self) -> Text:
+        return "action_get_family_vulnerable_students"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            a.matricula,
+            u.nombre,
+            u.apellido,
+            rr.descripcion AS motivo,
+            tutor_u.nombre AS tutor_nombre,
+            tutor_u.apellido AS tutor_apellido,
+            tutor_p.numero_empleado AS tutor_empleado
+        FROM reportes_riesgo rr
+        JOIN alumnos a ON rr.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id AND g.activo = TRUE
+        LEFT JOIN profesores tutor_p ON g.profesor_tutor_id = tutor_p.id
+        LEFT JOIN usuarios tutor_u ON tutor_p.usuario_id = tutor_u.id
+        WHERE rr.tipo_riesgo = 'familiar'
+        ORDER BY rr.nivel_riesgo DESC
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if len(result) == 0:
+                response = "No se encontraron estudiantes con vulnerabilidad familiar."
+            else:
+                response = f"Alumnos vulnerables familiarmente ({len(result)} casos):\n\n"
+                for row in result:
+                    response += f"Matricula: {row['matricula']}\n"
+                    response += f"Nombre: {row['nombre']} {row['apellido']}\n"
+                    response += f"Motivo: {row['motivo']}\n"
+                    if row.get('tutor_nombre') and row.get('tutor_apellido'):
+                        response += f"Tutor del grupo: {row['tutor_nombre']} {row['tutor_apellido']}"
+                        if row.get('tutor_empleado'):
+                            response += f" (matricula: {row['tutor_empleado']})"
+                        response += "\n"
+                    else:
+                        response += "Tutor del grupo: No asignado\n"
+                    response += f"Categoria: Familiar\n\n"
+        else:
+            response = "No pude obtener informacion de estudiantes con vulnerabilidad familiar."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetAcademicRiskStudents(Action):
+    def name(self) -> Text:
+        return "action_get_academic_risk_students"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT CONCAT(ua.nombre, ' ', ua.apellido) as alumno,
+               a.matricula,
+               c.nombre as carrera,
+               rr.descripcion,
+               rr.observaciones,
+               rr.acciones_recomendadas,
+               rr.fecha_reporte,
+               rr.estado,
+               rr.nivel_riesgo
+        FROM alumnos a
+        JOIN usuarios ua ON a.usuario_id = ua.id
+        JOIN carreras c ON a.carrera_id = c.id
+        JOIN reportes_riesgo rr ON a.id = rr.alumno_id
+        WHERE a.estado_alumno = 'activo' 
+          AND rr.tipo_riesgo = 'academico'
+          AND rr.estado IN ('abierto', 'en_proceso')
+        ORDER BY 
+            CASE rr.nivel_riesgo
+                WHEN 'critico' THEN 4
+                WHEN 'alto' THEN 3
+                WHEN 'medio' THEN 2
+                ELSE 1
+            END DESC,
+            rr.fecha_reporte DESC
+        LIMIT 20
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron estudiantes con riesgo academico."
+            else:
+                response = f"Estudiantes con riesgo academico ({len(result)} casos):\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['alumno']} ({row['matricula']})\n"
+                    response += f"   Carrera: {row['carrera']}\n"
+                    response += f"   Nivel de riesgo: {row['nivel_riesgo']}\n"
+                    response += f"   Descripcion: {row['descripcion']}\n"
+                    response += f"   Observaciones: {row['observaciones']}\n"
+                    response += f"   Acciones recomendadas: {row['acciones_recomendadas']}\n"
+                    response += f"   Fecha reporte: {row['fecha_reporte']}\n"
+                    response += f"   Estado: {row['estado']}\n\n"
+        else:
+            response = "No pude obtener informacion de estudiantes con riesgo academico."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+
+
+    def name(self) -> Text:
+        return "action_get_academic_risk_students"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT CONCAT(ua.nombre, ' ', ua.apellido) as alumno,
+               a.matricula,
+               c.nombre as carrera,
+               rr.descripcion,
+               rr.observaciones,
+               rr.acciones_recomendadas,
+               rr.fecha_reporte,
+               rr.estado,
+               rr.nivel_riesgo
+        FROM alumnos a
+        JOIN usuarios ua ON a.usuario_id = ua.id
+        JOIN carreras c ON a.carrera_id = c.id
+        JOIN reportes_riesgo rr ON a.id = rr.alumno_id
+        WHERE a.estado_alumno = 'activo' 
+          AND rr.tipo_riesgo = 'academico'
+          AND rr.estado IN ('abierto', 'en_proceso')
+        ORDER BY 
+            CASE rr.nivel_riesgo
+                WHEN 'critico' THEN 4
+                WHEN 'alto' THEN 3
+                WHEN 'medio' THEN 2
+                ELSE 1
+            END DESC,
+            rr.fecha_reporte DESC
+        LIMIT 20
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron estudiantes con riesgo academico."
+            else:
+                response = f"Estudiantes con riesgo academico ({len(result)} casos):\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['alumno']} ({row['matricula']})\n"
+                    response += f"   Carrera: {row['carrera']}\n"
+                    response += f"   Nivel de riesgo: {row['nivel_riesgo']}\n"
+                    response += f"   Descripcion: {row['descripcion']}\n"
+                    response += f"   Observaciones: {row['observaciones']}\n"
+                    response += f"   Acciones recomendadas: {row['acciones_recomendadas']}\n"
+                    response += f"   Fecha reporte: {row['fecha_reporte']}\n"
+                    response += f"   Estado: {row['estado']}\n\n"
+        else:
+            response = "No pude obtener informacion de estudiantes con riesgo academico."
+        
+        dispatcher.utter_message(text=response)
+        return []

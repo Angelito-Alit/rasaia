@@ -927,3 +927,244 @@ nlu:
     - conexiones al sistema
     - actividad en línea
     - actividad en linea
+    
+- intent: ask_graduated_students
+  examples: |
+    - estudiantes egresados
+    - alumnos egresados
+    - quien se graduo
+    - quién se graduó
+    - estudiantes que se graduaron
+    - alumnos que terminaron
+    - egresados del sistema
+    - graduados
+    - quienes egresaron
+    - estudiantes que ya terminaron
+    - alumnos graduados
+    - egresados de la institución
+    - lista de egresados
+
+- intent: ask_temporary_dropout_students
+  examples: |
+    - estudiantes con baja temporal
+    - alumnos con baja temporal
+    - baja temporal
+    - estudiantes temporalmente dados de baja
+    - alumnos en pausa académica
+    - estudiantes suspendidos temporalmente
+    - bajas temporales
+    - estudiantes en receso temporal
+    - alumnos con suspensión temporal
+
+- intent: ask_definitive_dropout_students
+  examples: |
+    - estudiantes con baja definitiva
+    - alumnos con baja definitiva
+    - baja definitiva
+    - estudiantes dados de baja permanente
+    - alumnos expulsados
+    - bajas definitivas
+    - estudiantes excluidos permanentemente
+    - alumnos con expulsión definitiva
+    - estudiantes que abandonaron definitivamente
+
+- intent: ask_active_students_only
+  examples: |
+    - estudiantes activos
+    - alumnos activos
+    - solo estudiantes activos
+    - únicamente estudiantes activos
+    - estudiantes que están estudiando
+    - alumnos que continúan
+    - estudiantes matriculados actualmente
+    - alumnos cursando
+    - estudiantes en curso
+
+- intent: ask_students_by_specific_career
+  examples: |
+    - estudiantes de [sistemas](carrera)
+    - alumnos de [industrial](carrera)
+    - estudiantes de la carrera [mecatrónica](carrera)
+    - alumnos de [gastronomía](carrera)
+    - estudiantes que estudian [turismo](carrera)
+    - alumnos matriculados en [sistemas](carrera)
+    - quienes estudian [industrial](carrera)
+    - estudiantes inscritos en [mecatrónica](carrera)
+    - alumnos de la carrera de [gastronomía](carrera)
+    - estudiantes del programa [turismo](carrera)
+
+- intent: ask_critical_risk_students
+  examples: |
+    - estudiantes con riesgo critico
+    - alumnos en riesgo critico
+    - estudiantes con riesgo crítico
+    - casos criticos
+    - casos críticos
+    - estudiantes de riesgo critico
+    - alumnos con riesgo crítico
+    - riesgo critico activo
+    - riesgo crítico activo
+
+- intent: ask_high_risk_students_only
+  examples: |
+    - estudiantes con riesgo alto
+    - alumnos en riesgo alto
+    - solo riesgo alto
+    - únicamente riesgo alto
+    - estudiantes de riesgo alto
+    - casos de riesgo alto
+    - reportes de riesgo alto
+
+- intent: ask_medium_risk_students
+  examples: |
+    - estudiantes con riesgo medio
+    - alumnos en riesgo medio
+    - riesgo medio
+    - estudiantes de riesgo medio
+    - casos de riesgo medio
+    - reportes de riesgo medio
+
+- intent: ask_failing_students_only
+  examples: |
+    - estudiantes reprobados
+    - alumnos reprobados
+    - solo reprobados
+    - únicamente reprobados
+    - estudiantes que reprobaron
+    - alumnos que reprueban
+    - casos de reprobación
+    - estudiantes con estatus reprobado
+
+- intent: ask_low_grade_students_specific
+  examples: |
+    - estudiantes con calificaciones bajas
+    - alumnos con notas bajas
+    - calificaciones menores a 8
+    - estudiantes con bajo rendimiento
+    - notas bajas
+    - calificaciones insuficientes
+    - estudiantes con calificaciones menores a 8
+
+- intent: ask_socioeconomic_vulnerable_students
+  examples: |
+    - estudiantes con vulnerabilidad socioeconomica
+    - alumnos vulnerables socioeconomicamente
+    - vulnerabilidad socioeconomica
+    - estudiantes en situacion socioeconomica dificil
+    - casos socioeconomicos
+    - vulnerabilidad economica
+    - estudiantes con problemas economicos
+
+- intent: ask_academic_vulnerable_students
+  examples: |
+    - estudiantes con vulnerabilidad academica
+    - alumnos vulnerables academicamente
+    - vulnerabilidad academica
+    - estudiantes en riesgo academico
+    - casos academicos vulnerables
+    - vulnerabilidad en estudios
+
+- intent: ask_excellent_students
+  examples: |
+    - estudiantes excelentes
+    - alumnos con excelencia
+    - estudiantes sobresalientes
+    - alumnos destacados con excelencia
+    - excelencia academica
+    - estudiantes con promedio excelente
+    - alumnos de excelencia
+    - estudiantes con calificaciones excelentes
+
+- intent: ask_good_students
+  examples: |
+    - estudiantes con buen rendimiento
+    - alumnos con buen promedio
+    - estudiantes buenos
+    - buen rendimiento academico
+    - estudiantes regulares buenos
+    - alumnos con buenas calificaciones
+    - rendimiento bueno
+
+- intent: ask_economic_vulnerable_students
+  examples: |
+    - estudiantes con vulnerabilidad economica
+    - alumnos vulnerables economicamente
+    - problemas economicos
+    - dificultades economicas
+    - situacion economica dificil
+    - estudiantes con problemas de dinero
+
+- intent: ask_family_vulnerable_students
+  examples: |
+    - estudiantes con vulnerabilidad familiar
+    - problemas familiares
+    - dificultades familiares
+    - situacion familiar dificil
+    - estudiantes con problemas en casa
+
+- intent: ask_academic_risk_students
+  examples: |
+    - estudiantes con riesgo academico
+    - problemas academicos
+    - dificultades academicas
+    - bajo rendimiento academico
+    - riesgo de reprobacion
+
+- intent: ask_economic_vulnerable_students
+  examples: |
+    - estudiantes con vulnerabilidad economica
+    - alumnos vulnerables economicamente
+    - problemas economicos
+    - dificultades economicas
+    - situacion economica dificil
+    - estudiantes con problemas de dinero
+
+- intent: ask_family_vulnerable_students
+  examples: |
+    - estudiantes con vulnerabilidad familiar
+    - problemas familiares
+    - dificultades familiares
+    - situacion familiar dificil
+    - estudiantes con problemas en casa
+
+- intent: ask_academic_risk_students
+  examples: |
+    - estudiantes con riesgo academico
+    - problemas academicos
+    - dificultades academicas
+    - bajo rendimiento academico
+    - riesgo de reprobacion
+
+- intent: ask_economic_vulnerable_students
+  examples: |
+    - estudiantes con vulnerabilidad economica
+    - alumnos vulnerables economicamente
+    - problemas economicos
+    - dificultades economicas
+    - situacion economica dificil
+    - estudiantes con problemas de dinero
+    - vulnerabilidad economica
+    - alumnos con problemas economicos
+
+- intent: ask_academic_vulnerable_students
+  examples: |
+    - estudiantes con vulnerabilidad academica
+    - alumnos vulnerables academicamente
+    - problemas academicos
+    - dificultades academicas
+    - bajo rendimiento academico
+    - riesgo de reprobacion
+    - vulnerabilidad academica
+    - alumnos con problemas academicos
+    - estudiantes academicos vulnerables
+
+- intent: ask_family_vulnerable_students
+  examples: |
+    - estudiantes con vulnerabilidad familiar
+    - alumnos vulnerables familiarmente
+    - problemas familiares
+    - dificultades familiares
+    - situacion familiar dificil
+    - estudiantes con problemas en casa
+    - vulnerabilidad familiar
+    - alumnos con problemas familiares

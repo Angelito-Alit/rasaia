@@ -10,12 +10,12 @@ def run_actions_server():
 def run_rasa_server():
     print("Esperando 5 segundos para iniciar servidor Rasa...")
     time.sleep(5)
-    print("Iniciando servidor Rasa en puerto 5001...")
+    print("Iniciando servidor Rasa en puerto 5015...")
     subprocess.run([
         "rasa", "run", 
         "--enable-api", 
         "--cors", "*", 
-        "--port", "5001",
+        "--port", "5015",
         "--debug"
     ])
 
@@ -34,9 +34,9 @@ def main():
     
     print("\nServidores iniciados:")
     print("- Acciones: http://localhost:5055")
-    print("- API REST: http://localhost:5001/webhooks/rest/webhook")
+    print("- API REST: http://localhost:5015/webhooks/rest/webhook")
     print("\nPara enviar mensajes via POST:")
-    print('curl -X POST http://localhost:5001/webhooks/rest/webhook \\')
+    print('curl -X POST http://localhost:5015/webhooks/rest/webhook \\')
     print('  -H "Content-Type: application/json" \\')
     print('  -d \'{"sender": "user", "message": "hola"}\'')
     

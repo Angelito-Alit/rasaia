@@ -20,7 +20,7 @@ def run_setup():
     train_model()
     print("Setup completado. Para iniciar el servidor:")
     print("1. En una terminal: rasa run actions --port 5055")
-    print("2. En otra terminal: rasa run --enable-api --cors '*' --port 5001")
+    print("2. En otra terminal: rasa run --enable-api --cors '*' --port 5015")
 
 if __name__ == "__main__":
     run_setup()

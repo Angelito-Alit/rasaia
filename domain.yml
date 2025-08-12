@@ -53,6 +53,22 @@ intents:
   - ask_grade_range_students
   - ask_specific_risk_type
   - ask_subject_specific
+  - ask_graduated_students
+  - ask_temporary_dropout_students
+  - ask_definitive_dropout_students
+  - ask_active_students_only
+  - ask_students_by_specific_career
+  - ask_critical_risk_students
+  - ask_high_risk_students_only
+  - ask_medium_risk_students
+  - ask_failing_students_only
+  - ask_low_grade_students_specific
+  - ask_socioeconomic_vulnerable_students
+  - ask_academic_vulnerable_students
+  - ask_excellent_students
+  - ask_good_students
+  - ask_economic_vulnerable_students
+  - ask_family_vulnerable_students
 
 entities:
   - matricula
@@ -75,7 +91,6 @@ entities:
   - calificacion_maxima
   - rango_calificacion
   - calificacion_exacta
-
 
 slots:
   matricula:
@@ -258,6 +273,22 @@ actions:
   - action_get_grade_range_students
   - action_get_specific_risk_type
   - action_get_subject_specific
+  - action_get_graduated_students
+  - action_get_temporary_dropout_students
+  - action_get_definitive_dropout_students
+  - action_get_active_students_only
+  - action_get_students_by_specific_career
+  - action_get_critical_risk_students
+  - action_get_high_risk_students_only
+  - action_get_medium_risk_students
+  - action_get_failing_students_only
+  - action_get_low_grade_students_specific
+  - action_get_socioeconomic_vulnerable_students
+  - action_get_academic_vulnerable_students
+  - action_get_excellent_students
+  - action_get_good_students
+  - action_get_economic_vulnerable_students
+  - action_get_family_vulnerable_students
 
 session_config:
   session_expiration_time: 60

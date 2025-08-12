@@ -324,45 +324,51 @@ stories:
     - nombre_estudiante: "María López"
   - action: action_get_datos_estudiante
 
-
-rules:
-
-- rule: Say goodbye anytime the user says goodbye
-  steps:
-  - intent: goodbye
-  - action: utter_goodbye
-
-- rule: Say 'I am a bot' anytime the user challenges
-  steps:
-  - intent: bot_challenge
-  - action: utter_iamabot
-
-- rule: Ask for student name when missing
-  condition:
-  - active_loop: null
-  steps:
-  - intent: datos_estudiante_especifico
-  - action: utter_ask_estudiante
-
-- rule: Ask for student name for grades when missing
-  condition:
-  - active_loop: null
-  steps:
-  - intent: calificaciones_estudiante
-  - action: utter_ask_estudiante
-
-- rule: Ask for career when missing for specific queries
-  condition:
-  - active_loop: null
-  steps:
-  - intent: indice_reprobacion_carrera
-    entities: []
-  - action: utter_ask_carrera
-
-- rule: Ask for group when missing for specific queries
-  condition:
-  - active_loop: null
+- story: consulta ranking grupos reprobacion con entidad
   steps:
   - intent: indice_reprobacion_grupo
-    entities: []
-  - action: utter_ask_grupo
+    entities:
+    - grupo: "iDGS10"
+  - action: action_get_ranking_grupos_reprobacion
+
+- story: consulta calificaciones estudiante con entidad
+  steps:
+  - intent: calificaciones_estudiante
+    entities:
+    - nombre_estudiante: "Juan Pérez"
+  - action: action_get_calificaciones_estudiante
+
+- story: consulta comparativa carreras con entidad
+  steps:
+  - intent: indice_reprobacion_carrera
+    entities:
+    - carrera: "sistemas"
+  - action: action_get_comparativa_carreras
+
+- story: consulta datos estudiante especifico con entidad
+  steps:
+  - intent: datos_estudiante_especifico
+    entities:
+    - nombre_estudiante: "María López"
+  - action: action_get_datos_estudiante
+
+- story: consulta historial academico con entidad
+  steps:
+  - intent: datos_estudiante_especifico
+    entities:
+    - nombre_estudiante: "Carlos Méndez"
+  - action: action_get_historial_academico
+
+- story: consulta indice reprobacion grupo con entidad
+  steps:
+  - intent: indice_reprobacion_grupo
+    entities:
+    - grupo: "iTUR08"
+  - action: action_get_indice_reprobacion_grupo
+
+- story: consulta indice reprobacion carrera con entidad
+  steps:
+  - intent: indice_reprobacion_carrera
+    entities:
+    - carrera: "industrial"
+  - action: action_get_indice_reprobacion_carrera

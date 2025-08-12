@@ -1302,3 +1302,61 @@ nlu:
     - Dame el índice de reprobación de cada alumno dentro de su grupo
     - ¿Cuál es el índice de reprobación por asignatura dentro de cada grupo?
     - Lista de grupos y sus índices de reprobación en cada materia
+- intent: ask_dropout_prediction
+  examples: |
+    - estudiantes en riesgo de deserción
+    - alumnos propensos a abandonar
+    - predicción de deserción escolar
+    - estudiantes que pueden dejar la carrera
+    - análisis de deserción académica
+    - riesgo de abandono estudiantil
+
+- intent: ask_grade_trends
+  examples: |
+    - tendencias de calificaciones
+    - evolución de promedios
+    - tendencia académica por período
+    - cambios en rendimiento por ciclo
+    - evolución de notas estudiantiles
+
+- intent: ask_intervention_needed
+  examples: |
+    - estudiantes que requieren intervención
+    - casos que necesitan atención urgente
+    - alumnos que requieren apoyo inmediato
+    - intervención académica necesaria
+
+- intent: ask_professor_subject_performance
+  examples: |
+    - rendimiento del profesor por materia
+    - desempeño docente por asignatura
+    - efectividad del profesor en [matemáticas](asignatura)
+    - resultados del maestro por materia
+
+- intent: ask_specific_risk_type
+  examples: |
+    - estudiantes con riesgo [académico](tipo_riesgo)
+    - alumnos con riesgo [económico](tipo_riesgo)
+    - casos de riesgo [familiar](tipo_riesgo)
+    - estudiantes con riesgo [social](tipo_riesgo)
+
+- intent: ask_subject_specific
+  examples: |
+    - información de la materia [matemáticas](asignatura)
+    - datos de [programación](asignatura)
+    - estadísticas de [inglés](asignatura)
+    - rendimiento en [física](asignatura)
+
+- intent: ask_subjects_failure_rate
+  examples: |
+    - materias con mayor reprobación
+    - índice de reprobación por asignatura
+    - asignaturas más difíciles
+    - materias con más estudiantes reprobados
+
+- intent: ask_teacher_effectiveness
+  examples: |
+    - efectividad de profesores
+    - maestros más efectivos
+    - profesores con mejor desempeño
+    - eficacia docente

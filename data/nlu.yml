@@ -1221,7 +1221,6 @@ nlu:
     - Estadísticas generales de reprobación
     - Porcentaje de reprobación de la división
 
-# 2. DATOS DE ESTUDIANTES ESPECÍFICOS
 - intent: datos_estudiante_especifico
   examples: |
     - Dame todos los datos del estudiante [María López](nombre_estudiante)
@@ -1241,7 +1240,6 @@ nlu:
     - Materias reprobadas por [María López](nombre_estudiante)
     - Promedio general de [Carlos López](nombre_estudiante)
 
-# 3. ESTUDIANTES CON CALIFICACIONES BAJAS
 - intent: estudiantes_calificaciones_bajas
   examples: |
     - ¿Qué estudiantes tienen calificaciones bajas?
@@ -1261,7 +1259,6 @@ nlu:
     - ¿Qué estudiantes tienen promedio menor a [6](numero)?
     - Alumnos con promedios bajos
 
-# 4. ESTUDIANTES CON MEJORES CALIFICACIONES
 - intent: estudiantes_mejores_calificaciones
   examples: |
     - ¿Qué estudiantes tienen las mejores calificaciones?
@@ -1279,7 +1276,6 @@ nlu:
     - Alumnos con excelencia académica
     - ¿Qué estudiantes tienen promedio mayor a [9.5](numero)?
 
-# 5. MEJORES PROMEDIOS POR CARRERA
 - intent: mejores_promedios_carrera
   examples: |
     - ¿Cuál es el mejor promedio en cada carrera?
@@ -1290,7 +1286,6 @@ nlu:
     - Mejores promedios por carrera
     - ¿Quién tiene el mejor promedio en cada carrera?
 
-# 6. INFORMACIÓN DE GRUPOS
 - intent: lista_grupos
   examples: |
     - Dame la lista de todos los grupos
@@ -1301,7 +1296,6 @@ nlu:
     - ¿Qué grupos hay?
     - Nombres de los grupos
 
-# 7. ÍNDICES ESPECÍFICOS POR NIVEL
 - intent: indice_reprobacion_grupal
   examples: |
     - ¿Cuál es el índice de reprobación por grupo dentro de cada carrera?

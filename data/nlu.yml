@@ -323,6 +323,12 @@ nlu:
     - estudiantes con notas menores a [8](calificacion_maxima)
     - alumnos con calificaciones de [6 a 7.5](rango_calificacion)
     - estudiantes que tienen exactamente [10](calificacion_exacta)
+    - alumnos con promedio superior a [8.5](calificacion_minima)
+    - estudiantes con calificaciones por debajo de [7](calificacion_maxima)
+    - alumnos con nota perfecta [10](calificacion_exacta)
+    - estudiantes con promedio mínimo de [9](calificacion_minima)
+    - alumnos con calificaciones máximo [6](calificacion_maxima)
+    - estudiantes con calificación de [9.5](calificacion_exacta)
 
 - intent: ask_failure_analysis
   examples: |
@@ -1360,3 +1366,69 @@ nlu:
     - maestros más efectivos
     - profesores con mejor desempeño
     - eficacia docente
+
+
+    - intent: ask_students_failed_subjects
+  examples: |
+    - que alumnos están reprobados y sus asignaturas
+    - estudiantes reprobados con sus materias
+    - alumnos que reprobaron y qué materias
+    - lista de reprobados por materia
+    - estudiantes con materias reprobadas
+    - quienes reprobaron y en qué asignaturas
+    - alumnos reprobados por asignatura
+    - materias reprobadas por estudiante
+
+- intent: ask_best_group_average
+  examples: |
+    - grupos con mejor promedio
+    - grupo con mejor rendimiento académico
+    - grupos con mejores calificaciones
+    - grupo con mayor promedio general
+    - grupos destacados por promedio
+    - mejores grupos académicamente
+    - grupos con promedios altos
+    - ranking de grupos por promedio
+
+- intent: ask_worst_group_failure
+  examples: |
+    - grupo que reprobó más
+    - grupo con más reprobados
+    - grupo con mayor índice de reprobación
+    - grupo con peor rendimiento
+    - grupo que más reprueban
+    - grupo con más materias reprobadas
+    - grupo problemático académicamente
+    - grupo con mayor fracaso escolar
+
+- intent: ask_lowest_grade_students
+  examples: |
+    - alumnos con menor calificación
+    - estudiantes con calificaciones más bajas
+    - alumnos con peor rendimiento
+    - estudiantes con notas mínimas
+    - alumnos con calificaciones insuficientes
+    - estudiantes con menor promedio
+    - alumnos con calificaciones reprobatorias
+    - estudiantes con rendimiento deficiente
+
+- intent: ask_student_academic_progress
+  examples: |
+    - como va académicamente el alumno [2022371156](matricula)
+    - rendimiento académico de [2023090007](matricula)
+    - progreso del estudiante [2022371156](matricula)
+    - cómo está el alumno [2023090007](matricula)
+    - situación académica de [2022371156](matricula)
+    - desempeño del estudiante [2023090007](matricula)
+    - evolución académica de [2022371156](matricula)
+
+- intent: ask_all_subjects
+  examples: |
+    - que asignaturas hay
+    - cuáles son las materias
+    - lista de asignaturas
+    - todas las materias del sistema
+    - catálogo de asignaturas
+    - materias disponibles
+    - asignaturas por cuatrimestre
+    - plan de materias

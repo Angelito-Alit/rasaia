@@ -254,15 +254,6 @@ responses:
   utter_iamabot:
   - text: "Soy un asistente virtual académico especializado en información educativa."
 
-  utter_ask_carrera:
-  - text: "¿De qué carrera específica necesitas el índice de reprobación?"
-
-  utter_ask_grupo:
-  - text: "¿De qué grupo específico necesitas la información?"
-
-  utter_ask_estudiante:
-  - text: "¿De qué estudiante específico necesitas los datos?"
-
 actions:
   - action_get_students_by_career
   - action_get_inactive_students
@@ -348,6 +339,18 @@ actions:
   - action_get_estudiantes_por_grupo
   - action_get_promedios_por_cuatrimestre
   - action_get_historial_academico
+  - ask_students_failed_subjects
+  - ask_best_group_average
+  - ask_worst_group_failure
+  - ask_lowest_grade_students
+  - ask_student_academic_progress
+  - ask_all_subjects
+  - action_get_students_failed_subjects
+  - action_get_best_group_average
+  - action_get_worst_group_failure
+  - action_get_lowest_grade_students
+  - action_get_student_academic_progress
+  - action_get_all_subjects
 
 session_config:
   session_expiration_time: 60

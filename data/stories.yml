@@ -189,15 +189,7 @@ stories:
   - intent: ask_family_vulnerable_students
   - action: action_get_family_vulnerable_students
 
-- story: consulta indice reprobacion carrera
-  steps:
-  - intent: indice_reprobacion_carrera
-  - action: action_get_indice_reprobacion_carrera
 
-- story: consulta indice reprobacion grupo
-  steps:
-  - intent: indice_reprobacion_grupo
-  - action: action_get_indice_reprobacion_grupo
 
 - story: consulta indice reprobacion alumno
   steps:
@@ -213,20 +205,6 @@ stories:
   steps:
   - intent: indice_reprobacion_general
   - action: action_get_indice_reprobacion_general
-
-- story: consulta datos estudiante especifico
-  steps:
-  - intent: datos_estudiante_especifico
-    entities:
-    - nombre_estudiante: "María López"
-  - action: action_get_datos_estudiante
-
-- story: consulta calificaciones estudiante
-  steps:
-  - intent: calificaciones_estudiante
-    entities:
-    - nombre_estudiante: "Miguel García"
-  - action: action_get_calificaciones_estudiante
 
 - story: consulta estudiantes bajo rendimiento
   steps:
@@ -265,11 +243,6 @@ stories:
   - intent: indice_reprobacion_alumno
   - action: action_get_estudiantes_con_mas_reprobaciones
 
-- story: consulta comparativa carreras
-  steps:
-  - intent: indice_reprobacion_carrera
-  - action: action_get_comparativa_carreras
-
 - story: consulta top 10 mejores estudiantes
   steps:
   - intent: estudiantes_mejores_calificaciones
@@ -280,10 +253,6 @@ stories:
   - intent: estudiantes_calificaciones_bajas
   - action: action_get_alumnos_riesgo_academico
 
-- story: consulta ranking grupos reprobacion
-  steps:
-  - intent: indice_reprobacion_grupo
-  - action: action_get_ranking_grupos_reprobacion
 
 - story: consulta estudiantes por grupo
   steps:
@@ -318,57 +287,80 @@ stories:
   - intent: greet
   - action: utter_greet
   - intent: datos_estudiante_especifico
-  - action: utter_ask_estudiante
+    entities: []
   - intent: datos_estudiante_especifico
     entities:
     - nombre_estudiante: "María López"
   - action: action_get_datos_estudiante
 
-- story: consulta ranking grupos reprobacion con entidad
+- story: consulta ranking grupos reprobacion
   steps:
   - intent: indice_reprobacion_grupo
     entities:
-    - grupo: "iDGS10"
+    - grupo: "IDGS08"
   - action: action_get_ranking_grupos_reprobacion
 
-- story: consulta calificaciones estudiante con entidad
+- story: consulta calificaciones estudiante
   steps:
   - intent: calificaciones_estudiante
     entities:
-    - nombre_estudiante: "Juan Pérez"
+    - nombre_estudiante: "Miguel García"
   - action: action_get_calificaciones_estudiante
 
-- story: consulta comparativa carreras con entidad
+- story: consulta comparativa carreras
   steps:
   - intent: indice_reprobacion_carrera
     entities:
     - carrera: "sistemas"
   - action: action_get_comparativa_carreras
 
-- story: consulta datos estudiante especifico con entidad
+- story: consulta datos estudiante especifico
   steps:
   - intent: datos_estudiante_especifico
     entities:
     - nombre_estudiante: "María López"
   - action: action_get_datos_estudiante
 
-- story: consulta historial academico con entidad
-  steps:
-  - intent: datos_estudiante_especifico
-    entities:
-    - nombre_estudiante: "Carlos Méndez"
-  - action: action_get_historial_academico
-
-- story: consulta indice reprobacion grupo con entidad
+- story: consulta indice reprobacion grupo
   steps:
   - intent: indice_reprobacion_grupo
     entities:
-    - grupo: "iDGS10"
+    - grupo: "IDGS08"
   - action: action_get_indice_reprobacion_grupo
 
-- story: consulta indice reprobacion carrera con entidad
+- story: consulta indice reprobacion carrera
   steps:
   - intent: indice_reprobacion_carrera
     entities:
     - carrera: "sistemas"
   - action: action_get_indice_reprobacion_carrera
+
+- story: consulta estudiantes reprobados con materias
+  steps:
+  - intent: ask_students_failed_subjects
+  - action: action_get_students_failed_subjects
+
+- story: consulta grupos mejor promedio
+  steps:
+  - intent: ask_best_group_average
+  - action: action_get_best_group_average
+
+- story: consulta grupo mayor reprobacion
+  steps:
+  - intent: ask_worst_group_failure
+  - action: action_get_worst_group_failure
+
+- story: consulta estudiantes menor calificacion
+  steps:
+  - intent: ask_lowest_grade_students
+  - action: action_get_lowest_grade_students
+
+- story: consulta progreso academico estudiante
+  steps:
+  - intent: ask_student_academic_progress
+  - action: action_get_student_academic_progress
+
+- story: consulta todas las asignaturas
+  steps:
+  - intent: ask_all_subjects
+  - action: action_get_all_subjects

@@ -389,3 +389,8 @@ stories:
   steps:
   - intent: ask_teachers_without_tutoring
   - action: action_get_teachers_without_tutoring
+
+- story: all students inquiry
+  steps:
+  - intent: ask_all_students
+  - action: action_get_all_students

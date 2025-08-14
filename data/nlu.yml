@@ -1481,3 +1481,19 @@ nlu:
     - quiénes no tienen tutoría
     - maestros sin responsabilidad tutorial
     - profesores disponibles para tutoría
+
+- intent: ask_all_students
+  examples: |
+    - dame de los alumnos que hay
+    - todos los alumnos
+    - lista completa de estudiantes
+    - información de todos los estudiantes
+    - estudiantes registrados
+    - alumnos del sistema
+    - quiero ver todos los estudiantes
+    - dame la lista de alumnos
+    - estudiantes en el sistema
+    - todos los alumnos registrados
+    - estudiantes por carrera y grupo
+    - organización de estudiantes
+    - estructura de alumnos por carrera

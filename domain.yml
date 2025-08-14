@@ -93,6 +93,11 @@ intents:
   - ask_archivos_info
   - ask_subjects_by_career
   - ask_sesiones_info
+  - ask_student_by_matricula
+  - ask_teacher_by_numero_empleado
+  - ask_students_by_group
+  - ask_teachers_with_tutoring
+  - ask_teachers_without_tutoring
 
 entities:
   - matricula
@@ -351,6 +356,11 @@ actions:
   - action_get_lowest_grade_students
   - action_get_student_academic_progress
   - action_get_all_subjects
+  - action_get_student_by_matricula
+  - action_get_teacher_by_numero_empleado
+  - action_get_students_by_group
+  - action_get_teachers_with_tutoring
+  - action_get_teachers_without_tutoring
 
 session_config:
   session_expiration_time: 60

@@ -1368,7 +1368,7 @@ nlu:
     - eficacia docente
 
 
-    - intent: ask_students_failed_subjects
+- intent: ask_students_failed_subjects
   examples: |
     - que alumnos están reprobados y sus asignaturas
     - estudiantes reprobados con sus materias
@@ -1432,3 +1432,52 @@ nlu:
     - materias disponibles
     - asignaturas por cuatrimestre
     - plan de materias
+
+- intent: ask_student_by_matricula
+  examples: |
+    - información del estudiante [2022371156](matricula)
+    - dame la información de este estudiante [2022371156](matricula)
+    - info del estudiante [2024100011](matricula)
+    - datos del alumno [2023456789](matricula)
+    - búscame al estudiante [2022371156](matricula)
+    - necesito información de [2024100011](matricula)
+    - dime sobre el alumno [2023456789](matricula)
+    - consulta del estudiante [2022371156](matricula)
+
+- intent: ask_teacher_by_numero_empleado
+  examples: |
+    - información del profesor [EMP001](numero_empleado)
+    - datos del maestro [PROF123](numero_empleado)
+    - búscame al profesor [DOC456](numero_empleado)
+    - información de este profesor [EMP001](numero_empleado)
+    - consulta del docente [PROF123](numero_empleado)
+    - dame información del profesor [DOC456](numero_empleado)
+
+- intent: ask_students_by_group
+  examples: |
+    - estudiantes del grupo [IDGS08](grupo)
+    - alumnos que están en el grupo [IRIC07](grupo)
+    - quiénes están en el grupo [TSUMA05](grupo)
+    - lista de estudiantes del grupo [IDGS08](grupo)
+    - alumnos inscritos en [IRIC07](grupo)
+    - estudiantes que pertenecen al grupo [TSUMA05](grupo)
+
+- intent: ask_teachers_with_tutoring
+  examples: |
+    - profesores que son tutores
+    - maestros con tutoría
+    - docentes que tienen grupos de tutoría
+    - profesores que tutoran grupos
+    - quiénes son tutores de grupo
+    - maestros responsables de grupos
+    - profesores con función tutorial
+
+- intent: ask_teachers_without_tutoring
+  examples: |
+    - profesores sin tutoría
+    - maestros que no son tutores
+    - docentes sin grupos de tutoría
+    - profesores que no tutoran
+    - quiénes no tienen tutoría
+    - maestros sin responsabilidad tutorial
+    - profesores disponibles para tutoría

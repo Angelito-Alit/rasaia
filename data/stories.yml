@@ -364,3 +364,28 @@ stories:
   steps:
   - intent: ask_all_subjects
   - action: action_get_all_subjects
+
+- story: consulta estudiante por matricula
+  steps:
+  - intent: ask_student_by_matricula
+  - action: action_get_student_by_matricula
+
+- story: consulta profesor por numero empleado
+  steps:
+  - intent: ask_teacher_by_numero_empleado
+  - action: action_get_teacher_by_numero_empleado
+
+- story: consulta estudiantes por grupo
+  steps:
+  - intent: ask_students_by_group
+  - action: action_get_students_by_group
+
+- story: consulta profesores con tutoria
+  steps:
+  - intent: ask_teachers_with_tutoring
+  - action: action_get_teachers_with_tutoring
+
+- story: consulta profesores sin tutoria
+  steps:
+  - intent: ask_teachers_without_tutoring
+  - action: action_get_teachers_without_tutoring

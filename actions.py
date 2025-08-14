@@ -3841,3 +3841,542 @@ class ActionGetHistorialAcademico(Action):
         
         dispatcher.utter_message(text=response)
         return []
+    
+class ActionGetStudentByMatricula(Action):
+    def name(self) -> Text:
+        return "action_get_student_by_matricula"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        matricula = next(tracker.get_latest_entity_values("matricula"), None)
+        
+        if not matricula:
+            dispatcher.utter_message(text="Necesito la matrícula del estudiante para consultar su información.")
+            return []
+        
+        query = """
+        SELECT a.matricula, u.nombre, u.apellido, u.correo,
+               a.cuatrimestre_actual, a.fecha_ingreso, a.telefono,
+               a.estado_alumno, c.nombre as carrera,
+               g.codigo as grupo_actual,
+               a.tutor_nombre, a.tutor_telefono,
+               COUNT(rr.id) as reportes_riesgo
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        LEFT JOIN reportes_riesgo rr ON a.id = rr.alumno_id AND rr.estado IN ('abierto', 'en_proceso')
+        WHERE a.matricula = %s
+        GROUP BY a.id
+        """
+        result = execute_query(query, (matricula,))
+        
+        if result and not isinstance(result, dict) and result:
+            data = result[0]
+            response = f"Información del estudiante {data['nombre']} {data['apellido']}:\n\n"
+            response += f"Matrícula: {data['matricula']}\n"
+            response += f"Correo: {data['correo']}\n"
+            response += f"Estado: {data['estado_alumno']}\n"
+            response += f"Carrera: {data['carrera']}\n"
+            response += f"Cuatrimestre: {data['cuatrimestre_actual']}\n"
+            response += f"Grupo: {data['grupo_actual'] or 'Sin asignar'}\n"
+            response += f"Fecha ingreso: {data['fecha_ingreso']}\n"
+            if data['telefono']:
+                response += f"Teléfono: {data['telefono']}\n"
+            if data['tutor_nombre']:
+                response += f"Tutor: {data['tutor_nombre']}\n"
+            if data['tutor_telefono']:
+                response += f"Teléfono tutor: {data['tutor_telefono']}\n"
+            if data['reportes_riesgo'] > 0:
+                response += f"Reportes de riesgo activos: {data['reportes_riesgo']}\n"
+        else:
+            response = f"No encontré información para la matrícula: {matricula}."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetTeacherByNumeroEmpleado(Action):
+    def name(self) -> Text:
+        return "action_get_teacher_by_numero_empleado"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        numero_empleado = next(tracker.get_latest_entity_values("numero_empleado"), None)
+        
+        if not numero_empleado:
+            dispatcher.utter_message(text="Necesito el número de empleado del profesor para consultar su información.")
+            return []
+        
+        query = """
+        SELECT p.numero_empleado, u.nombre, u.apellido, u.correo,
+               p.titulo_academico, p.especialidad, p.experiencia_años,
+               c.nombre as carrera, p.fecha_contratacion,
+               p.telefono, p.extension, p.cedula_profesional,
+               COUNT(DISTINCT pag.grupo_id) as grupos_asignados,
+               COUNT(DISTINCT pag.asignatura_id) as asignaturas,
+               COUNT(DISTINCT g.id) as grupos_tutoria
+        FROM profesores p
+        JOIN usuarios u ON p.usuario_id = u.id
+        JOIN carreras c ON p.carrera_id = c.id
+        LEFT JOIN profesor_asignatura_grupo pag ON p.id = pag.profesor_id AND pag.activo = TRUE
+        LEFT JOIN grupos g ON p.id = g.profesor_tutor_id AND g.activo = TRUE
+        WHERE p.numero_empleado = %s AND p.activo = TRUE
+        GROUP BY p.id
+        """
+        result = execute_query(query, (numero_empleado,))
+        
+        if result and not isinstance(result, dict) and result:
+            data = result[0]
+            response = f"Información del profesor {data['nombre']} {data['apellido']}:\n\n"
+            response += f"Número empleado: {data['numero_empleado']}\n"
+            response += f"Correo: {data['correo']}\n"
+            response += f"Carrera: {data['carrera']}\n"
+            response += f"Título académico: {data['titulo_academico'] or 'No especificado'}\n"
+            response += f"Especialidad: {data['especialidad'] or 'No especificada'}\n"
+            response += f"Experiencia: {data['experiencia_años'] or 0} años\n"
+            response += f"Fecha contratación: {data['fecha_contratacion']}\n"
+            if data['telefono']:
+                response += f"Teléfono: {data['telefono']}\n"
+            if data['extension']:
+                response += f"Extensión: {data['extension']}\n"
+            if data['cedula_profesional']:
+                response += f"Cédula profesional: {data['cedula_profesional']}\n"
+            response += f"Grupos asignados: {data['grupos_asignados']}\n"
+            response += f"Asignaturas: {data['asignaturas']}\n"
+            response += f"Grupos en tutoría: {data['grupos_tutoria']}\n"
+        else:
+            response = f"No encontré información para el empleado: {numero_empleado}."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetStudentsByGroup(Action):
+    def name(self) -> Text:
+        return "action_get_students_by_group"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        grupo = next(tracker.get_latest_entity_values("grupo"), None)
+        
+        if not grupo:
+            dispatcher.utter_message(text="Necesito el código del grupo para consultar sus estudiantes.")
+            return []
+        
+        query = """
+        SELECT u.nombre, u.apellido, a.matricula, a.promedio_general,
+               COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as materias_reprobadas,
+               a.estado_alumno
+        FROM grupos g
+        JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = TRUE
+        JOIN alumnos a ON ag.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id
+        WHERE g.codigo = %s
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, a.promedio_general, a.estado_alumno
+        ORDER BY u.apellido, u.nombre
+        """
+        result = execute_query(query, (grupo,))
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = f"No se encontraron estudiantes en el grupo {grupo}."
+            else:
+                response = f"Estudiantes del grupo {grupo} ({len(result)} alumnos):\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['nombre']} {row['apellido']} ({row['matricula']})\n"
+                    response += f"   Estado: {row['estado_alumno']}\n"
+                    response += f"   Promedio: {row['promedio_general']}\n"
+                    response += f"   Materias reprobadas: {row['materias_reprobadas']}\n\n"
+        else:
+            response = f"No pude obtener los estudiantes del grupo {grupo}."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetTeachersWithTutoring(Action):
+    def name(self) -> Text:
+        return "action_get_teachers_with_tutoring"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT p.numero_empleado, u.nombre, u.apellido, g.codigo as grupo,
+               c.nombre as carrera, g.cuatrimestre,
+               COUNT(ag.alumno_id) as total_alumnos
+        FROM profesores p
+        JOIN usuarios u ON p.usuario_id = u.id
+        JOIN grupos g ON p.id = g.profesor_tutor_id
+        JOIN carreras c ON g.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = TRUE
+        WHERE p.activo = TRUE AND g.activo = TRUE
+        GROUP BY p.id, g.id
+        ORDER BY c.nombre, g.codigo
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No hay profesores asignados como tutores actualmente."
+            else:
+                response = f"Profesores con tutoría ({len(result)} asignaciones):\n\n"
+                current_career = None
+                for row in result:
+                    if current_career != row['carrera']:
+                        current_career = row['carrera']
+                        response += f"{current_career}:\n"
+                    
+                    response += f"  {row['nombre']} {row['apellido']} ({row['numero_empleado']})\n"
+                    response += f"    Grupo: {row['grupo']} - {row['cuatrimestre']} cuatrimestre\n"
+                    response += f"    Alumnos: {row['total_alumnos']}\n\n"
+        else:
+            response = "No pude obtener información de profesores tutores."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetTeachersWithoutTutoring(Action):
+    def name(self) -> Text:
+        return "action_get_teachers_without_tutoring"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT p.numero_empleado, u.nombre, u.apellido, c.nombre as carrera,
+               p.titulo_academico, p.especialidad
+        FROM profesores p
+        JOIN usuarios u ON p.usuario_id = u.id
+        JOIN carreras c ON p.carrera_id = c.id
+        LEFT JOIN grupos g ON p.id = g.profesor_tutor_id AND g.activo = TRUE
+        WHERE p.activo = TRUE AND g.id IS NULL
+        ORDER BY c.nombre, u.apellido
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "Todos los profesores activos tienen grupos de tutoría asignados."
+            else:
+                response = f"Profesores sin tutoría ({len(result)} profesores):\n\n"
+                current_career = None
+                for row in result:
+                    if current_career != row['carrera']:
+                        current_career = row['carrera']
+                        response += f"{current_career}:\n"
+                    
+                    response += f"  {row['nombre']} {row['apellido']} ({row['numero_empleado']})\n"
+                    response += f"    Título: {row['titulo_academico'] or 'No especificado'}\n"
+                    response += f"    Especialidad: {row['especialidad'] or 'No especificada'}\n\n"
+        else:
+            response = "No pude obtener información de profesores sin tutoría."
+        
+        dispatcher.utter_message(text=response)
+        return []
+    
+class ActionGetStudentsLastChance(Action):
+    def name(self) -> Text:
+        return "action_get_students_last_chance"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            CONCAT(u.nombre, ' ', u.apellido) as nombre_completo,
+            a.matricula,
+            c.nombre as carrera,
+            g.codigo as grupo,
+            a.cuatrimestre_actual,
+            a.promedio_general,
+            uol.fecha_uso as fecha_ultima_oportunidad,
+            uol.calificacion as calificacion_ultima_oportunidad,
+            uol.resultado,
+            asig.nombre as asignatura_ultima_oportunidad
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = 1
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        LEFT JOIN ultima_oportunidad_log uol ON a.id = uol.alumno_id
+        LEFT JOIN asignaturas asig ON uol.asignatura_id = asig.id
+        WHERE a.ultima_oportunidad_usada = 1
+        ORDER BY uol.fecha_uso DESC
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron estudiantes que hayan usado su última oportunidad."
+            else:
+                response = f"Estudiantes que han usado su última oportunidad ({len(result)} casos):\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['nombre_completo']} ({row['matricula']})\n"
+                    response += f"   Carrera: {row['carrera']}\n"
+                    if row['grupo']:
+                        response += f"   Grupo: {row['grupo']}\n"
+                    response += f"   Cuatrimestre: {row['cuatrimestre_actual']}\n"
+                    response += f"   Promedio general: {row['promedio_general']}\n"
+                    if row['asignatura_ultima_oportunidad']:
+                        response += f"   Asignatura última oportunidad: {row['asignatura_ultima_oportunidad']}\n"
+                    response += f"   Calificación obtenida: {row['calificacion_ultima_oportunidad']}\n"
+                    response += f"   Resultado: {row['resultado']}\n"
+                    response += f"   Fecha de uso: {row['fecha_ultima_oportunidad']}\n\n"
+        else:
+            response = "No pude obtener información de estudiantes en última oportunidad."
+        
+        dispatcher.utter_message(text=response)
+        return []
+    
+class ActionGetStudentsFailedSubjects(Action):
+    def name(self) -> Text:
+        return "action_get_students_failed_subjects"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            CONCAT(u.nombre, ' ', u.apellido) as nombre_completo,
+            a.matricula,
+            c.nombre as carrera,
+            asig.nombre as asignatura,
+            cal.calificacion_final,
+            g.codigo as grupo
+        FROM calificaciones cal
+        JOIN alumnos a ON cal.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN asignaturas asig ON cal.asignatura_id = asig.id
+        JOIN grupos g ON cal.grupo_id = g.id
+        JOIN carreras c ON g.carrera_id = c.id
+        WHERE cal.estatus = 'reprobado' AND a.estado_alumno = 'activo'
+        ORDER BY u.apellido, u.nombre, asig.nombre
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No hay estudiantes reprobados actualmente."
+            else:
+                response = f"Estudiantes reprobados y sus asignaturas ({len(result)} casos):\n\n"
+                current_student = None
+                for row in result:
+                    student_key = f"{row['nombre_completo']} ({row['matricula']})"
+                    if current_student != student_key:
+                        current_student = student_key
+                        response += f"{student_key}\n"
+                        response += f"  Carrera: {row['carrera']}\n"
+                        response += f"  Grupo: {row['grupo']}\n"
+                        response += "  Materias reprobadas:\n"
+                    
+                    response += f"    - {row['asignatura']}: {row['calificacion_final']}\n"
+        else:
+            response = "No pude obtener información de estudiantes reprobados."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetBestGroupAverage(Action):
+    def name(self) -> Text:
+        return "action_get_best_group_average"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            g.codigo as grupo,
+            c.nombre as carrera,
+            COUNT(a.id) as total_alumnos,
+            AVG(a.promedio_general) as promedio_grupo
+        FROM grupos g
+        JOIN carreras c ON g.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = 1
+        LEFT JOIN alumnos a ON ag.alumno_id = a.id AND a.promedio_general > 0
+        WHERE g.activo = 1
+        GROUP BY g.id, g.codigo, c.nombre
+        HAVING COUNT(a.id) > 0
+        ORDER BY promedio_grupo DESC
+        LIMIT 10
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron grupos con promedios calculados."
+            else:
+                response = "Grupos con mejor promedio académico:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. Grupo {row['grupo']} ({row['carrera']})\n"
+                    response += f"   Promedio: {row['promedio_grupo']:.2f}\n"
+                    response += f"   Total alumnos: {row['total_alumnos']}\n\n"
+        else:
+            response = "No pude obtener información de promedios por grupo."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetWorstGroupFailure(Action):
+    def name(self) -> Text:
+        return "action_get_worst_group_failure"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            g.codigo as grupo,
+            c.nombre as carrera,
+            COUNT(DISTINCT a.id) as total_alumnos,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as total_reprobaciones,
+            ROUND((COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) * 100.0 / 
+                   COUNT(CASE WHEN cal.estatus IN ('aprobado', 'reprobado') THEN 1 END)), 2) as porcentaje_reprobacion
+        FROM grupos g
+        JOIN carreras c ON g.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = 1
+        LEFT JOIN alumnos a ON ag.alumno_id = a.id
+        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id AND cal.grupo_id = g.id
+        WHERE g.activo = 1
+        GROUP BY g.id, g.codigo, c.nombre
+        HAVING COUNT(DISTINCT a.id) > 0 AND COUNT(CASE WHEN cal.estatus IN ('aprobado', 'reprobado') THEN 1 END) > 0
+        ORDER BY porcentaje_reprobacion DESC
+        LIMIT 10
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron grupos con datos de reprobación."
+            else:
+                response = "Grupos con mayor índice de reprobación:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. Grupo {row['grupo']} ({row['carrera']})\n"
+                    response += f"   Porcentaje reprobación: {row['porcentaje_reprobacion']}%\n"
+                    response += f"   Total reprobaciones: {row['total_reprobaciones']}\n"
+                    response += f"   Total alumnos: {row['total_alumnos']}\n\n"
+        else:
+            response = "No pude obtener información de reprobación por grupo."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetLowestGradeStudents(Action):
+    def name(self) -> Text:
+        return "action_get_lowest_grade_students"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            CONCAT(u.nombre, ' ', u.apellido) as nombre_completo,
+            a.matricula,
+            c.nombre as carrera,
+            a.promedio_general,
+            MIN(cal.calificacion_final) as calificacion_minima
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id
+        WHERE a.estado_alumno = 'activo' AND a.promedio_general > 0
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre, a.promedio_general
+        ORDER BY a.promedio_general ASC
+        LIMIT 15
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron estudiantes con calificaciones registradas."
+            else:
+                response = "Estudiantes con las calificaciones más bajas:\n\n"
+                for i, row in enumerate(result, 1):
+                    response += f"{i}. {row['nombre_completo']} ({row['matricula']})\n"
+                    response += f"   Carrera: {row['carrera']}\n"
+                    response += f"   Promedio general: {row['promedio_general']}\n"
+                    if row['calificacion_minima']:
+                        response += f"   Calificación más baja: {row['calificacion_minima']}\n"
+                    response += "\n"
+        else:
+            response = "No pude obtener información de estudiantes con calificaciones bajas."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetStudentAcademicProgress(Action):
+    def name(self) -> Text:
+        return "action_get_student_academic_progress"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        matricula = next(tracker.get_latest_entity_values("matricula"), None)
+        
+        if not matricula:
+            dispatcher.utter_message(text="Necesito la matrícula del estudiante.")
+            return []
+        
+        query = """
+        SELECT 
+            CONCAT(u.nombre, ' ', u.apellido) as nombre_completo,
+            a.matricula,
+            c.nombre as carrera,
+            a.cuatrimestre_actual,
+            a.promedio_general,
+            COUNT(cal.id) as total_materias,
+            COUNT(CASE WHEN cal.estatus = 'aprobado' THEN 1 END) as materias_aprobadas,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as materias_reprobadas,
+            COUNT(CASE WHEN cal.estatus = 'cursando' THEN 1 END) as materias_cursando
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id
+        WHERE a.matricula = %s
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula, c.nombre, a.cuatrimestre_actual, a.promedio_general
+        """
+        result = execute_query(query, (matricula,))
+        
+        if result and not isinstance(result, dict) and result:
+            row = result[0]
+            response = f"Progreso académico de {row['nombre_completo']} ({row['matricula']}):\n\n"
+            response += f"Carrera: {row['carrera']}\n"
+            response += f"Cuatrimestre actual: {row['cuatrimestre_actual']}\n"
+            response += f"Promedio general: {row['promedio_general']}\n"
+            response += f"Total materias: {row['total_materias']}\n"
+            response += f"Materias aprobadas: {row['materias_aprobadas']}\n"
+            response += f"Materias reprobadas: {row['materias_reprobadas']}\n"
+            response += f"Materias cursando: {row['materias_cursando']}\n"
+        else:
+            response = f"No se encontró información para la matrícula {matricula}."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetAllSubjects(Action):
+    def name(self) -> Text:
+        return "action_get_all_subjects"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT 
+            asig.nombre as asignatura,
+            asig.codigo,
+            c.nombre as carrera,
+            asig.cuatrimestre,
+            asig.horas_teoricas,
+            asig.horas_practicas
+        FROM asignaturas asig
+        JOIN carreras c ON asig.carrera_id = c.id
+        WHERE asig.activa = 1
+        ORDER BY c.nombre, asig.cuatrimestre, asig.nombre
+        """
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron asignaturas activas."
+            else:
+                response = f"Asignaturas del sistema ({len(result)} materias):\n\n"
+                current_career = None
+                current_cuatrimestre = None
+                
+                for row in result:
+                    if current_career != row['carrera']:
+                        current_career = row['carrera']
+                        response += f"{current_career}:\n"
+                        current_cuatrimestre = None
+                    
+                    if current_cuatrimestre != row['cuatrimestre']:
+                        current_cuatrimestre = row['cuatrimestre']
+                        response += f"  Cuatrimestre {row['cuatrimestre']}:\n"
+                    
+                    response += f"    - {row['asignatura']} ({row['codigo']})\n"
+                    response += f"      Horas: {row['horas_teoricas']}T + {row['horas_practicas']}P\n"
+        else:
+            response = "No pude obtener información de las asignaturas."
+        
+        dispatcher.utter_message(text=response)
+        return []    
+

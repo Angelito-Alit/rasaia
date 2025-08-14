@@ -181,6 +181,27 @@ nlu:
     - ver alumno [Sofía Morales](nombre_estudiante)
     - consultar [2023789456](matricula)
     - datos completos de [Roberto Silva](nombre_estudiante)
+    - información del [2022371110](matricula)
+    - información de [2022371110](matricula)
+    - info de [2022371110](matricula)
+    - datos de [2022371110](matricula)
+    - [2022371110](matricula)
+    - información del alumno [2022371110](matricula)
+    - información del estudiante [2022371110](matricula)
+    - dame información de [2022371110](matricula)
+    - consulta [2022371110](matricula)
+    - buscar [2022371110](matricula)
+    - ver [2022371110](matricula)
+    - revisar [2022371110](matricula)
+    - [2023090007](matricula)
+    - [2024100011](matricula)
+    - [2025123456](matricula)
+    - información de la matrícula [2022371110](matricula)
+    - información de la matricula [2022371110](matricula)
+    - dame datos de [2022371110](matricula)
+    - quiero ver [2022371110](matricula)
+    - búscame [2022371110](matricula)
+    - buscame [2022371110](matricula)
 
 - intent: ask_student_grades
   examples: |
@@ -230,6 +251,20 @@ nlu:
     - ficha del profesor [Carmen Ruiz](nombre_profesor)
     - estado del maestro [Roberto Díaz](nombre_profesor)
     - consultar empleado [2ASFG5G555](numero_empleado)
+    - información del [EMP001](numero_empleado)
+    - información de [EMP001](numero_empleado)
+    - info de [EMP001](numero_empleado)
+    - datos de [EMP001](numero_empleado)
+    - [EMP001](numero_empleado)
+    - [PROF123](numero_empleado)
+    - [DOC456](numero_empleado)
+    - información del profesor [EMP001](numero_empleado)
+    - información del maestro [PROF123](numero_empleado)
+    - dame información de [EMP001](numero_empleado)
+    - consulta [PROF123](numero_empleado)
+    - buscar [DOC456](numero_empleado)
+    - ver [EMP001](numero_empleado)
+    - revisar [PROF123](numero_empleado)
 
 - intent: ask_group_info
   examples: |
@@ -1536,3 +1571,30 @@ nlu:
     - información detallada del alumno [2023789456](matricula)
     - dame toda la información de [2024111222](matricula)
     - detalles completos del estudiante [2025333444](matricula)
+
+- intent: ask_all_teachers
+  examples: |
+    - lista de profesores
+    - que profesores hay
+    - qué profesores hay
+    - dame todos los profesores
+    - lista completa de profesores
+    - profesores del sistema
+    - quienes son los profesores
+    - quiénes son los profesores
+    - lista de maestros
+    - todos los maestros
+    - profesores activos
+    - docentes del sistema
+    - maestros activos
+    - lista de docentes
+    - profesores con sus matrículas
+    - profesores con sus matriculas
+    - catálogo de profesores
+    - catalogo de profesores
+    - directorio de profesores
+    - personal docente
+    - plantilla de profesores
+    - profesores registrados
+    - listado de profesores
+    - profesores disponibles

@@ -409,3 +409,8 @@ stories:
   steps:
   - intent: ask_student_detailed_info
   - action: action_get_student_detailed_info
+
+- story: all teachers inquiry
+  steps:
+  - intent: ask_all_teachers
+  - action: action_get_all_teachers

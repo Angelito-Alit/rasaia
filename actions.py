@@ -81,6 +81,42 @@ class ActionGetStudentsByCareer(Action):
         dispatcher.utter_message(text=response)
         return []
 
+class ActionGetAllTeachers(Action):
+    def name(self) -> Text:
+        return "action_get_all_teachers"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        query = """
+        SELECT p.numero_empleado, 
+               CONCAT(u.nombre, ' ', u.apellido) as nombre_completo,
+               c.nombre as carrera
+        FROM profesores p
+        JOIN usuarios u ON p.usuario_id = u.id
+        JOIN carreras c ON p.carrera_id = c.id
+        WHERE p.activo = TRUE AND u.activo = TRUE
+        ORDER BY c.nombre, u.apellido, u.nombre
+        """
+        
+        result = execute_query(query)
+        
+        if result and not isinstance(result, dict):
+            if not result:
+                response = "No se encontraron profesores activos en el sistema."
+            else:
+                response = f"Lista de profesores activos ({len(result)} profesores):\n\n"
+                current_carrera = None
+                for i, row in enumerate(result, 1):
+                    if current_carrera != row['carrera']:
+                        current_carrera = row['carrera']
+                        response += f"\n{current_carrera}:\n"
+                    
+                    response += f"  • {row['nombre_completo']} - {row['numero_empleado']}\n"
+        else:
+            response = "No pude obtener la información de profesores."
+        
+        dispatcher.utter_message(text=response)
+        return []
+
 class ActionGetStudentByNameOrId(Action):
     def name(self) -> Text:
         return "action_get_student_by_name_or_id"
@@ -88,13 +124,22 @@ class ActionGetStudentByNameOrId(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         matricula = next(tracker.get_latest_entity_values("matricula"), None)
         nombre_estudiante = next(tracker.get_latest_entity_values("nombre_estudiante"), None)
-        
+        user_message = tracker.latest_message.get('text', '')
+        if not matricula and not nombre_estudiante:
+            import re
+            # Buscar patrón de matrícula (10 dígitos que empiecen con 20)
+            matricula_pattern = re.search(r'\b(20\d{8})\b', user_message)
+            if matricula_pattern:
+                matricula = matricula_pattern.group(1)
+    
         if matricula:
             where_condition = "WHERE a.matricula = %s"
             params = [matricula]
+            search_term = matricula
         elif nombre_estudiante:
             where_condition = "WHERE CONCAT(u.nombre, ' ', u.apellido) LIKE %s"
             params = [f"%{nombre_estudiante}%"]
+            search_term = nombre_estudiante
         else:
             dispatcher.utter_message(text="Necesito el nombre o matrícula del estudiante para consultar su información.")
             return []
@@ -147,40 +192,31 @@ class ActionGetStudentByNameOrId(Action):
         if data['tutor_telefono']:
             response += f"Teléfono tutor personal: {data['tutor_telefono']}\n"
         
+        # Obtener calificaciones
         query_calificaciones = f"""
-        SELECT 
-            asig.nombre as asignatura,
-            ed.numero_parcial,
-            ed.calificacion,
-            ed.oportunidad,
-            ed.fecha_evaluacion,
-            cal.calificacion_final,
-            cal.estatus,
-            CONCAT(up.nombre, ' ', up.apellido) as profesor
-        FROM alumnos a
-        JOIN calificaciones cal ON a.id = cal.alumno_id
-        JOIN asignaturas asig ON cal.asignatura_id = asig.id
-        JOIN profesores p ON cal.profesor_id = p.id
-        JOIN usuarios up ON p.usuario_id = up.id
-        LEFT JOIN evaluaciones_detalle ed ON cal.id = ed.calificacion_id
-        {where_condition}
-        ORDER BY asig.nombre, ed.numero_parcial, ed.fecha_evaluacion
+            SELECT 
+                asig.nombre as asignatura,
+                cal.calificacion_final,
+                cal.estatus,
+                CONCAT(up.nombre, ' ', up.apellido) as profesor
+            FROM alumnos a
+            JOIN calificaciones cal ON a.id = cal.alumno_id
+            JOIN asignaturas asig ON cal.asignatura_id = asig.id
+            JOIN profesores p ON cal.profesor_id = p.id
+            JOIN usuarios up ON p.usuario_id = up.id
+            {where_condition}
+            ORDER BY asig.nombre
         """
         
         calificaciones = execute_query(query_calificaciones, params)
         
         if calificaciones and not isinstance(calificaciones, dict):
             response += f"\nAsignaturas y calificaciones ({len(calificaciones)} registros):\n"
-            current_subject = None
             for cal in calificaciones:
-                if current_subject != cal['asignatura']:
-                    current_subject = cal['asignatura']
-                    response += f"\n  {cal['asignatura']} - Prof. {cal['profesor']}\n"
-                    response += f"    Calificación final: {cal['calificacion_final']} - Estatus: {cal['estatus']}\n"
-                
-                if cal['numero_parcial'] and cal['calificacion']:
-                    response += f"    Parcial {cal['numero_parcial']} ({cal['oportunidad']}): {cal['calificacion']}\n"
+                response += f"  • {cal['asignatura']}: {cal['calificacion_final']} ({cal['estatus']})\n"
+                response += f"    Profesor: {cal['profesor']}\n"
         
+        # Obtener índices académicos
         query_indices_alumno = f"""
         SELECT 
             COUNT(cal.id) as total_materias,
@@ -208,7 +244,8 @@ class ActionGetStudentByNameOrId(Action):
         
         dispatcher.utter_message(text=response)
         return []
-    
+
+ 
 class ActionGetAllStudents(Action):
     def name(self) -> Text:
         return "action_get_all_students"
@@ -4945,6 +4982,28 @@ class ActionGetStudentDetailedInfo(Action):
                 
                 response += f"  - {cal['asignatura']}: {cal['calificacion_final']} ({cal['estatus']})\n"
                 response += f"    Grupo: {cal['grupo']} - Profesor: {cal['profesor']}\n"
+        
+        dispatcher.utter_message(text=response)
+        return []
+    
+class ActionFallback(Action):
+    def name(self) -> Text:
+        return "action_fallback"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        response = "No entendí completamente tu pregunta. Puedo ayudarte con información sobre:\n\n"
+        response += "• Estudiantes (por nombre, matrícula, carrera, estado académico)\n"
+        response += "• Profesores (lista completa, por nombre, número empleado)\n"
+        response += "• Grupos (información, tutores, horarios, promedios)\n"
+        response += "• Calificaciones y rendimiento académico\n"
+        response += "• Reportes de riesgo y estudiantes vulnerables\n"
+        response += "• Estadísticas generales del sistema\n\n"
+        response += "Ejemplos de consultas:\n"
+        response += "- 'información del alumno Juan Pérez'\n"
+        response += "- 'calificaciones del estudiante 2022371156'\n"
+        response += "- 'lista de profesores'\n"
+        response += "- 'estudiantes en riesgo académico'\n\n"
+        response += "¿Podrías ser más específico en tu consulta?"
         
         dispatcher.utter_message(text=response)
         return []

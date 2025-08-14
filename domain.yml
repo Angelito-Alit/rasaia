@@ -102,6 +102,7 @@ intents:
   - ask_group_detailed_info
   - ask_teacher_detailed_info
   - ask_student_detailed_info
+  - ask_all_teachers
 
 entities:
   - matricula
@@ -369,6 +370,7 @@ actions:
   - action_get_group_detailed_info
   - action_get_teacher_detailed_info
   - action_get_student_detailed_info
+  - action_get_all_teachers
 
 session_config:
   session_expiration_time: 60

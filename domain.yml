@@ -99,6 +99,9 @@ intents:
   - ask_teachers_with_tutoring
   - ask_teachers_without_tutoring
   - ask_all_students
+  - ask_group_detailed_info
+  - ask_teacher_detailed_info
+  - ask_student_detailed_info
 
 entities:
   - matricula
@@ -363,6 +366,9 @@ actions:
   - action_get_teachers_with_tutoring
   - action_get_teachers_without_tutoring
   - action_get_all_students
+  - action_get_group_detailed_info
+  - action_get_teacher_detailed_info
+  - action_get_student_detailed_info
 
 session_config:
   session_expiration_time: 60

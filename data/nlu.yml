@@ -1497,3 +1497,42 @@ nlu:
     - estudiantes por carrera y grupo
     - organización de estudiantes
     - estructura de alumnos por carrera
+
+- intent: ask_group_detailed_info
+  examples: |
+    - dame los alumnos que hay en este grupo [IDGS10](grupo)
+    - información completa del grupo [IRIC07](grupo)
+    - dame información detallada del grupo [TSUMA05](grupo)
+    - información completa de [IDGS08](grupo)
+    - datos completos del grupo [IRIC09](grupo)
+    - información del grupo [TSUMA07](grupo) con nombres y matrículas
+    - alumnos del grupo [IDGS11](grupo) con sus calificaciones
+    - información detallada de [IRIC06](grupo)
+    - dame toda la información del grupo [TSUMA08](grupo)
+    - detalles completos del grupo [IDGS09](grupo)
+
+- intent: ask_teacher_detailed_info
+  examples: |
+    - dame información de este profesor [123SAF67G9](numero_empleado)
+    - información completa del profesor [PA652S64](numero_empleado)
+    - datos detallados del maestro [O7U5R4545](numero_empleado)
+    - información del docente [Q5S4H7](numero_empleado)
+    - detalles del profesor [O5KLH41F](numero_empleado)
+    - información completa de [LJ428VF4](numero_empleado)
+    - datos del maestro [ASG441H2J4](numero_empleado)
+    - información detallada del profesor [51512SAFH](numero_empleado)
+    - dame toda la información de [J5KL724J89](numero_empleado)
+    - detalles completos del docente [2ASFG5G555](numero_empleado)
+
+- intent: ask_student_detailed_info
+  examples: |
+    - dame información de este alumno [2022371110](matricula)
+    - información completa del estudiante [2023090007](matricula)
+    - datos detallados del alumno [2024100011](matricula)
+    - información del estudiante [2022371156](matricula)
+    - detalles del alumno [2023456789](matricula)
+    - información completa de [2024567890](matricula)
+    - datos del estudiante [2022456789](matricula)
+    - información detallada del alumno [2023789456](matricula)
+    - dame toda la información de [2024111222](matricula)
+    - detalles completos del estudiante [2025333444](matricula)

@@ -4552,3 +4552,399 @@ class ActionGetAllSubjects(Action):
         dispatcher.utter_message(text=response)
         return []    
 
+class ActionGetGroupDetailedInfo(Action):
+    def name(self) -> Text:
+        return "action_get_group_detailed_info"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        grupo = next(tracker.get_latest_entity_values("grupo"), None)
+        
+        if not grupo:
+            dispatcher.utter_message(text="Necesito el código del grupo para consultar su información detallada.")
+            return []
+        
+        query_grupo = """
+        SELECT g.codigo, g.cuatrimestre, g.ciclo_escolar, c.nombre as carrera,
+               COUNT(ag.alumno_id) as cantidad_alumnos,
+               CONCAT(ut.nombre, ' ', ut.apellido) as tutor_nombre,
+               p.numero_empleado as tutor_matricula
+        FROM grupos g
+        JOIN carreras c ON g.carrera_id = c.id
+        LEFT JOIN profesores p ON g.profesor_tutor_id = p.id
+        LEFT JOIN usuarios ut ON p.usuario_id = ut.id
+        LEFT JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = TRUE
+        WHERE g.codigo = %s AND g.activo = TRUE
+        GROUP BY g.id
+        """
+        
+        grupo_info = execute_query(query_grupo, (grupo,))
+        
+        if not grupo_info or isinstance(grupo_info, dict) or not grupo_info:
+            dispatcher.utter_message(text=f"No encontré el grupo {grupo}.")
+            return []
+        
+        info_grupo = grupo_info[0]
+        
+        query_alumnos = """
+        SELECT u.nombre, u.apellido, a.matricula,
+               COUNT(cal.id) as total_materias,
+               COUNT(CASE WHEN cal.estatus = 'aprobado' THEN 1 END) as aprobadas,
+               COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as reprobadas,
+               ROUND((COUNT(CASE WHEN cal.estatus = 'aprobado' THEN 1 END) * 100.0 / COUNT(cal.id)), 2) as indice_aprobacion,
+               ROUND((COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) * 100.0 / COUNT(cal.id)), 2) as indice_reprobacion
+        FROM grupos g
+        JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = TRUE
+        JOIN alumnos a ON ag.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        LEFT JOIN calificaciones cal ON a.id = cal.alumno_id
+        WHERE g.codigo = %s
+        GROUP BY a.id, u.nombre, u.apellido, a.matricula
+        ORDER BY u.apellido, u.nombre
+        """
+        
+        alumnos = execute_query(query_alumnos, (grupo,))
+        
+        query_asignaturas = """
+        SELECT DISTINCT asig.nombre as asignatura
+        FROM grupos g
+        JOIN profesor_asignatura_grupo pag ON g.id = pag.grupo_id AND pag.activo = TRUE
+        JOIN asignaturas asig ON pag.asignatura_id = asig.id
+        WHERE g.codigo = %s
+        ORDER BY asig.nombre
+        """
+        
+        asignaturas = execute_query(query_asignaturas, (grupo,))
+        
+        query_calificaciones = """
+        SELECT CONCAT(u.nombre, ' ', u.apellido) as alumno,
+               a.matricula,
+               asig.nombre as asignatura,
+               cal.calificacion_final,
+               cal.estatus
+        FROM grupos g
+        JOIN alumnos_grupos ag ON g.id = ag.grupo_id AND ag.activo = TRUE
+        JOIN alumnos a ON ag.alumno_id = a.id
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN calificaciones cal ON a.id = cal.alumno_id AND cal.grupo_id = g.id
+        JOIN asignaturas asig ON cal.asignatura_id = asig.id
+        WHERE g.codigo = %s
+        ORDER BY u.apellido, u.nombre, asig.nombre
+        """
+        
+        calificaciones = execute_query(query_calificaciones, (grupo,))
+        
+        total_materias_grupo = len(asignaturas) if asignaturas and not isinstance(asignaturas, dict) else 0
+        total_calificaciones = len(calificaciones) if calificaciones and not isinstance(calificaciones, dict) else 0
+        aprobadas_grupo = len([c for c in calificaciones if c['estatus'] == 'aprobado']) if calificaciones and not isinstance(calificaciones, dict) else 0
+        reprobadas_grupo = len([c for c in calificaciones if c['estatus'] == 'reprobado']) if calificaciones and not isinstance(calificaciones, dict) else 0
+        
+        indice_aprobacion_grupo = round((aprobadas_grupo * 100.0 / total_calificaciones), 2) if total_calificaciones > 0 else 0
+        indice_reprobacion_grupo = round((reprobadas_grupo * 100.0 / total_calificaciones), 2) if total_calificaciones > 0 else 0
+        
+        response = f"Información detallada del grupo {info_grupo['codigo']}:\n\n"
+        response += f"Carrera: {info_grupo['carrera']}\n"
+        response += f"Cuatrimestre: {info_grupo['cuatrimestre']}\n"
+        response += f"Ciclo escolar: {info_grupo['ciclo_escolar']}\n"
+        response += f"Cantidad de alumnos: {info_grupo['cantidad_alumnos']}\n"
+        response += f"Tutor: {info_grupo['tutor_nombre'] or 'Sin asignar'}\n"
+        response += f"Matricula del tutor: {info_grupo['tutor_matricula'] or 'Sin asignar'}\n"
+        response += f"Indice de aprobacion del grupo: {indice_aprobacion_grupo}%\n"
+        response += f"Indice de reprobacion del grupo: {indice_reprobacion_grupo}%\n\n"
+        
+        if asignaturas and not isinstance(asignaturas, dict):
+            response += f"Asignaturas ({len(asignaturas)}):\n"
+            for asig in asignaturas:
+                response += f"  - {asig['asignatura']}\n"
+            response += "\n"
+        
+        if alumnos and not isinstance(alumnos, dict):
+            response += "Alumnos del grupo:\n"
+            for i, alumno in enumerate(alumnos, 1):
+                response += f"{i}. {alumno['nombre']} {alumno['apellido']} ({alumno['matricula']})\n"
+                response += f"   Total materias: {alumno['total_materias']}\n"
+                response += f"   Aprobadas: {alumno['aprobadas']}\n"
+                response += f"   Reprobadas: {alumno['reprobadas']}\n"
+                response += f"   Indice aprobacion: {alumno['indice_aprobacion']}%\n"
+                response += f"   Indice reprobacion: {alumno['indice_reprobacion']}%\n\n"
+        
+        if calificaciones and not isinstance(calificaciones, dict):
+            response += "Calificaciones por alumno y asignatura:\n"
+            current_student = None
+            for cal in calificaciones:
+                student_key = f"{cal['alumno']} ({cal['matricula']})"
+                if current_student != student_key:
+                    current_student = student_key
+                    response += f"\n{student_key}:\n"
+                response += f"  - {cal['asignatura']}: {cal['calificacion_final']} ({cal['estatus']})\n"
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetTeacherDetailedInfo(Action):
+    def name(self) -> Text:
+        return "action_get_teacher_detailed_info"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        numero_empleado = next(tracker.get_latest_entity_values("numero_empleado"), None)
+        
+        if not numero_empleado:
+            dispatcher.utter_message(text="Necesito el número de empleado del profesor para consultar su información detallada.")
+            return []
+        
+        query_profesor = """
+        SELECT p.numero_empleado, u.nombre, u.apellido, u.correo,
+               p.titulo_academico, p.especialidad, p.experiencia_años,
+               c.nombre as carrera, p.fecha_contratacion
+        FROM profesores p
+        JOIN usuarios u ON p.usuario_id = u.id
+        JOIN carreras c ON p.carrera_id = c.id
+        WHERE p.numero_empleado = %s AND p.activo = TRUE
+        """
+        
+        profesor_info = execute_query(query_profesor, (numero_empleado,))
+        
+        if not profesor_info or isinstance(profesor_info, dict) or not profesor_info:
+            dispatcher.utter_message(text=f"No encontré información para el profesor {numero_empleado}.")
+            return []
+        
+        info_profesor = profesor_info[0]
+        
+        query_reprobados = """
+        SELECT CONCAT(ua.nombre, ' ', ua.apellido) as alumno_nombre,
+               a.matricula,
+               g.codigo as grupo,
+               asig.nombre as asignatura,
+               cal.calificacion_final
+        FROM profesores p
+        JOIN calificaciones cal ON p.id = cal.profesor_id
+        JOIN alumnos a ON cal.alumno_id = a.id
+        JOIN usuarios ua ON a.usuario_id = ua.id
+        JOIN grupos g ON cal.grupo_id = g.id
+        JOIN asignaturas asig ON cal.asignatura_id = asig.id
+        WHERE p.numero_empleado = %s AND cal.estatus = 'reprobado'
+        ORDER BY g.codigo, ua.apellido
+        """
+        
+        reprobados = execute_query(query_reprobados, (numero_empleado,))
+        
+        query_asignaturas = """
+        SELECT DISTINCT asig.nombre as asignatura, g.codigo as grupo
+        FROM profesores p
+        JOIN profesor_asignatura_grupo pag ON p.id = pag.profesor_id AND pag.activo = TRUE
+        JOIN asignaturas asig ON pag.asignatura_id = asig.id
+        JOIN grupos g ON pag.grupo_id = g.id
+        WHERE p.numero_empleado = %s
+        ORDER BY asig.nombre
+        """
+        
+        asignaturas = execute_query(query_asignaturas, (numero_empleado,))
+        
+        query_grupos = """
+        SELECT DISTINCT g.codigo as grupo, c.nombre as carrera,
+               CONCAT(ut.nombre, ' ', ut.apellido) as tutor_nombre,
+               pt.numero_empleado as tutor_matricula
+        FROM profesores p
+        JOIN profesor_asignatura_grupo pag ON p.id = pag.profesor_id AND pag.activo = TRUE
+        JOIN grupos g ON pag.grupo_id = g.id
+        JOIN carreras c ON g.carrera_id = c.id
+        LEFT JOIN profesores pt ON g.profesor_tutor_id = pt.id
+        LEFT JOIN usuarios ut ON pt.usuario_id = ut.id
+        WHERE p.numero_empleado = %s
+        ORDER BY c.nombre, g.codigo
+        """
+        
+        grupos = execute_query(query_grupos, (numero_empleado,))
+        
+        query_indices = """
+        SELECT 
+            COUNT(cal.id) as total_calificaciones,
+            COUNT(CASE WHEN cal.estatus = 'aprobado' THEN 1 END) as aprobados,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as reprobados,
+            ROUND((COUNT(CASE WHEN cal.estatus = 'aprobado' THEN 1 END) * 100.0 / COUNT(cal.id)), 2) as indice_aprobacion,
+            ROUND((COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) * 100.0 / COUNT(cal.id)), 2) as indice_reprobacion
+        FROM profesores p
+        JOIN calificaciones cal ON p.id = cal.profesor_id
+        WHERE p.numero_empleado = %s
+        """
+        
+        indices = execute_query(query_indices, (numero_empleado,))
+        
+        response = f"Información detallada del profesor {info_profesor['nombre']} {info_profesor['apellido']}:\n\n"
+        response += f"Numero de empleado: {info_profesor['numero_empleado']}\n"
+        response += f"Correo: {info_profesor['correo']}\n"
+        response += f"Carrera: {info_profesor['carrera']}\n"
+        response += f"Titulo academico: {info_profesor['titulo_academico'] or 'No especificado'}\n"
+        response += f"Especialidad: {info_profesor['especialidad'] or 'No especificada'}\n"
+        response += f"Experiencia: {info_profesor['experiencia_años'] or 0} años\n"
+        response += f"Fecha contratacion: {info_profesor['fecha_contratacion']}\n\n"
+        
+        if indices and not isinstance(indices, dict) and indices:
+            ind = indices[0]
+            response += f"Indices academicos:\n"
+            response += f"Total evaluaciones: {ind['total_calificaciones']}\n"
+            response += f"Aprobados: {ind['aprobados']}\n"
+            response += f"Reprobados: {ind['reprobados']}\n"
+            response += f"Indice de aprobacion: {ind['indice_aprobacion']}%\n"
+            response += f"Indice de reprobacion: {ind['indice_reprobacion']}%\n\n"
+        
+        if asignaturas and not isinstance(asignaturas, dict):
+            response += f"Asignaturas que imparte ({len(asignaturas)}):\n"
+            for asig in asignaturas:
+                response += f"  - {asig['asignatura']} (Grupo {asig['grupo']})\n"
+            response += "\n"
+        
+        if grupos and not isinstance(grupos, dict):
+            response += f"Grupos a los que da clases ({len(grupos)}):\n"
+            for grupo in grupos:
+                response += f"  - Grupo {grupo['grupo']} ({grupo['carrera']})\n"
+                response += f"    Tutor: {grupo['tutor_nombre'] or 'Sin tutor'}\n"
+                response += f"    Matricula tutor: {grupo['tutor_matricula'] or 'Sin matricula'}\n"
+            response += "\n"
+        
+        if reprobados and not isinstance(reprobados, dict):
+            response += f"Alumnos reprobados ({len(reprobados)}):\n"
+            for rep in reprobados:
+                response += f"  - {rep['alumno_nombre']} ({rep['matricula']}) - Grupo {rep['grupo']}\n"
+                response += f"    Asignatura: {rep['asignatura']} - Calificacion: {rep['calificacion_final']}\n"
+        
+        dispatcher.utter_message(text=response)
+        return []
+
+class ActionGetStudentDetailedInfo(Action):
+    def name(self) -> Text:
+        return "action_get_student_detailed_info"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        matricula = next(tracker.get_latest_entity_values("matricula"), None)
+        
+        if not matricula:
+            dispatcher.utter_message(text="Necesito la matricula del estudiante para consultar su información detallada.")
+            return []
+        
+        query_alumno = """
+        SELECT a.matricula, u.nombre, u.apellido, u.correo,
+               a.cuatrimestre_actual, a.fecha_ingreso, a.telefono,
+               a.estado_alumno, c.nombre as carrera,
+               g.codigo as grupo_actual,
+               a.tutor_nombre, a.tutor_telefono,
+               CONCAT(pt.nombre, ' ', pt.apellido) as tutor_grupo,
+               pt_prof.numero_empleado as tutor_empleado
+        FROM alumnos a
+        JOIN usuarios u ON a.usuario_id = u.id
+        JOIN carreras c ON a.carrera_id = c.id
+        LEFT JOIN alumnos_grupos ag ON a.id = ag.alumno_id AND ag.activo = TRUE
+        LEFT JOIN grupos g ON ag.grupo_id = g.id
+        LEFT JOIN profesores pt_prof ON g.profesor_tutor_id = pt_prof.id
+        LEFT JOIN usuarios pt ON pt_prof.usuario_id = pt.id
+        WHERE a.matricula = %s
+        LIMIT 1
+        """
+        
+        alumno_info = execute_query(query_alumno, (matricula,))
+        
+        if not alumno_info or isinstance(alumno_info, dict) or not alumno_info:
+            dispatcher.utter_message(text=f"No encontré información para el estudiante con matricula {matricula}.")
+            return []
+        
+        info_alumno = alumno_info[0]
+        
+        query_asignaturas = """
+        SELECT DISTINCT asig.nombre as asignatura
+        FROM alumnos a
+        JOIN calificaciones cal ON a.id = cal.alumno_id
+        JOIN asignaturas asig ON cal.asignatura_id = asig.id
+        WHERE a.matricula = %s
+        ORDER BY asig.nombre
+        """
+        
+        asignaturas = execute_query(query_asignaturas, (matricula,))
+        
+        query_calificaciones = """
+        SELECT 
+            asig.nombre as asignatura,
+            cal.calificacion_final,
+            cal.estatus,
+            cal.ciclo_escolar,
+            g.codigo as grupo,
+            CONCAT(up.nombre, ' ', up.apellido) as profesor
+        FROM alumnos a
+        JOIN calificaciones cal ON a.id = cal.alumno_id
+        JOIN asignaturas asig ON cal.asignatura_id = asig.id
+        JOIN grupos g ON cal.grupo_id = g.id
+        JOIN profesores p ON cal.profesor_id = p.id
+        JOIN usuarios up ON p.usuario_id = up.id
+        WHERE a.matricula = %s
+        ORDER BY cal.ciclo_escolar DESC, asig.nombre
+        """
+        
+        calificaciones = execute_query(query_calificaciones, (matricula,))
+        
+        query_indices = """
+        SELECT 
+            COUNT(cal.id) as total_materias,
+            COUNT(CASE WHEN cal.estatus = 'aprobado' THEN 1 END) as aprobadas,
+            COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) as reprobadas,
+            COUNT(CASE WHEN cal.estatus = 'cursando' THEN 1 END) as cursando,
+            ROUND((COUNT(CASE WHEN cal.estatus = 'aprobado' THEN 1 END) * 100.0 / COUNT(cal.id)), 2) as indice_aprobacion,
+            ROUND((COUNT(CASE WHEN cal.estatus = 'reprobado' THEN 1 END) * 100.0 / COUNT(cal.id)), 2) as indice_reprobacion
+        FROM alumnos a
+        JOIN calificaciones cal ON a.id = cal.alumno_id
+        WHERE a.matricula = %s
+        """
+        
+        indices = execute_query(query_indices, (matricula,))
+        
+        response = f"Información detallada del estudiante {info_alumno['nombre']} {info_alumno['apellido']}:\n\n"
+        response += f"Matricula: {info_alumno['matricula']}\n"
+        response += f"Correo: {info_alumno['correo']}\n"
+        response += f"Estado: {info_alumno['estado_alumno']}\n"
+        response += f"Carrera: {info_alumno['carrera']}\n"
+        response += f"Cuatrimestre: {info_alumno['cuatrimestre_actual']}\n"
+        response += f"Grupo: {info_alumno['grupo_actual'] or 'Sin asignar'}\n"
+        response += f"Fecha ingreso: {info_alumno['fecha_ingreso']}\n"
+        
+        if info_alumno['telefono']:
+            response += f"Telefono: {info_alumno['telefono']}\n"
+        
+        if info_alumno['tutor_grupo']:
+            response += f"Tutor del grupo: {info_alumno['tutor_grupo']}\n"
+            response += f"Matricula del tutor: {info_alumno['tutor_empleado']}\n"
+        else:
+            response += f"Tutor del grupo: Sin asignar\n"
+        
+        if info_alumno['tutor_nombre']:
+            response += f"Tutor personal: {info_alumno['tutor_nombre']}\n"
+        if info_alumno['tutor_telefono']:
+            response += f"Telefono tutor personal: {info_alumno['tutor_telefono']}\n"
+        
+        response += "\n"
+        
+        if indices and not isinstance(indices, dict) and indices:
+            ind = indices[0]
+            response += f"Indices academicos:\n"
+            response += f"Total materias: {ind['total_materias']}\n"
+            response += f"Aprobadas: {ind['aprobadas']}\n"
+            response += f"Reprobadas: {ind['reprobadas']}\n"
+            response += f"Cursando: {ind['cursando']}\n"
+            response += f"Indice de aprobacion: {ind['indice_aprobacion']}%\n"
+            response += f"Indice de reprobacion: {ind['indice_reprobacion']}%\n\n"
+        
+        if asignaturas and not isinstance(asignaturas, dict):
+            response += f"Asignaturas ({len(asignaturas)}):\n"
+            for asig in asignaturas:
+                response += f"  - {asig['asignatura']}\n"
+            response += "\n"
+        
+        if calificaciones and not isinstance(calificaciones, dict):
+            response += f"Calificaciones y asignaturas ({len(calificaciones)} registros):\n"
+            current_cycle = None
+            for cal in calificaciones:
+                if current_cycle != cal['ciclo_escolar']:
+                    current_cycle = cal['ciclo_escolar']
+                    response += f"\n{current_cycle}:\n"
+                
+                response += f"  - {cal['asignatura']}: {cal['calificacion_final']} ({cal['estatus']})\n"
+                response += f"    Grupo: {cal['grupo']} - Profesor: {cal['profesor']}\n"
+        
+        dispatcher.utter_message(text=response)
+        return []

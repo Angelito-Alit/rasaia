@@ -394,3 +394,18 @@ stories:
   steps:
   - intent: ask_all_students
   - action: action_get_all_students
+
+- story: group detailed information request
+  steps:
+  - intent: ask_group_detailed_info
+  - action: action_get_group_detailed_info
+
+- story: teacher detailed information request
+  steps:
+  - intent: ask_teacher_detailed_info
+  - action: action_get_teacher_detailed_info
+
+- story: student detailed information request
+  steps:
+  - intent: ask_student_detailed_info
+  - action: action_get_student_detailed_info
